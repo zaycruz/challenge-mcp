@@ -1,7 +1,7 @@
 /**
  * POST /run {ref?, url?}  (Authorization: Bearer $REPRO_TOKEN)
  * Starts a fresh node:22 container, clones github.com/zaycruz/challenge-mcp at `ref` (default main), runs
- * `npm ci` and `node e2e/run.mjs <url>`, and returns each step's exit code and output plus runs/latest.md.
+ * `npm ci`, `node e2e/run.mjs <url>` and `node scripts/reproduce-numbers.mjs <url>`, and returns each step's exit code and output plus runs/latest.md and runs/numbers-latest.md.
  * The token only stops strangers from spending the live C5 model calls the E2E makes.
  */
 import { DurableObject } from "cloudflare:workers";
@@ -35,16 +35,19 @@ export class Runner extends DurableObject<Env> {
     };
     const env = await sh("uname -srm; cat /etc/os-release | head -1; node --version; npm --version; git --version; nproc");
     const clone = await sh(`rm -rf repo && git clone --quiet ${REPO} repo && cd repo && git checkout --quiet ${ref} && git log -1 --format='%H %s'`);
-    let latest = "";
+    let latest = "", numbers = "";
     if (clone.exitCode === 0) {
       const ci = await sh("cd repo && npm ci --no-audit --no-fund 2>&1 | tail -5");
       if (ci.exitCode === 0) {
         await sh(`cd repo && node e2e/run.mjs ${url}`);
         latest = (await sh("cat repo/runs/latest.md")).output;
+        // Every README headline number, regenerated from the module APIs and diffed against the live server.
+        await sh(`cd repo && node scripts/reproduce-numbers.mjs ${url}`);
+        numbers = (await sh("cat repo/runs/numbers-latest.md")).output;
       }
     }
     await c.destroy().catch(() => {});
-    return { repo: REPO, ref, url, image: IMAGE, environment: env.output.trim(), steps, latestMd: latest };
+    return { repo: REPO, ref, url, image: IMAGE, environment: env.output.trim(), steps, latestMd: latest, numbersMd: numbers };
   }
 }
 
