@@ -24,6 +24,12 @@ Connect a client: add `https://emerge-mcp.raava.dev/mcp` as a custom connector i
 
 **Auth.** The endpoint is open on purpose, so judges can connect without a key. The data is synthetic, or de-identified MEPS for C1. A bearer key (`Authorization: Bearer <key>`) is optional and raises the limit on the three tools that call a live model (`score_conversation`, `coaching_cue`, `glucose_advice`): 60 calls per minute per key instead of 20 per minute per client IP. An unknown key gets 401. Setting `REQUIRE_KEY=1` closes anonymous access. See **PHI path** below.
 
+## How it works
+
+**Technical architecture:** the MCP endpoint, its tools, the module APIs each tool calls and the fallbacks, each box checked against this repo.
+
+![MCP server technical architecture](docs/arch-mcp.png)
+
 ---
 
 <!-- fold: reference below -->
