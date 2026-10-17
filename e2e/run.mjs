@@ -43,6 +43,8 @@ check("triage lists urgent C3 first", triage.rows?.[0]?.urgent === true && triag
 check("triage rows have rank, cohort and their own reason", triage.rows?.every((r, i) => r.rank === i + 1 && r.cohort && r.cohortName && r.reason?.startsWith(r.cohortName)) && new Set(triage.rows.map((r) => r.reason)).size === triage.rows.length);
 check("triage mixes cohorts in the top 10", new Set(triage.rows?.map((r) => r.cohort)).size === 4, triage.rows?.map((r) => r.cohort).join(","));
 check("triage says cohorts are not joined", triage.cohortsJoined === false && /not joined/.test(calls.at(-1).summary));
+check("triage rows carry horizon and scale", triage.rows?.every((r) => r.horizon && r.scale), [...new Set(triage.rows?.map((r) => `${r.cohort}: ${r.horizon}`))].join("; "));
+check("triage says risks are not comparable across cohorts", triage.comparableAcrossCohorts === false && /not comparable across cohorts/.test(calls.at(-1).summary));
 const triageMax = await run("triage_today", { limit: 25, includeWatch: true });
 check("triage caps at 25", triageMax.rows?.length === 25);
 await run("triage_today", { limit: 26 }, true);
@@ -66,6 +68,7 @@ for (const m of ["c1", "c3", "c4", "c5"]) {
 const charts = await run("get_survivor", { survivorId: ids.c3, includeCharts: true });
 check("get_survivor c3 charts trimmed to 14 days", charts.chartsLast14Days?.dates?.length === 14);
 await run("get_survivor", { survivorId: "c1-NOPE" }, true);
+check("errors do not leak upstream paths", !/\/api\/|https?:\/\//.test(calls.at(-1).summary), calls.at(-1).summary);
 await run("get_survivor", { survivorId: "x9-123" }, true);
 
 const ov = await run("patient_overview", { survivorId: ids.c3 });
@@ -75,9 +78,13 @@ for (const m of ["c1", "c3", "c4"]) {
   const d = await run("module_metrics", { module: m });
   if (m === "c1") {
     check("module_metrics c1 reads the live finalModel", d.finalModel?.key === "forest" && d.metrics?.forest?.auroc?.value > 0.7 && !("logistic" in (d.metrics ?? {})), `${d.finalModel?.key} AUROC ${d.metrics?.forest?.auroc?.value?.toFixed(3)}`);
-    check("module_metrics c1 gives the gain over baseline with a CI", Array.isArray(d.gainOverBaseline?.auroc?.ci95) && /AUROC 0\.713/.test(calls.at(-1).summary) && /Gain over baseline/.test(calls.at(-1).summary), calls.at(-1).summary.slice(0, 220));
+    check("module_metrics c1 gives the gain over baseline with a CI", Array.isArray(d.gainOverBaseline?.auroc?.ci95) && /optimistic/i.test(d.gainOverBaseline?.basis ?? ""), d.gainOverBaseline?.basis);
+    const n = d.headlineGain?.auroc;
+    check("module_metrics c1 leads with the nested-CV gain and names both", n && Math.abs(n.gain - 0.04) < 0.006 && Array.isArray(n.ci95) && /nested CV/.test(calls.at(-1).summary) && /\+0\.039/.test(calls.at(-1).summary) && /\+0\.053/.test(calls.at(-1).summary) && calls.at(-1).summary.indexOf("nested CV") < calls.at(-1).summary.indexOf("+0.053"), calls.at(-1).summary.slice(0, 400));
   }
   if (m === "c3") check("module_metrics c3 has model and baseline", d.model?.weeks?.auc && d.scheduleBaseline?.weeks?.auc, `${d.model?.weeks?.auc} vs ${d.scheduleBaseline?.weeks?.auc}`);
+  check(`module_metrics ${m} has subgroups`, d.subgroups && Array.isArray(d.subgroups.rows) && d.subgroups.rows.length > 0, `${d.subgroups?.rows?.length} rows: ${[...new Set(d.subgroups?.rows?.map((r) => r.dimension))].join(", ")}`);
+  if (m === "c3") check("module_metrics c3 subgroups include language", d.subgroups?.rows?.some((r) => r.dimension === "Language"));
   check(`module_metrics ${m} is compact`, JSON.stringify(d).length < 12_000, `${JSON.stringify(d).length} chars`);
 }
 const adv = await run("glucose_advice", { survivorId: ids.c4 });
@@ -130,6 +137,16 @@ const s = await run("search", { query: "urgent" });
 check("search returns results with id/title/url", s.results?.length > 0 && s.results.every((r) => r.id && r.title && r.url), `${s.results?.length} results`);
 const f = await run("fetch", { id: s.results[0].id });
 check("fetch returns id/title/text/url", f.id && f.title && f.text && f.url);
+
+// Rate limit on the model-backed tools. Last, because it spends this IP's budget for a minute.
+// "hello there" fails to parse after the limit check, so these calls never reach the model.
+let limited = null;
+for (let i = 0; i < 16 && !limited; i++) {
+  const r = await client.callTool({ name: "score_conversation", arguments: { transcript: "hello there" } }).catch((e) => ({ content: [{ text: e.message }] }));
+  if (/Rate limit/.test(r.content?.[0]?.text ?? "")) limited = { afterCalls: i + 1, text: r.content[0].text };
+}
+calls.push({ name: "score_conversation x16 (rate limit probe)", args: { transcript: "hello there" }, isError: true, summary: limited?.text ?? "never limited" });
+check("model-backed tools are rate-limited per IP", !!limited, limited ? `limited after ${limited.afterCalls} probe calls: ${limited.text.slice(0, 120)}` : "never limited");
 
 await client.close();
 const failed = checks.filter((c) => !c.pass);

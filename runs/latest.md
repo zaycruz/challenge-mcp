@@ -1,124 +1,127 @@
-# challenge-mcp E2E 2026-10-17T16:57:50.691Z
+# challenge-mcp E2E 2026-10-17T17:07:41.937Z
 
-Server: https://emerge-mcp.raava.dev/mcp (emerge-challenge-mcp 0.2.0). 78/78 checks passed in 16.9 s.
-Full run: runs/2026-10-17T16-57-50-691Z.json
+Server: https://emerge-mcp.raava.dev/mcp (emerge-challenge-mcp 0.3.0). 87/87 checks passed in 26.0 s.
+Full run: runs/2026-10-17T17-07-41-937Z.json
 
 | | Check | Detail |
 |---|---|---|
-| PASS | initialize | {"name":"emerge-challenge-mcp","title":"Emerge Hackathon challenge APIs","version":"0.2.0"} |
+| PASS | initialize | {"name":"emerge-challenge-mcp","title":"Emerge Hackathon challenge APIs","version":"0.3.0"} |
 | PASS | tools/list has every tool | triage_today, list_survivors, get_survivor, patient_overview, module_metrics, glucose_advice, list_coaching_calls, get_coaching_call, score_conversation, coachi |
 | PASS | every tool has a non-empty input schema | all have properties |
 | PASS | default tools/list hides reveal_outcome_demo |  |
 | PASS | every tool is marked readOnlyHint |  |
 | PASS | every tool has a description of 40+ chars |  |
-| PASS | triage_today succeeds (360 ms) |  |
+| PASS | triage_today succeeds (233 ms) |  |
 | PASS | triage defaults to a short list (10) | 10 of 65 |
 | PASS | triage counts all 4 cohorts | {"c1":{"alert":40,"watch":43,"ok":116},"c3":{"alert":5,"watch":4,"ok":51},"c4":{"alert":11,"watch":10,"ok":29},"c5":{"alert":9,"watch":6,"ok":11}} |
 | PASS | triage lists urgent C3 first | c3-P03000 |
 | PASS | triage rows have rank, cohort and their own reason |  |
 | PASS | triage mixes cohorts in the top 10 | c3,c3,c1,c3,c4,c5,c1,c3,c4,c5 |
 | PASS | triage says cohorts are not joined |  |
-| PASS | triage_today succeeds (181 ms) |  |
+| PASS | triage rows carry horizon and scale | c3: next 7 days; c1: next 12 months; c4: recent CGM days; c5: latest coaching call |
+| PASS | triage says risks are not comparable across cohorts |  |
+| PASS | triage_today succeeds (196 ms) |  |
 | PASS | triage caps at 25 |  |
-| PASS | triage_today returns isError (113 ms) | MCP error -32602: Input validation error: Invalid arguments for tool triage_today: Too big: expected number to be <=25 at limit |
-| PASS | list_survivors succeeds (289 ms) |  |
+| PASS | triage_today returns isError (315 ms) | MCP error -32602: Input validation error: Invalid arguments for tool triage_today: Too big: expected number to be <=25 at limit |
+| PASS | list_survivors succeeds (90 ms) |  |
 | PASS | list_survivors c1 returns rows | 199 total, first c1-S71188550 |
-| PASS | list_survivors succeeds (209 ms) |  |
+| PASS | list_survivors succeeds (80 ms) |  |
 | PASS | list_survivors c3 returns rows | 60 total, first c3-P03000 |
-| PASS | list_survivors succeeds (262 ms) |  |
+| PASS | list_survivors succeeds (121 ms) |  |
 | PASS | list_survivors c4 returns rows | 50 total, first c4-N0072 |
-| PASS | list_survivors succeeds (192 ms) |  |
+| PASS | list_survivors succeeds (289 ms) |  |
 | PASS | list_survivors c5 returns rows | 26 total, first c5-P0002 |
-| PASS | list_survivors succeeds (138 ms) |  |
+| PASS | list_survivors succeeds (219 ms) |  |
 | PASS | list_survivors filters by text and status | 11 matched |
-| PASS | list_survivors succeeds (100 ms) |  |
+| PASS | list_survivors succeeds (317 ms) |  |
 | PASS | list_survivors urgentOnly | 2 urgent |
-| PASS | get_survivor succeeds (88 ms) |  |
+| PASS | get_survivor succeeds (57 ms) |  |
 | PASS | get_survivor c1 has headline + evidence/recommendations | c1-S71188550 |
-| PASS | get_survivor succeeds (103 ms) |  |
+| PASS | get_survivor succeeds (400 ms) |  |
 | PASS | get_survivor c3 has headline + evidence/recommendations | c3-P03000 |
 | PASS | get_survivor c3 hides the outcome |  |
-| PASS | get_survivor succeeds (128 ms) |  |
+| PASS | get_survivor succeeds (486 ms) |  |
 | PASS | get_survivor c4 has headline + evidence/recommendations | c4-N0072 |
-| PASS | get_survivor succeeds (103 ms) |  |
+| PASS | get_survivor succeeds (160 ms) |  |
 | PASS | get_survivor c5 has headline + evidence/recommendations | c5-P0002 |
-| PASS | get_survivor succeeds (113 ms) |  |
+| PASS | get_survivor succeeds (296 ms) |  |
 | PASS | get_survivor c3 charts trimmed to 14 days |  |
-| PASS | get_survivor returns isError (145 ms) | Error: Not found. /api/c1/survivors/c1-NOPE: HTTP 404 survivor not found |
-| PASS | get_survivor returns isError (242 ms) | Error: survivorId must start with c1-, c3-, c4- or c5- (got "x9-123") |
-| PASS | patient_overview succeeds (194 ms) |  |
+| PASS | get_survivor returns isError (178 ms) | Error: Not found. C1 Care Team Risk returned 404: survivor not found |
+| PASS | errors do not leak upstream paths | Error: Not found. C1 Care Team Risk returned 404: survivor not found |
+| PASS | get_survivor returns isError (49 ms) | Error: survivorId must start with c1-, c3-, c4- or c5- (got "x9-123") |
+| PASS | patient_overview succeeds (174 ms) |  |
 | PASS | patient_overview says ids do not join | {"c1":{"enrolled":false},"c3":{"enrolled":true,"survivorId":"c3-P03000","status":"alert","headline":"Urgent: ER or hospital risk 10% in the next 7 days, about 9 |
-| PASS | module_metrics succeeds (178 ms) |  |
+| PASS | module_metrics succeeds (960 ms) |  |
 | PASS | module_metrics c1 reads the live finalModel | forest AUROC 0.713 |
-| PASS | module_metrics c1 gives the gain over baseline with a CI | C1 live model: Random forest (300 trees (forest). AUROC 0.713 (95% CI 0.662 to 0.764) vs baseline 0.659, out-of-fold on the development survivors. Gain over bas |
-| PASS | module_metrics c1 is compact | 4430 chars |
-| PASS | module_metrics succeeds (159 ms) |  |
+| PASS | module_metrics c1 gives the gain over baseline with a CI | out-of-fold, forest vs baseline on the same repeated 5-fold CV. Optimistic: the model search chose forest using these folds. Use headlineGain (nested CV) as the |
+| PASS | module_metrics c1 leads with the nested-CV gain and names both | C1 live model: Random forest (300 trees (forest). Honest estimate (nested CV, the model search re-run inside each outer fold): AUROC 0.711 vs baseline 0.672, ga |
+| PASS | module_metrics c1 has subgroups | 19 rows: age, sex, race_ethnicity, insurance, cancer_type |
+| PASS | module_metrics c1 is compact | 9303 chars |
+| PASS | module_metrics succeeds (306 ms) |  |
 | PASS | module_metrics c3 has model and baseline | 0.827 vs 0.808 |
-| PASS | module_metrics c3 is compact | 7243 chars |
-| PASS | module_metrics succeeds (96 ms) |  |
-| PASS | module_metrics c4 is compact | 6567 chars |
-| PASS | glucose_advice succeeds (115 ms) |  |
+| PASS | module_metrics c3 has subgroups | 34 rows: Language, Race and ethnicity, Cancer type, Sex, Age, Lives alone, Device |
+| PASS | module_metrics c3 subgroups include language |  |
+| PASS | module_metrics c3 is compact | 8281 chars |
+| PASS | module_metrics succeeds (603 ms) |  |
+| PASS | module_metrics c4 has subgroups | 6 rows: blood-sugar group |
+| PASS | module_metrics c4 is compact | 7844 chars |
+| PASS | glucose_advice succeeds (2807 ms) |  |
 | PASS | glucose_advice returns advice items | ai,ai,ai |
-| PASS | reveal_outcome_demo returns isError (186 ms) | MCP error -32602: Tool reveal_outcome_demo not found |
+| PASS | reveal_outcome_demo returns isError (69 ms) | MCP error -32602: Tool reveal_outcome_demo not found |
 | PASS | ?tools=demo lists reveal_outcome_demo |  |
 | PASS | reveal_outcome_demo works on ?tools=demo |  |
-| PASS | list_coaching_calls succeeds (130 ms) |  |
+| PASS | list_coaching_calls succeeds (136 ms) |  |
 | PASS | list_coaching_calls returns calls | 27 calls |
-| PASS | get_coaching_call succeeds (380 ms) |  |
+| PASS | get_coaching_call succeeds (81 ms) |  |
 | PASS | get_coaching_call has a transcript | CALL05559, 33 lines |
-| PASS | get_coaching_call returns isError (143 ms) | Error: Not found. /api/c5/calls/CALL99999: HTTP 404 call not found |
-| PASS | score_conversation succeeds (1408 ms) |  |
+| PASS | get_coaching_call returns isError (232 ms) | Error: Not found. C5 Coach's Co-pilot returned 404: call not found |
+| PASS | score_conversation succeeds (2125 ms) |  |
 | PASS | score_conversation flags the symptom line medical | {"n":2,"speaker":"participant","text":"Not great. I've had a fever since yesterday and my chest feels tight.","tag":"neutral","flag":"medical","confidence":0.08 |
 | PASS | score_conversation carries the flag: next coach line is missed_concern | {"n":3,"speaker":"coach","text":"Okay. So did you manage to do the walks after dinner?","tag":"closed question","flag":"missed_concern","confidence":0.311} |
 | PASS | score_conversation tags every line | open question / neutral / closed question / neutral / persuade / change / open question |
 | PASS | score_conversation scores (4 coach lines) | score 20 |
 | PASS | score_conversation finds cue moments | [{"afterLine":2,"trigger":"Participant raised a medical concern. Help the coach respond with care and connect them to the right person today."},{"afterLine":3," |
-| PASS | score_conversation succeeds (4783 ms) |  |
+| PASS | score_conversation succeeds (6944 ms) |  |
 | PASS | score_conversation on a stored call compares with the supervisor | {"supervisorScoreFullCall":55,"supervisorScoreSameLines":55,"coachMoveAgreement":0.94,"participantTalkAgreement":0.87,"supervisorNeedsHumanLines":[]} |
-| PASS | coaching_cue succeeds (2658 ms) |  |
+| PASS | coaching_cue succeeds (2681 ms) |  |
 | PASS | coaching_cue uses the Co-pilot rule for a missed concern | The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now. |
-| PASS | coaching_cue returns a cue | Acknowledge the fever and chest tightness first, reflect it back, and invite her to say more before returning to the walking plan. / I want to pause on what you |
-| PASS | score_conversation returns isError (72 ms) | Error: cannot read the speaker in "hello there"; start each line with "coach:" or "participant:" |
-| PASS | search succeeds (33 ms) |  |
+| PASS | coaching_cue returns a cue | Pause the walking plan and acknowledge the fever and chest tightness before continuing; reflect it back and invite her to say more (suggest contacting her care  |
+| PASS | score_conversation returns isError (63 ms) | Error: cannot read the speaker in "hello there"; start each line with "coach:" or "participant:" |
+| PASS | search succeeds (442 ms) |  |
 | PASS | search returns results with id/title/url | 2 results |
-| PASS | fetch succeeds (181 ms) |  |
+| PASS | fetch succeeds (478 ms) |  |
 | PASS | fetch returns id/title/text/url |  |
+| PASS | model-backed tools are rate-limited per IP | limited after 7 probe calls: Error: Rate limit: score_conversation calls a live model, and each client IP may make at most 10 such calls per minute ( |
 
 ## Tool summaries (first text block of each call)
 
 ### triage_today {}
 
 ```
-Top 10 of 65 survivors needing attention (2 urgent). Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.
-1. c3-P03000 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
-2. c3-P02185 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
-3. c1-S71188550 [alert] C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year
-4. c3-P02465 [alert] C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep
-5. c4-N0072 [alert] C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL
-6. c5-P0002 [alert] C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today
-7. c1-S13BA2BCD [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year
-8. c3-P02836 [alert] C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins)
-9. c4-N0085 [alert] C4 Glucose Guide: High most of the day: 64% in range, average 177 mg/dL
-10. c5-P0117 [alert] C5 Coach's Co-pilot: Medical concern at 00:21 in call 5: a person must follow up today
-Per cohort: c1 {"alert":40,"watch":43,"ok":116}; c3 {"alert":5,"watch":4,"ok":51}; c4 {"alert":11,"watch":10,"ok":29}; c5 {"alert":9,"watch":6,"ok":11}.
-55 more not shown; use list_survivors per module.
+Top 10 of 65 survivors needing attention (2 urgent). Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them. Risks are not comparable across cohorts: each cohort measures a different outcome over a different horizon on a different scale (see horizon and scale on each row). The order between cohorts is round-robin after C3 urgent, not a ranking by risk.
+1. c3-P03000 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual (next 7 days)
+2. c3-P02185 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual (next 7 days)
+3. c1-S71188550 [alert] C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year (next 12 months)
+4. c3-P02465 [alert] C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep (next 7 days)
+5. c4-N0072 [alert] C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL (recent CGM days)
+6. c5-P0002 [alert] C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today (latest coaching call)
+7. c1-S13BA2BCD [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year (next 12 months)
+8. c3-P02836 [alert] C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins) (next 7 days)
+9. c4-N0085 [alert] C4 Glucose Gu
 ```
 ### triage_today {"limit":25,"includeWatch":true}
 
 ```
-Top 25 of 128 survivors needing attention (2 urgent). Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.
-1. c3-P03000 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
-2. c3-P02185 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
-3. c1-S71188550 [alert] C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year
-4. c3-P02465 [alert] C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep
-5. c4-N0072 [alert] C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL
-6. c5-P0002 [alert] C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today
-7. c1-S13BA2BCD [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year
-8. c3-P02836 [alert] C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins)
-9. c4-N0085 [alert] C4 Glucose Guide: High most of the day: 64% in range, average 177 mg/dL
-10. c5-P0117 [alert] C5 Coach's Co-pilot: Medical concern at 00:21 in call 5: a person must follow up today
-11. c1-S9707145E [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year
-12. c3-P01289 [alert] C3 Bad Week Radar: Rough patch risk 17% in the next 7 days, mostly 
+Top 25 of 128 survivors needing attention (2 urgent). Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them. Risks are not comparable across cohorts: each cohort measures a different outcome over a different horizon on a different scale (see horizon and scale on each row). The order between cohorts is round-robin after C3 urgent, not a ranking by risk.
+1. c3-P03000 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual (next 7 days)
+2. c3-P02185 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual (next 7 days)
+3. c1-S71188550 [alert] C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year (next 12 months)
+4. c3-P02465 [alert] C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep (next 7 days)
+5. c4-N0072 [alert] C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL (recent CGM days)
+6. c5-P0002 [alert] C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today (latest coaching call)
+7. c1-S13BA2BCD [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year (next 12 months)
+8. c3-P02836 [alert] C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins) (next 7 days)
+9. c4-N0085 [alert] C4 Glucose G
 ```
 ### triage_today {"limit":26}
 
@@ -211,7 +214,7 @@ C4 Glucose Guide · N0072 · 61F · ovarian · ALERT
 High most of the day: 63% in range, average 178 mg/dL
 61-year-old female, ovarian cancer, 1.7 years after treatment; type 2 diabetes at start; group: coaching; night shift. Average sugar 178 mg/dL in weeks 1-2, 63% of readings in range. Median rise after dinner 108 mg/dL. ML forecast for a typical dinner: 106 mg/dL. Synthetic participant (made-up data).
 Next steps:
-- Only 62.7% of your readings were in the 70-180 range (weeks 1-2); the usual target is more than 70%. Your average was 178.3 mg/dL. Bring this to your next visit.
+- 10.9% of your readings were above 250 mg/dL (weeks 1-2); the usual target is under 5%. Your average was 178.3 mg/dL. Contact your care team today rather than waiting for your next visit.
 - You walked after 0 of your scored meals, too few to measure your own effect yet. Across the program, a walk after dinner went with a rise about 18.3 mg/dL smaller in the same person, more than after other meals (14.6 mg/dL). 10 to 19 minutes got most of the gain: 17.5 mg/dL less, against 19.5 for 20-29 minutes and 16.6 for 30+ minutes. A check in real adults (CGMacros) pointed the same way, at about a fifth of the program's size, but it is not proven there yet.
 - You work nights, so clock-time rules about late dinners don't fit you. Keep your main meal at the same point in your waking day.
 ```
@@ -239,7 +242,7 @@ Next steps:
 ### get_survivor {"survivorId":"c1-NOPE"}
 
 ```
-Error: Not found. /api/c1/survivors/c1-NOPE: HTTP 404 survivor not found
+Error: Not found. C1 Care Team Risk returned 404: survivor not found
 ```
 ### get_survivor {"survivorId":"x9-123"}
 
@@ -255,25 +258,28 @@ Found in: c3. Not found in: c1, c4, c5. The modules use separate cohorts: C1 ids
 ### module_metrics {"module":"c1"}
 
 ```
-C1 live model: Random forest (300 trees (forest). AUROC 0.713 (95% CI 0.662 to 0.764) vs baseline 0.659, out-of-fold on the development survivors. Gain over baseline: AUROC +0.053 (95% CI -0.001 to 0.105, P(better) 0.971), Brier -0.021 (95% CI -0.035 to -0.007). Held-out status mix {"alert":40,"watch":43,"ok":116}.
+C1 live model: Random forest (300 trees (forest). Honest estimate (nested CV, the model search re-run inside each outer fold): AUROC 0.711 vs baseline 0.672, gain +0.039 (95% CI -0.015 to 0.091, not significant: the CI crosses 0); this is the "nested CV +0.04" in the caveats. Log loss -0.067 (95% CI -0.115 to -0.020, significant). Out-of-fold for the chosen forest (optimistic, because the search saw these folds): AUROC 0.713 (95% CI 0.662 to 0.764) vs baseline 0.659, gain +0.053 (95% CI -0.001 to 0.105). The two baselines differ (0.659 vs 0.672) because they come from different CV runs. Held-out status mix {"alert":40,"watch":43,"ok":116}.
+Subgroups: Weaker for: NH Black (AUROC 0.48). Too small to judge: Hispanic, NH Asian, NH other/multiple, Uninsured, colon, lung. C1 has no language field.
 ```
 ### module_metrics {"module":"c3"}
 
 ```
 C3 Radar on held-out patients: week AUC 0.827 vs schedule-only 0.808; rough-patch episode recall 0.476 vs 0.359; ER/admission recall 0.363 vs 0.22; median lead 6 days.
+Subgroups: Recall is clearly below the overall 28% (whole CI below it) for: Cancer type sarcoma (13%, CI 0%-26%). Lower, but the CI still reaches the overall (too few patients to be sure): Language Haitian Creole (22%, CI 10%-36%); Cancer type breast (21%, CI 14%-28%). Groups with fewer than 30 rough weeks are marked too few to judge.
 ```
 ### module_metrics {"module":"c4"}
 
 ```
 C4 cohort (within-person, mg/dL change in post-meal rise): walk after a meal -17.77 [-19.19, -16.35]; late dinner +9.21 [7.09, 11.32]; per 10 g carbs +6.46.
+Subgroups: C4 serves effects by blood-sugar group only. It serves no age, sex, race/ethnicity or language breakdown, so none is shown.
 ```
 ### glucose_advice {"survivorId":"c4-N0072"}
 
 ```
 Plain-language advice for c4-N0072:
-- Share these readings with your care team: You had 62.7% of your readings in the 70-180 range, which is not quite the target of more than 70%. Your average reading was 178.3 mg/dL, so be sure to discuss this at your next visit.
-- Try a 10 to 20 minute walk after dinner: You didn't walk after any of your scored meals, so you haven't seen the effect yet. Walking after dinner is linked to a rise about 18.3 mg/dL smaller in sugar, with the best results from 10 to 19 minutes of walking.
-- Keep meal times steady around your shifts: Since you work nights, traditional rules about late dinners don't apply to you. Try to keep your main meal at the same point in your waking day, regardless of the clock.
+- Send these readings to your care team today: Your blood sugar readings were higher than the target, with an average of 178.3 mg/dL. Contact your care team today to discuss your readings.
+- Try a 10 to 20 minute walk after dinner: Walking after meals, especially dinner, is linked to sugar levels that are 18.3 mg/dL smaller. Walking 10 to 19 minutes after dinner may be linked to sugar levels that are 17.5 mg/dL smaller.
+- Keep meal times steady around your shifts: Since you work nights, traditional rules about late dinners don't apply to you. Keep your main meal at the same time in your waking day.
 ```
 ### reveal_outcome_demo {"survivorId":"c3-P03000"}
 
@@ -314,7 +320,7 @@ CALL05559: Karen with coach Marcus, 2025-04-08, English, goal veggies. Superviso
 ### get_coaching_call {"callId":"CALL99999"}
 
 ```
-Error: Not found. /api/c5/calls/CALL99999: HTTP 404 call not found
+Error: Not found. C5 Coach's Co-pilot returned 404: call not found
 ```
 ### score_conversation {"transcript":"coach: Hi Rosa, how has your week been with the walking plan?\nparticipant: Not great. I've had a fever s
 
@@ -336,8 +342,8 @@ Supervisor: score 55 on the same lines; coach-move agreement 0.94, talk agreemen
 ### coaching_cue {"recent":[{"speaker":"coach","text":"Hi Rosa, how has your week been with the walking plan?","tag":"open question"},{"s
 
 ```
-Cue: Acknowledge the fever and chest tightness first, reflect it back, and invite her to say more before returning to the walking plan.
-Say: "I want to pause on what you just shared — fever and chest tightness since yesterday sounds uncomfortable. Can you tell me more about how you're feeling?"
+Cue: Pause the walking plan and acknowledge the fever and chest tightness before continuing; reflect it back and invite her to say more (suggest contacting her care team if she raises it, but don't diagnose).
+Say: "Before we talk about the walks — you mentioned a fever and tight chest since yesterday. That sounds uncomfortable. Can you tell me more about how you're feeling?"
 Why: The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now.
 ```
 ### score_conversation {"transcript":"hello there"}
@@ -354,4 +360,9 @@ Error: cannot read the speaker in "hello there"; start each line with "coach:" o
 
 ```
 {"id":"c3-P03000","title":"C3 Bad Week Radar: P03000 · 49M · kidney","text":"Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\nUrgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\n\n{\"module\":\"c3\",\"moduleName\":\"C3 Bad Week Radar\",\"survivorId\":\"c3-P03000\",\"displayName\":\"P03000 · 49M · kidney\",\"status\":\"alert\",\"headline\":\"Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\",\"summary\":\"Urgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\",\"urgent\":true,\"urgentRisk\":0.104,\"risk\":0.078,\"scheduleRisk\":0.021,\"thresholds\":{\"alert\":0.156,\"watch\":0.105,\"urgent\":0.058},\"profile\":{\"age\":49,\"sex\":\"male\",\"cancerType\":\"kidney\",\"stage\":\"I\",\"treatmentPlan\":\"Immunotherapy every 21 days\",\"device\":\"Fitbit smartwatch\",\"language\":\"Spanish\",\"livesAlone\":\"no\
+```
+### score_conversation x16 (rate limit probe) {"transcript":"hello there"}
+
+```
+Error: Rate limit: score_conversation calls a live model, and each client IP may make at most 10 such calls per minute (score_conversation, coaching_cue and glucose_advice together). Wait a minute and try again.
 ```

@@ -10,7 +10,7 @@ import { z } from "zod";
 import { cue, cueMoments, FLAG_MEANING, MAX_LINES, parseTranscript, score, tagLines, triggerAt, type Line } from "./coach";
 import { ApiError, consoleUrl, get, isRecord, metrics, MODULE_INFO, MODULES, moduleOf, roster, statusCounts, survivor, type Env, type Module, type Row } from "./modules";
 
-const VERSION = "0.2.0";
+const VERSION = "0.3.0";
 const READ = { readOnlyHint: true, openWorldHint: false } as const;
 /** Calls a live model; reads only, but the answer can vary. */
 const MODEL = { readOnlyHint: true, openWorldHint: true, idempotentHint: false } as const;
@@ -47,13 +47,29 @@ const lineArg = z.object({
 });
 const transcriptArg = z.union([z.array(lineArg), z.string()]).describe(`The call, oldest line first, at most ${MAX_LINES} lines. Either [{speaker, text}] or plain text with one "coach: …" / "participant: …" per line.`);
 
+const LLM_PER_MINUTE = 10;
+/** Per-IP limit on the tools that call a live model, so an open endpoint cannot burn the shared model quota. */
+async function limitModelCalls(env: Env, ip: string, tool: string) {
+  if (!env.LLM_LIMIT) return;
+  const { success } = await env.LLM_LIMIT.limit({ key: ip });
+  if (!success) throw new ApiError(429, `Rate limit: ${tool} calls a live model, and each client IP may make at most ${LLM_PER_MINUTE} such calls per minute (score_conversation, coaching_cue and glucose_advice together). Wait a minute and try again.`);
+}
+
 const TRIAGE_DEFAULT = 10, TRIAGE_MAX = 25;
+/** What a cohort's alert means. The four are different outcomes, horizons and scales, so no row's risk compares with another cohort's. */
+const COHORT_SCALE: Record<Module, { horizon: string; scale: string }> = {
+  c1: { horizon: "next 12 months", scale: "calibrated probability of any ER visit or hospital stay (MEPS survey model)" },
+  c3: { horizon: "next 7 days", scale: "probability of a rough patch from wearables; urgent = ER or hospital risk in the next 7 days" },
+  c4: { horizon: "recent CGM days", scale: "blood-sugar status from CGM rules (mg/dL), not a probability" },
+  c5: { horizon: "latest coaching call", scale: "call flags a person must act on, and the coach's MI score; not a probability" },
+};
+const NOT_COMPARABLE = "Risks are not comparable across cohorts: each cohort measures a different outcome over a different horizon on a different scale (see horizon and scale on each row). The order between cohorts is round-robin after C3 urgent, not a ranking by risk.";
 const COHORTS_NOT_JOINED = "Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.";
 
 const rowLine = (r: Row) => `- ${r.survivorId} [${r.status}${r.urgent ? ", URGENT" : ""}] ${r.displayName}: ${r.headline}`;
 
 /** `demo` adds reveal_outcome_demo; only the /mcp?tools=demo endpoint sets it, so the default tools/list never shows it. */
-function buildServer(env: Env, demo = false) {
+function buildServer(env: Env, demo = false, ip = "unknown") {
   const server = new McpServer(
     { name: "emerge-challenge-mcp", title: "Emerge Hackathon challenge APIs", version: VERSION },
     { instructions: `Care-team tools over the Emerge Hackathon modules (Sylvester cancer-survivor track). ${IDS_DO_NOT_JOIN} Status everywhere is alert > watch > ok. Coaches do not diagnose: route medical items to the care team. Start with triage_today or list_survivors, then get_survivor. Use score_conversation for a coaching transcript and coaching_cue for what to say next.` },
@@ -61,7 +77,7 @@ function buildServer(env: Env, demo = false) {
 
   server.registerTool("triage_today", {
     title: "Who needs attention today (all modules)",
-    description: "Short ranked worklist across C1, C3, C4 and C5 (default 10, at most 25): C3 urgent ER/hospital risk first, then the top alert from each cohort in turn, so no one cohort fills the list. Each row names its cohort and its own reason. The four cohorts are separate groups of people and are not joined. Use for 'who should the care team call today?'.",
+    description: "Short ranked worklist across C1, C3, C4 and C5 (default 10, at most 25): C3 urgent ER/hospital risk first, then the top alert from each cohort in turn, so no one cohort fills the list. Each row names its cohort, its own reason, and the horizon and scale of that cohort's risk; risks are not comparable across cohorts, and the order between cohorts is round-robin, not by risk. The four cohorts are separate groups of people and are not joined. Use for 'who should the care team call today?'.",
     inputSchema: {
       modules: z.array(moduleArg).optional().describe("Limit to these cohorts; default all four"),
       includeWatch: z.boolean().optional().describe("Also rank 'watch' survivors after the alerts (default false)"),
@@ -98,17 +114,18 @@ function buildServer(env: Env, demo = false) {
       rank: i + 1, cohort: module, cohortName: MODULE_INFO[module].name, survivorId: r.survivorId, displayName: r.displayName,
       status: r.status, ...(r.urgent ? { urgent: true } : {}),
       reason: `${MODULE_INFO[module].name}: ${r.headline}`,
+      horizon: COHORT_SCALE[module].horizon, scale: COHORT_SCALE[module].scale,
     }));
     const urgent = picked.filter((x) => x.r.urgent).length;
     const perCohort = Object.fromEntries(ms.filter((m) => counts[m]).map((m) => [m, { cohort: MODULE_INFO[m].name, people: MODULE_INFO[m].about, statusCounts: counts[m], shown: rows.filter((r) => r.cohort === m).length }]));
     const summary = [
-      `Top ${rows.length} of ${picked.length} survivors needing attention (${urgent} urgent). ${COHORTS_NOT_JOINED}`,
-      ...rows.map((r) => `${r.rank}. ${r.survivorId} [${r.status}${r.urgent ? ", URGENT" : ""}] ${r.reason}`),
+      `Top ${rows.length} of ${picked.length} survivors needing attention (${urgent} urgent). ${COHORTS_NOT_JOINED} ${NOT_COMPARABLE}`,
+      ...rows.map((r) => `${r.rank}. ${r.survivorId} [${r.status}${r.urgent ? ", URGENT" : ""}] ${r.reason} (${r.horizon})`),
       `Per cohort: ${Object.entries(perCohort).map(([m, c]) => `${m} ${JSON.stringify(c.statusCounts)}`).join("; ")}.`,
       ...(picked.length > rows.length ? [`${picked.length - rows.length} more not shown; use list_survivors per module.`] : []),
       ...(down.length ? [`Unavailable: ${down.join("; ")}`] : []),
     ].join("\n");
-    return ok(summary, { shown: rows.length, needingAttention: picked.length, urgent, cohortsJoined: false, note: COHORTS_NOT_JOINED, rows, perCohort, unavailable: down });
+    return ok(summary, { shown: rows.length, needingAttention: picked.length, urgent, cohortsJoined: false, comparableAcrossCohorts: false, note: `${COHORTS_NOT_JOINED} ${NOT_COMPARABLE}`, rows, perCohort, unavailable: down });
   }));
 
   server.registerTool("list_survivors", {
@@ -181,10 +198,17 @@ function buildServer(env: Env, demo = false) {
     const d = await metrics(env, module);
     let summary = `${MODULE_INFO[module].name} metrics.`;
     if (module === "c1") {
-      const c = d as unknown as { finalModel: { key: string; name: string }; metrics: Record<string, Record<string, { value: number; ci95: number[] }>>; gainOverBaseline: Record<string, { value: number; ci95: number[]; p_better?: number }> | null };
-      const f = (x: number) => x.toFixed(3), band = (x: number[]) => `${x[0].toFixed(3)} to ${x[1].toFixed(3)}`;
-      const m = c.metrics[c.finalModel.key], b = c.metrics.baseline, g = c.gainOverBaseline;
-      summary = `C1 live model: ${c.finalModel.name.split(",")[0].split(" on ")[0]} (${c.finalModel.key}). AUROC ${f(m.auroc.value)} (95% CI ${band(m.auroc.ci95)}) vs baseline ${f(b.auroc.value)}, out-of-fold on the development survivors.${g?.auroc ? ` Gain over baseline: AUROC +${f(g.auroc.value)} (95% CI ${band(g.auroc.ci95)}, P(better) ${g.auroc.p_better})${g.brier ? `, Brier ${f(g.brier.value)} (95% CI ${band(g.brier.ci95)})` : ""}.` : ""} Held-out status mix ${JSON.stringify(d.heldoutStatusMix)}.`;
+      type Gain = { value: number; ci95: number[]; p_better?: number };
+      type Nested = { auroc: { model: number; baseline: number; gain: number; ci95: number[]; pBetter: number }; logLoss: { gain: number; ci95: number[]; pBetter: number } };
+      const c = d as unknown as { finalModel: { key: string; name: string }; metrics: Record<string, Record<string, { value: number; ci95: number[] }>>; gainOverBaseline: Record<string, Gain> | null; headlineGain: Nested | null };
+      const f = (x: number) => x.toFixed(3), band = (x: number[]) => `${f(x[0])} to ${f(x[1])}`, sig = (x: number[]) => (x[0] > 0 || x[1] < 0 ? "significant" : "not significant: the CI crosses 0");
+      const m = c.metrics[c.finalModel.key], b = c.metrics.baseline, g = c.gainOverBaseline, n = c.headlineGain;
+      summary = [
+        `C1 live model: ${c.finalModel.name.split(",")[0].split(" on ")[0]} (${c.finalModel.key}).`,
+        ...(n ? [`Honest estimate (nested CV, the model search re-run inside each outer fold): AUROC ${f(n.auroc.model)} vs baseline ${f(n.auroc.baseline)}, gain +${f(n.auroc.gain)} (95% CI ${band(n.auroc.ci95)}, ${sig(n.auroc.ci95)}); this is the "nested CV +0.04" in the caveats. Log loss ${f(n.logLoss.gain)} (95% CI ${band(n.logLoss.ci95)}, ${sig(n.logLoss.ci95)}).`] : []),
+        `Out-of-fold for the chosen ${c.finalModel.key} (optimistic, because the search saw these folds): AUROC ${f(m.auroc.value)} (95% CI ${band(m.auroc.ci95)}) vs baseline ${f(b.auroc.value)}${g?.auroc ? `, gain +${f(g.auroc.value)} (95% CI ${band(g.auroc.ci95)})` : ""}. The two baselines differ (${f(b.auroc.value)} vs ${n ? f(n.auroc.baseline) : "?"}) because they come from different CV runs.`,
+        `Held-out status mix ${JSON.stringify(d.heldoutStatusMix)}.`,
+      ].join(" ");
     } else if (module === "c3") {
       const m = d as { model: { weeks?: { auc?: number }; episodes?: Record<string, number> }; scheduleBaseline: { weeks?: { auc?: number }; episodes?: Record<string, number> } };
       summary = `C3 Radar on held-out patients: week AUC ${m.model.weeks?.auc} vs schedule-only ${m.scheduleBaseline.weeks?.auc}; rough-patch episode recall ${m.model.episodes?.episode_recall} vs ${m.scheduleBaseline.episodes?.episode_recall}; ER/admission recall ${m.model.episodes?.er_recall} vs ${m.scheduleBaseline.episodes?.er_recall}; median lead ${m.model.episodes?.median_lead_days} days.`;
@@ -192,6 +216,8 @@ function buildServer(env: Env, demo = false) {
       const e = (d as { effects: Record<string, { est: number; lo: number; hi: number }> }).effects;
       summary = `C4 cohort (within-person, mg/dL change in post-meal rise): walk after a meal ${e.walk?.est} [${e.walk?.lo}, ${e.walk?.hi}]; late dinner +${e.lateDinner?.est} [${e.lateDinner?.lo}, ${e.lateDinner?.hi}]; per 10 g carbs +${e.carbsPer10g?.est}.`;
     }
+    const sg = (d as { subgroups?: { summary?: unknown; note?: unknown } | null }).subgroups;
+    if (sg) summary += `\nSubgroups: ${sg.summary ?? sg.note ?? "see subgroups.rows"}`;
     return ok(summary, d);
   }));
 
@@ -201,6 +227,7 @@ function buildServer(env: Env, demo = false) {
     inputSchema: { survivorId: z.string().regex(/^c4-/i, "C4 ids start with c4-").describe("e.g. c4-N0632") },
     annotations: { title: "Glucose advice", ...MODEL },
   }, wrap(async ({ survivorId }) => {
+    await limitModelCalls(env, ip, "glucose_advice");
     const d = await get(env, "c4", `/survivors/${encodeURIComponent(survivorId)}/advice`, 30_000);
     // Live shape: items[] with a per-item source ("ai" or "template" when the rewrite was rejected).
     const items = isRecord(d) && Array.isArray(d.items) ? d.items.filter(isRecord).map((r) => ({ title: r.title, text: r.text, source: r.source, ...(r.rejected ? { rejected: r.rejected } : {}) })) : [];
@@ -270,6 +297,7 @@ function buildServer(env: Env, demo = false) {
     },
     annotations: { title: "Score conversation", ...MODEL },
   }, wrap(async ({ transcript, callId }) => {
+    await limitModelCalls(env, ip, "score_conversation");
     let lines: Line[];
     let supervisor: { label: string | null; needsHuman: boolean }[] | null = null;
     let supervisorScore: unknown = null;
@@ -323,6 +351,7 @@ function buildServer(env: Env, demo = false) {
     },
     annotations: { title: "Coaching cue", ...MODEL },
   }, wrap(async ({ recent, trigger }) => {
+    await limitModelCalls(env, ip, "coaching_cue");
     let lines = parseTranscript(recent).slice(-8);
     let source = "caller";
     if (!trigger) {
@@ -381,6 +410,8 @@ const withCors = (r: Response) => {
   return new Response(r.body, { status: r.status, statusText: r.statusText, headers: h });
 };
 
+const E2E_URL = "https://github.com/zaycruz/challenge-mcp/blob/main/runs/latest.md";
+
 const HOME = (origin: string) => `Emerge Hackathon challenge MCP server v${VERSION}
 
 MCP endpoint (Streamable HTTP, no auth): ${origin}/mcp
@@ -389,6 +420,9 @@ Claude Code:   claude mcp add --transport http emerge-challenges ${origin}/mcp
 claude.ai:     Settings > Connectors > Add custom connector > URL ${origin}/mcp
 ChatGPT:       Settings > Apps & Connectors > Advanced > Developer mode on; then Create > MCP server URL ${origin}/mcp, Authentication: No authentication
 
+Latest E2E run (every check and call): ${E2E_URL}   (also ${origin}/e2e)
+Auth: none, on purpose, so judges can connect. The data is synthetic or de-identified. Tools that call a live model are limited to ${LLM_PER_MINUTE} calls per minute per IP.
+
 Modules: ${MODULES.map((m) => `${m} ${MODULE_INFO[m].name}: ${MODULE_INFO[m].about}`).join("\n         ")}
 `;
 
@@ -396,14 +430,15 @@ export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
-    if (url.pathname === "/health") return Response.json({ ok: true, version: VERSION });
+    if (url.pathname === "/health") return Response.json({ ok: true, version: VERSION, e2e: E2E_URL });
+    if (url.pathname === "/e2e") return Response.redirect(E2E_URL, 302);
     if (url.pathname === "/mcp" || url.pathname === "/mcp/") {
       if (req.method !== "POST") {
         // Stateless server: no standalone SSE stream and no sessions to delete.
         return withCors(Response.json({ jsonrpc: "2.0", error: { code: -32000, message: "Method not allowed: POST JSON-RPC to /mcp" }, id: null }, { status: 405, headers: { allow: "POST, OPTIONS" } }));
       }
       const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
-      const server = buildServer(env, url.searchParams.get("tools") === "demo");
+      const server = buildServer(env, url.searchParams.get("tools") === "demo", req.headers.get("cf-connecting-ip") ?? "unknown");
       await server.connect(transport);
       return withCors(await transport.handleRequest(req));
     }

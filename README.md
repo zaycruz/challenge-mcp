@@ -10,7 +10,7 @@ A care-team lead can review any coach's call from the chat window they already u
 | Coach-move agreement with the supervisor | **0.94** (17 of 18 lines) | 0.22 (always the most common label) | 0.74 to 0.99 |
 | Participant-talk agreement with the supervisor | **0.87** (13 of 15 lines) | 0.53 (always the most common label) | 0.62 to 0.96 |
 
-These numbers come from one stored call: the shortest one, picked so that the E2E stays light on the live model. They show the pipeline works end to end. They are not a validation of the C5 model across many calls. The CIs are Wilson intervals over lines. The baseline always guesses the supervisor's most common label in the call. Source: `runs/2026-10-17T16-35-29-023Z.json`. The E2E passed 78 of 78 checks.
+These numbers come from one stored call: the shortest one, picked so that the E2E stays light on the live model. They show the pipeline works end to end. They are not a validation of the C5 model across many calls. The CIs are Wilson intervals over lines. The baseline always guesses the supervisor's most common label in the call. Source: `runs/2026-10-17T16-35-29-023Z.json`. The latest E2E artifact, with every check and every tool call, is [`runs/latest.md`](runs/latest.md); `https://emerge-mcp.raava.dev/e2e` links to it as well.
 
 ### Reproduce in 3 commands
 
@@ -21,6 +21,8 @@ npm run e2e        # live site; writes runs/<stamp>.json and runs/latest.md
 ```
 
 To connect a client, add `https://emerge-mcp.raava.dev/mcp` as a custom connector in claude.ai or in ChatGPT Developer mode. It uses Streamable HTTP and needs no auth.
+
+**Auth.** The endpoint is open on purpose, so judges can connect without a key. The data is synthetic, or de-identified MEPS for C1. Three tools call a live model: `score_conversation`, `coaching_cue` and `glucose_advice`. Together they are limited to 10 calls per minute per client IP, using a Workers rate-limit binding. Over the limit, the tool returns `isError` and a message saying when to retry. Error messages name the module and the HTTP status, never an upstream path.
 
 ---
 
@@ -63,7 +65,7 @@ ChatGPT / claude.ai / Claude Code ──POST /mcp──> challenge-mcp Worker (e
 
 - The server is stateless. Each POST gets a new McpServer and transport, and the answers are JSON. There is no SSE, because a standalone SSE stream needs session state. `GET /mcp` returns 405.
 - The server calls the modules through service bindings, not public URLs, because Worker-to-Worker fetches on the same account can fail with error 1042.
-- There is no auth. The module APIs are already public, and the data is synthetic. C1 uses real, de-identified MEPS survey rows.
+- There is no auth (see **Auth** above). The module APIs are already public, and the data is synthetic. C1 uses real, de-identified MEPS survey rows. The model-backed tools are rate-limited per IP.
 
 ## Survivor ids do not join across modules
 
@@ -73,11 +75,11 @@ The modules use separate cohorts: `c1-S…` (199), `c3-P0…` with 5 digits (60)
 
 | Tool | Question it answers |
 |---|---|
-| `triage_today` | Who should the care team call today? A short ranked list (10 rows, at most 25). C3 urgent comes first, then the top alert of each cohort in turn. Each row has its cohort and its own reason, and the reply says the cohorts are not joined |
+| `triage_today` | Who should the care team call today? A short ranked list (10 rows, at most 25). C3 urgent comes first, then the top alert of each cohort in turn. Each row has its cohort, its own reason, and the `horizon` and `scale` of that cohort's risk (C1: 12 months, C3: 7 days, C4: recent CGM days, C5: latest call). The reply says the cohorts are not joined and their risks are not comparable (`comparableAcrossCohorts: false`) |
 | `list_survivors` | Roster for one module, filtered by status, urgent-only (C3) or free text |
 | `get_survivor` | One survivor's panel: headline, summary, evidence, recommendations (charts are opt-in) |
 | `patient_overview` | One survivor across all modules, with their roster rank, and a statement that ids do not join |
-| `module_metrics` | Model card or cohort findings for C1, C3 or C4, trimmed. C1 reports the model that `finalModel` names (the forest today) and its gain over the baseline, with a CI |
+| `module_metrics` | Model card or cohort findings for C1, C3 or C4, trimmed. C1 leads with the nested-CV gain (`headlineGain`: AUROC 0.711 vs 0.672, +0.039, 95% CI -0.015 to 0.091, not significant). It then gives the out-of-fold gain for the chosen forest (+0.053), labelled as optimistic. Every module returns `subgroups`: C1 AUROC and O/E per age, sex, race/ethnicity, insurance and cancer type; C3 recall per group, including language; C4 effects by blood-sugar group, with a note that C4 serves no demographic breakdown |
 | `glucose_advice` | C4 advice in plain language, from a model and checked against the evidence |
 | `list_coaching_calls` / `get_coaching_call` | Supervisor-labelled C5 calls and transcripts |
 | `score_conversation` | Live C5 tagging of a transcript or a `callId`: MI tags, flags, MITI-style score, cue moments, and agreement with the supervisor |
