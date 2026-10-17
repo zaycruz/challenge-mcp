@@ -1,7 +1,7 @@
-# challenge-mcp E2E 2026-10-17T16:35:29.023Z
+# challenge-mcp E2E 2026-10-17T16:57:50.691Z
 
-Server: https://emerge-mcp.raava.dev/mcp (emerge-challenge-mcp 0.2.0). 78/78 checks passed in 36.0 s.
-Full run: runs/2026-10-17T16-35-29-023Z.json
+Server: https://emerge-mcp.raava.dev/mcp (emerge-challenge-mcp 0.2.0). 78/78 checks passed in 16.9 s.
+Full run: runs/2026-10-17T16-57-50-691Z.json
 
 | | Check | Detail |
 |---|---|---|
@@ -11,77 +11,77 @@ Full run: runs/2026-10-17T16-35-29-023Z.json
 | PASS | default tools/list hides reveal_outcome_demo |  |
 | PASS | every tool is marked readOnlyHint |  |
 | PASS | every tool has a description of 40+ chars |  |
-| PASS | triage_today succeeds (960 ms) |  |
+| PASS | triage_today succeeds (360 ms) |  |
 | PASS | triage defaults to a short list (10) | 10 of 65 |
 | PASS | triage counts all 4 cohorts | {"c1":{"alert":40,"watch":43,"ok":116},"c3":{"alert":5,"watch":4,"ok":51},"c4":{"alert":11,"watch":10,"ok":29},"c5":{"alert":9,"watch":6,"ok":11}} |
 | PASS | triage lists urgent C3 first | c3-P03000 |
 | PASS | triage rows have rank, cohort and their own reason |  |
 | PASS | triage mixes cohorts in the top 10 | c3,c3,c1,c3,c4,c5,c1,c3,c4,c5 |
 | PASS | triage says cohorts are not joined |  |
-| PASS | triage_today succeeds (801 ms) |  |
+| PASS | triage_today succeeds (181 ms) |  |
 | PASS | triage caps at 25 |  |
-| PASS | triage_today returns isError (341 ms) | MCP error -32602: Input validation error: Invalid arguments for tool triage_today: Too big: expected number to be <=25 at limit |
-| PASS | list_survivors succeeds (215 ms) |  |
+| PASS | triage_today returns isError (113 ms) | MCP error -32602: Input validation error: Invalid arguments for tool triage_today: Too big: expected number to be <=25 at limit |
+| PASS | list_survivors succeeds (289 ms) |  |
 | PASS | list_survivors c1 returns rows | 199 total, first c1-S71188550 |
-| PASS | list_survivors succeeds (143 ms) |  |
+| PASS | list_survivors succeeds (209 ms) |  |
 | PASS | list_survivors c3 returns rows | 60 total, first c3-P03000 |
-| PASS | list_survivors succeeds (288 ms) |  |
+| PASS | list_survivors succeeds (262 ms) |  |
 | PASS | list_survivors c4 returns rows | 50 total, first c4-N0072 |
-| PASS | list_survivors succeeds (182 ms) |  |
+| PASS | list_survivors succeeds (192 ms) |  |
 | PASS | list_survivors c5 returns rows | 26 total, first c5-P0002 |
-| PASS | list_survivors succeeds (405 ms) |  |
+| PASS | list_survivors succeeds (138 ms) |  |
 | PASS | list_survivors filters by text and status | 11 matched |
-| PASS | list_survivors succeeds (533 ms) |  |
+| PASS | list_survivors succeeds (100 ms) |  |
 | PASS | list_survivors urgentOnly | 2 urgent |
-| PASS | get_survivor succeeds (631 ms) |  |
+| PASS | get_survivor succeeds (88 ms) |  |
 | PASS | get_survivor c1 has headline + evidence/recommendations | c1-S71188550 |
-| PASS | get_survivor succeeds (253 ms) |  |
+| PASS | get_survivor succeeds (103 ms) |  |
 | PASS | get_survivor c3 has headline + evidence/recommendations | c3-P03000 |
 | PASS | get_survivor c3 hides the outcome |  |
-| PASS | get_survivor succeeds (358 ms) |  |
+| PASS | get_survivor succeeds (128 ms) |  |
 | PASS | get_survivor c4 has headline + evidence/recommendations | c4-N0072 |
-| PASS | get_survivor succeeds (329 ms) |  |
+| PASS | get_survivor succeeds (103 ms) |  |
 | PASS | get_survivor c5 has headline + evidence/recommendations | c5-P0002 |
-| PASS | get_survivor succeeds (747 ms) |  |
+| PASS | get_survivor succeeds (113 ms) |  |
 | PASS | get_survivor c3 charts trimmed to 14 days |  |
-| PASS | get_survivor returns isError (214 ms) | Error: Not found. /api/c1/survivors/c1-NOPE: HTTP 404 survivor not found |
-| PASS | get_survivor returns isError (284 ms) | Error: survivorId must start with c1-, c3-, c4- or c5- (got "x9-123") |
-| PASS | patient_overview succeeds (236 ms) |  |
+| PASS | get_survivor returns isError (145 ms) | Error: Not found. /api/c1/survivors/c1-NOPE: HTTP 404 survivor not found |
+| PASS | get_survivor returns isError (242 ms) | Error: survivorId must start with c1-, c3-, c4- or c5- (got "x9-123") |
+| PASS | patient_overview succeeds (194 ms) |  |
 | PASS | patient_overview says ids do not join | {"c1":{"enrolled":false},"c3":{"enrolled":true,"survivorId":"c3-P03000","status":"alert","headline":"Urgent: ER or hospital risk 10% in the next 7 days, about 9 |
-| PASS | module_metrics succeeds (255 ms) |  |
+| PASS | module_metrics succeeds (178 ms) |  |
 | PASS | module_metrics c1 reads the live finalModel | forest AUROC 0.713 |
 | PASS | module_metrics c1 gives the gain over baseline with a CI | C1 live model: Random forest (300 trees (forest). AUROC 0.713 (95% CI 0.662 to 0.764) vs baseline 0.659, out-of-fold on the development survivors. Gain over bas |
 | PASS | module_metrics c1 is compact | 4430 chars |
-| PASS | module_metrics succeeds (208 ms) |  |
+| PASS | module_metrics succeeds (159 ms) |  |
 | PASS | module_metrics c3 has model and baseline | 0.827 vs 0.808 |
 | PASS | module_metrics c3 is compact | 7243 chars |
-| PASS | module_metrics succeeds (246 ms) |  |
+| PASS | module_metrics succeeds (96 ms) |  |
 | PASS | module_metrics c4 is compact | 6567 chars |
-| PASS | glucose_advice succeeds (5678 ms) |  |
+| PASS | glucose_advice succeeds (115 ms) |  |
 | PASS | glucose_advice returns advice items | ai,ai,ai |
-| PASS | reveal_outcome_demo returns isError (565 ms) | MCP error -32602: Tool reveal_outcome_demo not found |
+| PASS | reveal_outcome_demo returns isError (186 ms) | MCP error -32602: Tool reveal_outcome_demo not found |
 | PASS | ?tools=demo lists reveal_outcome_demo |  |
 | PASS | reveal_outcome_demo works on ?tools=demo |  |
-| PASS | list_coaching_calls succeeds (144 ms) |  |
+| PASS | list_coaching_calls succeeds (130 ms) |  |
 | PASS | list_coaching_calls returns calls | 27 calls |
-| PASS | get_coaching_call succeeds (230 ms) |  |
+| PASS | get_coaching_call succeeds (380 ms) |  |
 | PASS | get_coaching_call has a transcript | CALL05559, 33 lines |
-| PASS | get_coaching_call returns isError (451 ms) | Error: Not found. /api/c5/calls/CALL99999: HTTP 404 call not found |
-| PASS | score_conversation succeeds (1345 ms) |  |
+| PASS | get_coaching_call returns isError (143 ms) | Error: Not found. /api/c5/calls/CALL99999: HTTP 404 call not found |
+| PASS | score_conversation succeeds (1408 ms) |  |
 | PASS | score_conversation flags the symptom line medical | {"n":2,"speaker":"participant","text":"Not great. I've had a fever since yesterday and my chest feels tight.","tag":"neutral","flag":"medical","confidence":0.08 |
 | PASS | score_conversation carries the flag: next coach line is missed_concern | {"n":3,"speaker":"coach","text":"Okay. So did you manage to do the walks after dinner?","tag":"closed question","flag":"missed_concern","confidence":0.311} |
 | PASS | score_conversation tags every line | open question / neutral / closed question / neutral / persuade / change / open question |
 | PASS | score_conversation scores (4 coach lines) | score 20 |
 | PASS | score_conversation finds cue moments | [{"afterLine":2,"trigger":"Participant raised a medical concern. Help the coach respond with care and connect them to the right person today."},{"afterLine":3," |
-| PASS | score_conversation succeeds (3942 ms) |  |
+| PASS | score_conversation succeeds (4783 ms) |  |
 | PASS | score_conversation on a stored call compares with the supervisor | {"supervisorScoreFullCall":55,"supervisorScoreSameLines":55,"coachMoveAgreement":0.94,"participantTalkAgreement":0.87,"supervisorNeedsHumanLines":[]} |
-| PASS | coaching_cue succeeds (10521 ms) |  |
+| PASS | coaching_cue succeeds (2658 ms) |  |
 | PASS | coaching_cue uses the Co-pilot rule for a missed concern | The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now. |
-| PASS | coaching_cue returns a cue | Acknowledge the fever and chest tightness first before returning to the walking plan; invite her to say more about how she's feeling and consider suggesting she |
-| PASS | score_conversation returns isError (268 ms) | Error: cannot read the speaker in "hello there"; start each line with "coach:" or "participant:" |
-| PASS | search succeeds (179 ms) |  |
+| PASS | coaching_cue returns a cue | Acknowledge the fever and chest tightness first, reflect it back, and invite her to say more before returning to the walking plan. / I want to pause on what you |
+| PASS | score_conversation returns isError (72 ms) | Error: cannot read the speaker in "hello there"; start each line with "coach:" or "participant:" |
+| PASS | search succeeds (33 ms) |  |
 | PASS | search returns results with id/title/url | 2 results |
-| PASS | fetch succeeds (323 ms) |  |
+| PASS | fetch succeeds (181 ms) |  |
 | PASS | fetch returns id/title/text/url |  |
 
 ## Tool summaries (first text block of each call)
@@ -212,7 +212,7 @@ High most of the day: 63% in range, average 178 mg/dL
 61-year-old female, ovarian cancer, 1.7 years after treatment; type 2 diabetes at start; group: coaching; night shift. Average sugar 178 mg/dL in weeks 1-2, 63% of readings in range. Median rise after dinner 108 mg/dL. ML forecast for a typical dinner: 106 mg/dL. Synthetic participant (made-up data).
 Next steps:
 - Only 62.7% of your readings were in the 70-180 range (weeks 1-2); the usual target is more than 70%. Your average was 178.3 mg/dL. Bring this to your next visit.
-- You walked after 0 of your scored meals, too few to measure your own effect yet. Across the program, a walk after dinner went with a rise about 18.3 mg/dL smaller in the same person, more than after other meals (14.6 mg/dL). 10 to 19 minutes got most of the gain: 17.5 mg/dL less, against 19.5 for 20-29 minutes and 16.6 for 30+ minutes. A check in real adults (CGMacros) pointed the same way, but it is not proven there yet.
+- You walked after 0 of your scored meals, too few to measure your own effect yet. Across the program, a walk after dinner went with a rise about 18.3 mg/dL smaller in the same person, more than after other meals (14.6 mg/dL). 10 to 19 minutes got most of the gain: 17.5 mg/dL less, against 19.5 for 20-29 minutes and 16.6 for 30+ minutes. A check in real adults (CGMacros) pointed the same way, at about a fifth of the program's size, but it is not proven there yet.
 - You work nights, so clock-time rules about late dinners don't fit you. Keep your main meal at the same point in your waking day.
 ```
 ### get_survivor {"survivorId":"c5-P0002"}
@@ -271,9 +271,9 @@ C4 cohort (within-person, mg/dL change in post-meal rise): walk after a meal -17
 
 ```
 Plain-language advice for c4-N0072:
-- Share these readings with your care team: You had 62.7% of your readings in the 70-180 range, which is less than the target of more than 70%. Your average reading was 178.3 mg/dL, so be sure to bring this up at your next visit.
-- Try a 10 to 20 minute walk after dinner: You didn't walk after any of your scored meals, but walking after dinner is linked to a rise about 18.3 mg/dL smaller in the same person. Walking for 10 to 19 minutes got most of the gain, with a rise 17.5 mg/dL less.
-- Keep meal times steady around your shifts: Since you work nights, traditional rules about late dinners don't apply to you. Keep your main meal at the same point in your waking day, as usual.
+- Share these readings with your care team: You had 62.7% of your readings in the 70-180 range, which is not quite the target of more than 70%. Your average reading was 178.3 mg/dL, so be sure to discuss this at your next visit.
+- Try a 10 to 20 minute walk after dinner: You didn't walk after any of your scored meals, so you haven't seen the effect yet. Walking after dinner is linked to a rise about 18.3 mg/dL smaller in sugar, with the best results from 10 to 19 minutes of walking.
+- Keep meal times steady around your shifts: Since you work nights, traditional rules about late dinners don't apply to you. Try to keep your main meal at the same point in your waking day, regardless of the clock.
 ```
 ### reveal_outcome_demo {"survivorId":"c3-P03000"}
 
@@ -336,8 +336,8 @@ Supervisor: score 55 on the same lines; coach-move agreement 0.94, talk agreemen
 ### coaching_cue {"recent":[{"speaker":"coach","text":"Hi Rosa, how has your week been with the walking plan?","tag":"open question"},{"s
 
 ```
-Cue: Acknowledge the fever and chest tightness first before returning to the walking plan; invite her to say more about how she's feeling and consider suggesting she contact her care team if this seems new or worsening. Example: 'Before we talk about walks, I want to pause on what you just shared—a fever and tight chest sound uncomfortable. Can you tell me more about how you're feeling?'
-Say: "Before we talk about the walks, I want to pause on what you just said—a fever and tight chest for a day or two sounds uncomfortable. Can you tell me more about how you're feeling right now?"
+Cue: Acknowledge the fever and chest tightness first, reflect it back, and invite her to say more before returning to the walking plan.
+Say: "I want to pause on what you just shared — fever and chest tightness since yesterday sounds uncomfortable. Can you tell me more about how you're feeling?"
 Why: The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now.
 ```
 ### score_conversation {"transcript":"hello there"}

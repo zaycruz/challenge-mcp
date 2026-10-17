@@ -1,0 +1,4633 @@
+{
+  "url": "https://emerge-mcp.raava.dev/mcp",
+  "startedAt": "2026-10-17T16:57:50.691Z",
+  "seconds": 16.864,
+  "server": {
+    "name": "emerge-challenge-mcp",
+    "title": "Emerge Hackathon challenge APIs",
+    "version": "0.2.0"
+  },
+  "tools": [
+    {
+      "name": "triage_today",
+      "annotations": {
+        "title": "Triage today",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputs": [
+        "modules",
+        "includeWatch",
+        "limit"
+      ]
+    },
+    {
+      "name": "list_survivors",
+      "annotations": {
+        "title": "List survivors",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputs": [
+        "module",
+        "status",
+        "urgentOnly",
+        "query",
+        "limit"
+      ]
+    },
+    {
+      "name": "get_survivor",
+      "annotations": {
+        "title": "Get survivor",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputs": [
+        "survivorId",
+        "includeCharts"
+      ]
+    },
+    {
+      "name": "patient_overview",
+      "annotations": {
+        "title": "Patient overview",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputs": [
+        "survivorId"
+      ]
+    },
+    {
+      "name": "module_metrics",
+      "annotations": {
+        "title": "Module metrics",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputs": [
+        "module"
+      ]
+    },
+    {
+      "name": "glucose_advice",
+      "annotations": {
+        "title": "Glucose advice",
+        "readOnlyHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "inputs": [
+        "survivorId"
+      ]
+    },
+    {
+      "name": "list_coaching_calls",
+      "annotations": {
+        "title": "List coaching calls",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputs": [
+        "survivorId",
+        "status",
+        "limit"
+      ]
+    },
+    {
+      "name": "get_coaching_call",
+      "annotations": {
+        "title": "Get coaching call",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputs": [
+        "callId",
+        "includeLines"
+      ]
+    },
+    {
+      "name": "score_conversation",
+      "annotations": {
+        "title": "Score conversation",
+        "readOnlyHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "inputs": [
+        "transcript",
+        "callId"
+      ]
+    },
+    {
+      "name": "coaching_cue",
+      "annotations": {
+        "title": "Coaching cue",
+        "readOnlyHint": true,
+        "idempotentHint": false,
+        "openWorldHint": true
+      },
+      "inputs": [
+        "recent",
+        "trigger"
+      ]
+    },
+    {
+      "name": "search",
+      "annotations": {
+        "title": "Search",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputs": [
+        "query"
+      ]
+    },
+    {
+      "name": "fetch",
+      "annotations": {
+        "title": "Fetch",
+        "readOnlyHint": true,
+        "openWorldHint": false
+      },
+      "inputs": [
+        "id"
+      ]
+    }
+  ],
+  "passed": 78,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "initialize",
+      "pass": true,
+      "detail": "{\"name\":\"emerge-challenge-mcp\",\"title\":\"Emerge Hackathon challenge APIs\",\"version\":\"0.2.0\"}"
+    },
+    {
+      "name": "tools/list has every tool",
+      "pass": true,
+      "detail": "triage_today, list_survivors, get_survivor, patient_overview, module_metrics, glucose_advice, list_coaching_calls, get_coaching_call, score_conversation, coaching_cue, search, fetch"
+    },
+    {
+      "name": "every tool has a non-empty input schema",
+      "pass": true,
+      "detail": "all have properties"
+    },
+    {
+      "name": "default tools/list hides reveal_outcome_demo",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "every tool is marked readOnlyHint",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "every tool has a description of 40+ chars",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "triage_today succeeds (360 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "triage defaults to a short list (10)",
+      "pass": true,
+      "detail": "10 of 65"
+    },
+    {
+      "name": "triage counts all 4 cohorts",
+      "pass": true,
+      "detail": "{\"c1\":{\"alert\":40,\"watch\":43,\"ok\":116},\"c3\":{\"alert\":5,\"watch\":4,\"ok\":51},\"c4\":{\"alert\":11,\"watch\":10,\"ok\":29},\"c5\":{\"alert\":9,\"watch\":6,\"ok\":11}}"
+    },
+    {
+      "name": "triage lists urgent C3 first",
+      "pass": true,
+      "detail": "c3-P03000"
+    },
+    {
+      "name": "triage rows have rank, cohort and their own reason",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "triage mixes cohorts in the top 10",
+      "pass": true,
+      "detail": "c3,c3,c1,c3,c4,c5,c1,c3,c4,c5"
+    },
+    {
+      "name": "triage says cohorts are not joined",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "triage_today succeeds (181 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "triage caps at 25",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "triage_today returns isError (113 ms)",
+      "pass": true,
+      "detail": "MCP error -32602: Input validation error: Invalid arguments for tool triage_today: Too big: expected number to be <=25 at limit"
+    },
+    {
+      "name": "list_survivors succeeds (289 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "list_survivors c1 returns rows",
+      "pass": true,
+      "detail": "199 total, first c1-S71188550"
+    },
+    {
+      "name": "list_survivors succeeds (209 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "list_survivors c3 returns rows",
+      "pass": true,
+      "detail": "60 total, first c3-P03000"
+    },
+    {
+      "name": "list_survivors succeeds (262 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "list_survivors c4 returns rows",
+      "pass": true,
+      "detail": "50 total, first c4-N0072"
+    },
+    {
+      "name": "list_survivors succeeds (192 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "list_survivors c5 returns rows",
+      "pass": true,
+      "detail": "26 total, first c5-P0002"
+    },
+    {
+      "name": "list_survivors succeeds (138 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "list_survivors filters by text and status",
+      "pass": true,
+      "detail": "11 matched"
+    },
+    {
+      "name": "list_survivors succeeds (100 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "list_survivors urgentOnly",
+      "pass": true,
+      "detail": "2 urgent"
+    },
+    {
+      "name": "get_survivor succeeds (88 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "get_survivor c1 has headline + evidence/recommendations",
+      "pass": true,
+      "detail": "c1-S71188550"
+    },
+    {
+      "name": "get_survivor succeeds (103 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "get_survivor c3 has headline + evidence/recommendations",
+      "pass": true,
+      "detail": "c3-P03000"
+    },
+    {
+      "name": "get_survivor c3 hides the outcome",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "get_survivor succeeds (128 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "get_survivor c4 has headline + evidence/recommendations",
+      "pass": true,
+      "detail": "c4-N0072"
+    },
+    {
+      "name": "get_survivor succeeds (103 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "get_survivor c5 has headline + evidence/recommendations",
+      "pass": true,
+      "detail": "c5-P0002"
+    },
+    {
+      "name": "get_survivor succeeds (113 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "get_survivor c3 charts trimmed to 14 days",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "get_survivor returns isError (145 ms)",
+      "pass": true,
+      "detail": "Error: Not found. /api/c1/survivors/c1-NOPE: HTTP 404 survivor not found"
+    },
+    {
+      "name": "get_survivor returns isError (242 ms)",
+      "pass": true,
+      "detail": "Error: survivorId must start with c1-, c3-, c4- or c5- (got \"x9-123\")"
+    },
+    {
+      "name": "patient_overview succeeds (194 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "patient_overview says ids do not join",
+      "pass": true,
+      "detail": "{\"c1\":{\"enrolled\":false},\"c3\":{\"enrolled\":true,\"survivorId\":\"c3-P03000\",\"status\":\"alert\",\"headline\":\"Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\",\"rank\":\"1 of 60\"},\"c4\":{\"enrolled\":false},\"c5\":{\"enrolled\":false}}"
+    },
+    {
+      "name": "module_metrics succeeds (178 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "module_metrics c1 reads the live finalModel",
+      "pass": true,
+      "detail": "forest AUROC 0.713"
+    },
+    {
+      "name": "module_metrics c1 gives the gain over baseline with a CI",
+      "pass": true,
+      "detail": "C1 live model: Random forest (300 trees (forest). AUROC 0.713 (95% CI 0.662 to 0.764) vs baseline 0.659, out-of-fold on the development survivors. Gain over baseline: AUROC +0.053 (95% CI -0.001 to 0.105, P(better) 0.971"
+    },
+    {
+      "name": "module_metrics c1 is compact",
+      "pass": true,
+      "detail": "4430 chars"
+    },
+    {
+      "name": "module_metrics succeeds (159 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "module_metrics c3 has model and baseline",
+      "pass": true,
+      "detail": "0.827 vs 0.808"
+    },
+    {
+      "name": "module_metrics c3 is compact",
+      "pass": true,
+      "detail": "7243 chars"
+    },
+    {
+      "name": "module_metrics succeeds (96 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "module_metrics c4 is compact",
+      "pass": true,
+      "detail": "6567 chars"
+    },
+    {
+      "name": "glucose_advice succeeds (115 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "glucose_advice returns advice items",
+      "pass": true,
+      "detail": "ai,ai,ai"
+    },
+    {
+      "name": "reveal_outcome_demo returns isError (186 ms)",
+      "pass": true,
+      "detail": "MCP error -32602: Tool reveal_outcome_demo not found"
+    },
+    {
+      "name": "?tools=demo lists reveal_outcome_demo",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "reveal_outcome_demo works on ?tools=demo",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "list_coaching_calls succeeds (130 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "list_coaching_calls returns calls",
+      "pass": true,
+      "detail": "27 calls"
+    },
+    {
+      "name": "get_coaching_call succeeds (380 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "get_coaching_call has a transcript",
+      "pass": true,
+      "detail": "CALL05559, 33 lines"
+    },
+    {
+      "name": "get_coaching_call returns isError (143 ms)",
+      "pass": true,
+      "detail": "Error: Not found. /api/c5/calls/CALL99999: HTTP 404 call not found"
+    },
+    {
+      "name": "score_conversation succeeds (1408 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "score_conversation flags the symptom line medical",
+      "pass": true,
+      "detail": "{\"n\":2,\"speaker\":\"participant\",\"text\":\"Not great. I've had a fever since yesterday and my chest feels tight.\",\"tag\":\"neutral\",\"flag\":\"medical\",\"confidence\":0.087}"
+    },
+    {
+      "name": "score_conversation carries the flag: next coach line is missed_concern",
+      "pass": true,
+      "detail": "{\"n\":3,\"speaker\":\"coach\",\"text\":\"Okay. So did you manage to do the walks after dinner?\",\"tag\":\"closed question\",\"flag\":\"missed_concern\",\"confidence\":0.311}"
+    },
+    {
+      "name": "score_conversation tags every line",
+      "pass": true,
+      "detail": "open question | neutral | closed question | neutral | persuade | change | open question"
+    },
+    {
+      "name": "score_conversation scores (4 coach lines)",
+      "pass": true,
+      "detail": "score 20"
+    },
+    {
+      "name": "score_conversation finds cue moments",
+      "pass": true,
+      "detail": "[{\"afterLine\":2,\"trigger\":\"Participant raised a medical concern. Help the coach respond with care and connect them to the right person today.\"},{\"afterLine\":3,\"trigger\":\"The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now.\"}]"
+    },
+    {
+      "name": "score_conversation succeeds (4783 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "score_conversation on a stored call compares with the supervisor",
+      "pass": true,
+      "detail": "{\"supervisorScoreFullCall\":55,\"supervisorScoreSameLines\":55,\"coachMoveAgreement\":0.94,\"participantTalkAgreement\":0.87,\"supervisorNeedsHumanLines\":[]}"
+    },
+    {
+      "name": "coaching_cue succeeds (2658 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "coaching_cue uses the Co-pilot rule for a missed concern",
+      "pass": true,
+      "detail": "The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now."
+    },
+    {
+      "name": "coaching_cue returns a cue",
+      "pass": true,
+      "detail": "Acknowledge the fever and chest tightness first, reflect it back, and invite her to say more before returning to the walking plan. / I want to pause on what you just shared — fever and chest tightness since yesterday sounds uncomfortable. Can you tell me more about how you're feeling?"
+    },
+    {
+      "name": "score_conversation returns isError (72 ms)",
+      "pass": true,
+      "detail": "Error: cannot read the speaker in \"hello there\"; start each line with \"coach:\" or \"participant:\""
+    },
+    {
+      "name": "search succeeds (33 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "search returns results with id/title/url",
+      "pass": true,
+      "detail": "2 results"
+    },
+    {
+      "name": "fetch succeeds (181 ms)",
+      "pass": true,
+      "detail": ""
+    },
+    {
+      "name": "fetch returns id/title/text/url",
+      "pass": true,
+      "detail": ""
+    }
+  ],
+  "calls": [
+    {
+      "name": "triage_today",
+      "args": {},
+      "ms": 360,
+      "isError": false,
+      "summary": "Top 10 of 65 survivors needing attention (2 urgent). Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.\n1. c3-P03000 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\n2. c3-P02185 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual\n3. c1-S71188550 [alert] C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year\n4. c3-P02465 [alert] C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep\n5. c4-N0072 [alert] C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL\n6. c5-P0002 [alert] C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today\n7. c1-S13BA2BCD [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year\n8. c3-P02836 [alert] C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins)\n9. c4-N0085 [alert] C4 Glucose Guide: High most of the day: 64% in range, average 177 mg/dL\n10. c5-P0117 [alert] C5 Coach's Co-pilot: Medical concern at 00:21 in call 5: a person must follow up today\nPer cohort: c1 {\"alert\":40,\"watch\":43,\"ok\":116}; c3 {\"alert\":5,\"watch\":4,\"ok\":51}; c4 {\"alert\":11,\"watch\":10,\"ok\":29}; c5 {\"alert\":9,\"watch\":6,\"ok\":11}.\n55 more not shown; use list_survivors per module.",
+      "structuredContent": {
+        "shown": 10,
+        "needingAttention": 65,
+        "urgent": 2,
+        "cohortsJoined": false,
+        "note": "Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.",
+        "rows": [
+          {
+            "rank": 1,
+            "cohort": "c3",
+            "cohortName": "C3 Bad Week Radar",
+            "survivorId": "c3-P03000",
+            "displayName": "P03000 · 49M · kidney",
+            "status": "alert",
+            "urgent": true,
+            "reason": "C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual"
+          },
+          {
+            "rank": 2,
+            "cohort": "c3",
+            "cohortName": "C3 Bad Week Radar",
+            "survivorId": "c3-P02185",
+            "displayName": "P02185 · 42M · lymphoma",
+            "status": "alert",
+            "urgent": true,
+            "reason": "C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual"
+          },
+          {
+            "rank": 3,
+            "cohort": "c1",
+            "cohortName": "C1 Care Team Risk",
+            "survivorId": "c1-S71188550",
+            "displayName": "S71188550 · 85M · prostate",
+            "status": "alert",
+            "reason": "C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year"
+          },
+          {
+            "rank": 4,
+            "cohort": "c3",
+            "cohortName": "C3 Bad Week Radar",
+            "survivorId": "c3-P02465",
+            "displayName": "P02465 · 59M · bladder",
+            "status": "alert",
+            "reason": "C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep"
+          },
+          {
+            "rank": 5,
+            "cohort": "c4",
+            "cohortName": "C4 Glucose Guide",
+            "survivorId": "c4-N0072",
+            "displayName": "N0072 · 61F · ovarian",
+            "status": "alert",
+            "reason": "C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL"
+          },
+          {
+            "rank": 6,
+            "cohort": "c5",
+            "cohortName": "C5 Coach's Co-pilot",
+            "survivorId": "c5-P0002",
+            "displayName": "María · 52F · colorectal",
+            "status": "alert",
+            "reason": "C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today"
+          },
+          {
+            "rank": 7,
+            "cohort": "c1",
+            "cohortName": "C1 Care Team Risk",
+            "survivorId": "c1-S13BA2BCD",
+            "displayName": "S13BA2BCD · 67F · other",
+            "status": "alert",
+            "reason": "C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year"
+          },
+          {
+            "rank": 8,
+            "cohort": "c3",
+            "cohortName": "C3 Bad Week Radar",
+            "survivorId": "c3-P02836",
+            "displayName": "P02836 · 52M · lung",
+            "status": "alert",
+            "reason": "C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins)"
+          },
+          {
+            "rank": 9,
+            "cohort": "c4",
+            "cohortName": "C4 Glucose Guide",
+            "survivorId": "c4-N0085",
+            "displayName": "N0085 · 67M · melanoma",
+            "status": "alert",
+            "reason": "C4 Glucose Guide: High most of the day: 64% in range, average 177 mg/dL"
+          },
+          {
+            "rank": 10,
+            "cohort": "c5",
+            "cohortName": "C5 Coach's Co-pilot",
+            "survivorId": "c5-P0117",
+            "displayName": "Yolanda · 57F · colorectal",
+            "status": "alert",
+            "reason": "C5 Coach's Co-pilot: Medical concern at 00:21 in call 5: a person must follow up today"
+          }
+        ],
+        "perCohort": {
+          "c1": {
+            "cohort": "C1 Care Team Risk",
+            "people": "chance of an ER visit or hospital stay next year (199 real MEPS survivors, held out)",
+            "statusCounts": {
+              "alert": 40,
+              "watch": 43,
+              "ok": 116
+            },
+            "shown": 2
+          },
+          "c3": {
+            "cohort": "C3 Bad Week Radar",
+            "people": "wearable forecast of a rough patch, and urgent ER/hospital risk, in the next 7 days (60 synthetic survivors)",
+            "statusCounts": {
+              "alert": 5,
+              "watch": 4,
+              "ok": 51
+            },
+            "shown": 4
+          },
+          "c4": {
+            "cohort": "C4 Glucose Guide",
+            "people": "CGM blood sugar, meals, meal timing and walking advice (50 synthetic sensor wearers)",
+            "statusCounts": {
+              "alert": 11,
+              "watch": 10,
+              "ok": 29
+            },
+            "shown": 2
+          },
+          "c5": {
+            "cohort": "C5 Coach's Co-pilot",
+            "people": "coaching calls scored for motivational interviewing, with flags a person must act on (26 synthetic participants)",
+            "statusCounts": {
+              "alert": 9,
+              "watch": 6,
+              "ok": 11
+            },
+            "shown": 2
+          }
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "name": "triage_today",
+      "args": {
+        "limit": 25,
+        "includeWatch": true
+      },
+      "ms": 181,
+      "isError": false,
+      "summary": "Top 25 of 128 survivors needing attention (2 urgent). Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.\n1. c3-P03000 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\n2. c3-P02185 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual\n3. c1-S71188550 [alert] C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year\n4. c3-P02465 [alert] C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep\n5. c4-N0072 [alert] C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL\n6. c5-P0002 [alert] C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today\n7. c1-S13BA2BCD [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year\n8. c3-P02836 [alert] C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins)\n9. c4-N0085 [alert] C4 Glucose Guide: High most of the day: 64% in range, average 177 mg/dL\n10. c5-P0117 [alert] C5 Coach's Co-pilot: Medical concern at 00:21 in call 5: a person must follow up today\n11. c1-S9707145E [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year\n12. c3-P01289 [alert] C3 Bad Week Radar: Rough patch risk 17% in the next 7 days, mostly ",
+      "structuredContent": {
+        "shown": 25,
+        "needingAttention": 128,
+        "urgent": 2,
+        "cohortsJoined": false,
+        "note": "Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.",
+        "rows": [
+          {
+            "rank": 1,
+            "cohort": "c3",
+            "cohortName": "C3 Bad Week Radar",
+            "survivorId": "c3-P03000",
+            "displayName": "P03000 · 49M · kidney",
+            "status": "alert",
+            "urgent": true,
+            "reason": "C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual"
+          },
+          {
+            "rank": 2,
+            "cohort": "c3",
+            "cohortName": "C3 Bad Week Radar",
+            "survivorId": "c3-P02185",
+            "displayName": "P02185 · 42M · lymphoma",
+            "status": "alert",
+            "urgent": true,
+            "reason": "C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual"
+          },
+          {
+            "rank": 3,
+            "cohort": "c1",
+            "cohortName": "C1 Care Team Risk",
+            "survivorId": "c1-S71188550",
+            "displayName": "S71188550 · 85M · prostate",
+            "status": "alert",
+            "reason": "C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year"
+          },
+          {
+            "rank": 4,
+            "cohort": "c3",
+            "cohortName": "C3 Bad Week Radar",
+            "survivorId": "c3-P02465",
+            "displayName": "P02465 · 59M · bladder",
+            "status": "alert",
+            "reason": "C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep"
+          },
+          {
+            "rank": 5,
+            "cohort": "c4",
+            "cohortName": "C4 Glucose Guide",
+            "survivorId": "c4-N0072",
+            "displayName": "N0072 · 61F · ovarian",
+            "status": "alert",
+            "reason": "C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL"
+          },
+          {
+            "rank": 6,
+            "cohort": "c5",
+            "cohortName": "C5 Coach's Co-pilot",
+            "survivorId": "c5-P0002",
+            "displayName": "María · 52F · colorectal",
+            "status": "alert",
+            "reason": "C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today"
+          },
+          {
+            "rank": 7,
+            "cohort": "c1",
+            "cohortName": "C1 Care Team Risk",
+            "survivorId": "c1-S13BA2BCD",
+            "displayName": "S13BA2BCD · 67F · other",
+            "status": "alert",
+            "reason": "C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year"
+          },
+          {
+            "rank": 8,
+            "cohort": "c3",
+            "cohortName": "C3 Bad Week Radar",
+            "survivorId": "c3-P02836",
+            "displayName": "P02836 · 52M · lung",
+            "status": "alert",
+            "reason": "C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins)"
+          },
+          {
+            "rank": 9,
+            "cohort": "c4",
+            "cohortName": "C4 Glucose Guide",
+            "survivorId": "c4-N0085",
+            "displayName": "N0085 · 67M · melanoma",
+            "status": "alert",
+            "reason": "C4 Glucose Guide: High most of the day: 64% in range, average 177 mg/dL"
+          },
+          {
+            "rank": 10,
+            "cohort": "c5",
+            "cohortName": "C5 Coach's Co-pilot",
+            "survivorId": "c5-P0117",
+            "displayName": "Yolanda · 57F · colorectal",
+            "status": "alert",
+            "reason": "C5 Coach's Co-pilot: Medical concern at 00:21 in call 5: a person must follow up today"
+          },
+          {
+            "rank": 11,
+            "cohort": "c1",
+            "cohortName": "C1 Care Team Risk",
+            "survivorId": "c1-S9707145E",
+            "displayName": "S9707145E · 74F · breast",
+            "status": "alert",
+            "reason": "C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year"
+          },
+          {
+            "rank": 12,
+            "cohort": "c3",
+            "cohortName": "C3 Bad Week Radar",
+            "survivorId": "c3-P01289",
+            "displayName": "P01289 · 62M · bladder",
+            "status": "alert",
+            "reason": "C3 Bad Week Radar: Rough patch risk 17% in the next 7 days, mostly from the treatment calendar"
+          },
+          {
+            "rank": 13,
+            "cohort": "c4",
+            "cohortName": "C4 Glucose Guide",
+            "survivorId": "c4-N0632",
+            "displayName": "N0632 · 76F · colorectal",
+            "status": "alert",
+            "reason": "C4 Glucose Guide: Frequent lows: 5.3% of readings below 70"
+          },
+          {
+            "rank": 14,
+            "cohort": "c5",
+            "cohortName": "C5 Coach's Co-pilot",
+            "survivorId": "c5-P0268",
+            "displayName": "Miguel · 48M · kidney",
+            "status": "alert",
+            "reason": "C5 Coach's Co-pilot: Medical concern at 05:42 in call 5: a person must follow up today"
+          },
+          {
+            "rank": 15,
+            "cohort": "c1",
+            "cohortName": "C1 Care Team Risk",
+            "survivorId": "c1-S89552168",
+            "displayName": "S89552168 · 72F · lung",
+            "status": "alert",
+            "reason": "C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year"
+          },
+          {
+            "rank": 16,
+            "cohort": "c4",
+            "cohortName": "C4 Glucose Guide",
+            "survivorId": "c4-N0767",
+            "displayName": "N0767 · 71M · bladder",
+            "status": "alert",
+            "reason": "C4 Glucose Guide: Frequent lows: 5.5% of readings below 70"
+          },
+          {
+            "rank": 17,
+            "cohort": "c5",
+            "cohortName": "C5 Coach's Co-pilot",
+            "survivorId": "c5-P0286",
+            "displayName": "Rosa · 69F · kidney",
+            "status": "alert",
+            "reason": "C5 Coach's Co-pilot: Medical concern at 00:32 in call 2: a person must follow up today"
+          },
+          {
+            "rank": 18,
+            "cohort": "c1",
+            "cohortName": "C1 Care Team Risk",
+            "survivorId": "c1-S0A254803",
+            "displayName": "S0A254803 · 85F · cervix",
+            "status": "alert",
+            "reason": "C1 Care Team Risk: Acute care risk 64% for 2018 (high), driven by nights in hospital last year"
+          },
+          {
+            "rank": 19,
+            "cohort": "c4",
+            "cohortName": "C4 Glucose Guide",
+            "survivorId": "c4-N0872",
+            "displayName": "N0872 · 47F · lung",
+            "status": "alert",
+            "reason": "C4 Glucose Guide: High most of the day: 0% in range, average 306 mg/dL"
+          },
+          {
+            "rank": 20,
+            "cohort": "c5",
+            "cohortName": "C5 Coach's Co-pilot",
+            "survivorId": "c5-P0322",
+            "displayName": "Chris · 42M · breast",
+            "status": "alert",
+            "reason": "C5 Coach's Co-pilot: Medical concern at 06:19 in call 6: a person must follow up today"
+          },
+          {
+            "rank": 21,
+            "cohort": "c1",
+            "cohortName": "C1 Care Team Risk",
+            "survivorId": "c1-S2480BBDE",
+            "displayName": "S2480BBDE · 61F · other",
+            "status": "alert",
+            "reason": "C1 Care Team Risk: Acute care risk 64% for 2018 (high), driven by nights in hospital last year"
+          },
+          {
+            "rank": 22,
+            "cohort": "c4",
+            "cohortName": "C4 Glucose Guide",
+            "survivorId": "c4-N0950",
+            "displayName": "N0950 · 60M · prostate",
+            "status": "alert",
+            "reason": "C4 Glucose Guide: High most of the day: 69% in range, average 172 mg/dL"
+          },
+          {
+            "rank": 23,
+            "cohort": "c5",
+            "cohortName": "C5 Coach's Co-pilot",
+            "survivorId": "c5-P0392",
+            "displayName": "Barbara · 71F · kidney",
+            "status": "alert",
+            "reason": "C5 Coach's Co-pilot: Medical concern at 05:15 in call 4: a person must follow up today"
+          },
+          {
+            "rank": 24,
+            "cohort": "c1",
+            "cohortName": "C1 Care Team Risk",
+            "survivorId": "c1-S93CB4E8B",
+            "displayName": "S93CB4E8B · 79F · breast",
+            "status": "alert",
+            "reason": "C1 Care Team Risk: Acute care risk 64% for 2018 (high), driven by nights in hospital last year"
+          },
+          {
+            "rank": 25,
+            "cohort": "c4",
+            "cohortName": "C4 Glucose Guide",
+            "survivorId": "c4-N1097",
+            "displayName": "N1097 · 79M · prostate",
+            "status": "alert",
+            "reason": "C4 Glucose Guide: High most of the day: 15% in range, average 212 mg/dL"
+          }
+        ],
+        "perCohort": {
+          "c1": {
+            "cohort": "C1 Care Team Risk",
+            "people": "chance of an ER visit or hospital stay next year (199 real MEPS survivors, held out)",
+            "statusCounts": {
+              "alert": 40,
+              "watch": 43,
+              "ok": 116
+            },
+            "shown": 7
+          },
+          "c3": {
+            "cohort": "C3 Bad Week Radar",
+            "people": "wearable forecast of a rough patch, and urgent ER/hospital risk, in the next 7 days (60 synthetic survivors)",
+            "statusCounts": {
+              "alert": 5,
+              "watch": 4,
+              "ok": 51
+            },
+            "shown": 5
+          },
+          "c4": {
+            "cohort": "C4 Glucose Guide",
+            "people": "CGM blood sugar, meals, meal timing and walking advice (50 synthetic sensor wearers)",
+            "statusCounts": {
+              "alert": 11,
+              "watch": 10,
+              "ok": 29
+            },
+            "shown": 7
+          },
+          "c5": {
+            "cohort": "C5 Coach's Co-pilot",
+            "people": "coaching calls scored for motivational interviewing, with flags a person must act on (26 synthetic participants)",
+            "statusCounts": {
+              "alert": 9,
+              "watch": 6,
+              "ok": 11
+            },
+            "shown": 6
+          }
+        },
+        "unavailable": []
+      }
+    },
+    {
+      "name": "triage_today",
+      "args": {
+        "limit": 26
+      },
+      "ms": 113,
+      "isError": true,
+      "summary": "MCP error -32602: Input validation error: Invalid arguments for tool triage_today: Too big: expected number to be <=25 at limit"
+    },
+    {
+      "name": "list_survivors",
+      "args": {
+        "module": "c1",
+        "limit": 3
+      },
+      "ms": 289,
+      "isError": false,
+      "summary": "C1 Care Team Risk: 199 of 199 survivors match ({\"alert\":40,\"watch\":43,\"ok\":116} overall).\n- c1-S71188550 [alert] S71188550 · 85M · prostate: Acute care risk 70% for 2018 (high), driven by nights in hospital last year\n- c1-S13BA2BCD [alert] S13BA2BCD · 67F · other: Acute care risk 65% for 2018 (high), driven by nights in hospital last year\n- c1-S9707145E [alert] S9707145E · 74F · breast: Acute care risk 65% for 2018 (high), driven by nights in hospital last year",
+      "structuredContent": {
+        "module": "c1",
+        "moduleName": "C1 Care Team Risk",
+        "about": "chance of an ER visit or hospital stay next year (199 real MEPS survivors, held out)",
+        "matched": 199,
+        "total": 199,
+        "statusCounts": {
+          "alert": 40,
+          "watch": 43,
+          "ok": 116
+        },
+        "rows": [
+          {
+            "survivorId": "c1-S71188550",
+            "displayName": "S71188550 · 85M · prostate",
+            "status": "alert",
+            "headline": "Acute care risk 70% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-S13BA2BCD",
+            "displayName": "S13BA2BCD · 67F · other",
+            "status": "alert",
+            "headline": "Acute care risk 65% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-S9707145E",
+            "displayName": "S9707145E · 74F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 65% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "list_survivors",
+      "args": {
+        "module": "c3",
+        "limit": 3
+      },
+      "ms": 209,
+      "isError": false,
+      "summary": "C3 Bad Week Radar: 60 of 60 survivors match ({\"alert\":5,\"watch\":4,\"ok\":51} overall).\n- c3-P03000 [alert, URGENT] P03000 · 49M · kidney: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\n- c3-P02185 [alert, URGENT] P02185 · 42M · lymphoma: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual\n- c3-P02465 [alert] P02465 · 59M · bladder: Rough patch risk 51% in the next 7 days, driven by sleep",
+      "structuredContent": {
+        "module": "c3",
+        "moduleName": "C3 Bad Week Radar",
+        "about": "wearable forecast of a rough patch, and urgent ER/hospital risk, in the next 7 days (60 synthetic survivors)",
+        "matched": 60,
+        "total": 60,
+        "statusCounts": {
+          "alert": 5,
+          "watch": 4,
+          "ok": 51
+        },
+        "rows": [
+          {
+            "survivorId": "c3-P03000",
+            "displayName": "P03000 · 49M · kidney",
+            "status": "alert",
+            "headline": "Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual",
+            "urgent": true,
+            "updatedAt": "2025-01-31T20:00:00Z"
+          },
+          {
+            "survivorId": "c3-P02185",
+            "displayName": "P02185 · 42M · lymphoma",
+            "status": "alert",
+            "headline": "Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual",
+            "urgent": true,
+            "updatedAt": "2025-01-31T20:00:00Z"
+          },
+          {
+            "survivorId": "c3-P02465",
+            "displayName": "P02465 · 59M · bladder",
+            "status": "alert",
+            "headline": "Rough patch risk 51% in the next 7 days, driven by sleep",
+            "urgent": false,
+            "updatedAt": "2025-01-31T20:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "list_survivors",
+      "args": {
+        "module": "c4",
+        "limit": 3
+      },
+      "ms": 262,
+      "isError": false,
+      "summary": "C4 Glucose Guide: 50 of 50 survivors match ({\"alert\":11,\"watch\":10,\"ok\":29} overall).\n- c4-N0072 [alert] N0072 · 61F · ovarian: High most of the day: 63% in range, average 178 mg/dL\n- c4-N0085 [alert] N0085 · 67M · melanoma: High most of the day: 64% in range, average 177 mg/dL\n- c4-N0632 [alert] N0632 · 76F · colorectal: Frequent lows: 5.3% of readings below 70",
+      "structuredContent": {
+        "module": "c4",
+        "moduleName": "C4 Glucose Guide",
+        "about": "CGM blood sugar, meals, meal timing and walking advice (50 synthetic sensor wearers)",
+        "matched": 50,
+        "total": 50,
+        "statusCounts": {
+          "alert": 11,
+          "watch": 10,
+          "ok": 29
+        },
+        "rows": [
+          {
+            "survivorId": "c4-N0072",
+            "displayName": "N0072 · 61F · ovarian",
+            "status": "alert",
+            "headline": "High most of the day: 63% in range, average 178 mg/dL",
+            "tags": [
+              "In range 63%",
+              "Night shift",
+              "Walks after 0/23 meals"
+            ],
+            "updatedAt": "2024-08-01T19:15:00"
+          },
+          {
+            "survivorId": "c4-N0085",
+            "displayName": "N0085 · 67M · melanoma",
+            "status": "alert",
+            "headline": "High most of the day: 64% in range, average 177 mg/dL",
+            "tags": [
+              "In range 64%",
+              "Walks after 1/29 meals",
+              "Fast 14.5 h"
+            ],
+            "updatedAt": "2025-05-11T23:45:00"
+          },
+          {
+            "survivorId": "c4-N0632",
+            "displayName": "N0632 · 76F · colorectal",
+            "status": "alert",
+            "headline": "Frequent lows: 5.3% of readings below 70",
+            "tags": [
+              "Lows 5.3%",
+              "Late dinners 57%",
+              "Walks work: -18.7 mg/dL",
+              "Fast 9.9 h"
+            ],
+            "updatedAt": "2024-06-23T23:45:00"
+          }
+        ]
+      }
+    },
+    {
+      "name": "list_survivors",
+      "args": {
+        "module": "c5",
+        "limit": 3
+      },
+      "ms": 192,
+      "isError": false,
+      "summary": "C5 Coach's Co-pilot: 26 of 26 survivors match ({\"alert\":9,\"watch\":6,\"ok\":11} overall).\n- c5-P0002 [alert] María · 52F · colorectal: Medical concern at 06:18 in call 5: a person must follow up today\n- c5-P0117 [alert] Yolanda · 57F · colorectal: Medical concern at 00:21 in call 5: a person must follow up today\n- c5-P0268 [alert] Miguel · 48M · kidney: Medical concern at 05:42 in call 5: a person must follow up today",
+      "structuredContent": {
+        "module": "c5",
+        "moduleName": "C5 Coach's Co-pilot",
+        "about": "coaching calls scored for motivational interviewing, with flags a person must act on (26 synthetic participants)",
+        "matched": 26,
+        "total": 26,
+        "statusCounts": {
+          "alert": 9,
+          "watch": 6,
+          "ok": 11
+        },
+        "rows": [
+          {
+            "survivorId": "c5-P0002",
+            "displayName": "María · 52F · colorectal",
+            "status": "alert",
+            "headline": "Medical concern at 06:18 in call 5: a person must follow up today",
+            "updatedAt": "2025-08-18"
+          },
+          {
+            "survivorId": "c5-P0117",
+            "displayName": "Yolanda · 57F · colorectal",
+            "status": "alert",
+            "headline": "Medical concern at 00:21 in call 5: a person must follow up today",
+            "updatedAt": "2025-09-02"
+          },
+          {
+            "survivorId": "c5-P0268",
+            "displayName": "Miguel · 48M · kidney",
+            "status": "alert",
+            "headline": "Medical concern at 05:42 in call 5: a person must follow up today",
+            "updatedAt": "2025-06-10"
+          }
+        ]
+      }
+    },
+    {
+      "name": "list_survivors",
+      "args": {
+        "module": "c1",
+        "query": "breast",
+        "status": "alert"
+      },
+      "ms": 138,
+      "isError": false,
+      "summary": "C1 Care Team Risk: 11 of 199 survivors match ({\"alert\":40,\"watch\":43,\"ok\":116} overall).\n- c1-S9707145E [alert] S9707145E · 74F · breast: Acute care risk 65% for 2018 (high), driven by nights in hospital last year\n- c1-S93CB4E8B [alert] S93CB4E8B · 79F · breast: Acute care risk 64% for 2018 (high), driven by nights in hospital last year\n- c1-S54288CF4 [alert] S54288CF4 · 63F · breast: Acute care risk 64% for 2018 (high), driven by nights in hospital last year\n- c1-SE3556D56 [alert] SE3556D56 · 55F · breast: Acute care risk 56% for 2018 (high), driven by nights in hospital last year\n- c1-S07D2544C [alert] S07D2544C · 72F · breast: Acute care risk 56% for 2018 (high), driven by nights in hospital last year\n- c1-SE1AECC69 [alert] SE1AECC69 · 62F · breast: Acute care risk 55% for 2018 (high), driven by nights in hospital last year\n- c1-SF969193E [alert] SF969193E · 74F · breast: Acute care risk 52% for 2018 (high), driven by ER visits last year\n- c1-S9C4B6DE7 [alert] S9C4B6DE7 · 63F · breast: Acute care risk 49% for 2018 (high), driven by ER visits last year\n- c1-S1805EC9A [alert] S1805EC9A · 70F · breast: Acute care risk 48% for 2018 (high), driven by nights in hospital last year\n- c1-S2933E9D5 [alert] S2933E9D5 · 72F · breast: Acute care risk 47% for 2018 (high), driven by low mental health score\n- c1-S7FA9558D [alert] S7FA9558D · 85F · breast: Acute care risk 47% for 2018 (high), driven by age",
+      "structuredContent": {
+        "module": "c1",
+        "moduleName": "C1 Care Team Risk",
+        "about": "chance of an ER visit or hospital stay next year (199 real MEPS survivors, held out)",
+        "matched": 11,
+        "total": 199,
+        "statusCounts": {
+          "alert": 40,
+          "watch": 43,
+          "ok": 116
+        },
+        "rows": [
+          {
+            "survivorId": "c1-S9707145E",
+            "displayName": "S9707145E · 74F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 65% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-S93CB4E8B",
+            "displayName": "S93CB4E8B · 79F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 64% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-S54288CF4",
+            "displayName": "S54288CF4 · 63F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 64% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-SE3556D56",
+            "displayName": "SE3556D56 · 55F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 56% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-S07D2544C",
+            "displayName": "S07D2544C · 72F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 56% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-SE1AECC69",
+            "displayName": "SE1AECC69 · 62F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 55% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-SF969193E",
+            "displayName": "SF969193E · 74F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 52% for 2018 (high), driven by ER visits last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-S9C4B6DE7",
+            "displayName": "S9C4B6DE7 · 63F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 49% for 2018 (high), driven by ER visits last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-S1805EC9A",
+            "displayName": "S1805EC9A · 70F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 48% for 2018 (high), driven by nights in hospital last year",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-S2933E9D5",
+            "displayName": "S2933E9D5 · 72F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 47% for 2018 (high), driven by low mental health score",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          },
+          {
+            "survivorId": "c1-S7FA9558D",
+            "displayName": "S7FA9558D · 85F · breast",
+            "status": "alert",
+            "headline": "Acute care risk 47% for 2018 (high), driven by age",
+            "updatedAt": "2017-12-31T00:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "list_survivors",
+      "args": {
+        "module": "c3",
+        "urgentOnly": true
+      },
+      "ms": 100,
+      "isError": false,
+      "summary": "C3 Bad Week Radar: 2 of 60 survivors match ({\"alert\":5,\"watch\":4,\"ok\":51} overall).\n- c3-P03000 [alert, URGENT] P03000 · 49M · kidney: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\n- c3-P02185 [alert, URGENT] P02185 · 42M · lymphoma: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual",
+      "structuredContent": {
+        "module": "c3",
+        "moduleName": "C3 Bad Week Radar",
+        "about": "wearable forecast of a rough patch, and urgent ER/hospital risk, in the next 7 days (60 synthetic survivors)",
+        "matched": 2,
+        "total": 60,
+        "statusCounts": {
+          "alert": 5,
+          "watch": 4,
+          "ok": 51
+        },
+        "rows": [
+          {
+            "survivorId": "c3-P03000",
+            "displayName": "P03000 · 49M · kidney",
+            "status": "alert",
+            "headline": "Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual",
+            "urgent": true,
+            "updatedAt": "2025-01-31T20:00:00Z"
+          },
+          {
+            "survivorId": "c3-P02185",
+            "displayName": "P02185 · 42M · lymphoma",
+            "status": "alert",
+            "headline": "Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual",
+            "urgent": true,
+            "updatedAt": "2025-01-31T20:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_survivor",
+      "args": {
+        "survivorId": "c1-S71188550"
+      },
+      "ms": 88,
+      "isError": false,
+      "summary": "C1 Care Team Risk · S71188550 · 85M · prostate · ALERT\nAcute care risk 70% for 2018 (high), driven by nights in hospital last year\n70% predicted chance of an ER visit or hospital stay in 2018 (average survivor 29%). Status alert: alert from 43%, watch from 29%. Main drivers: $44,900 total health spending in 2017 (median survivor about $6,700); 26 night(s) in hospital in 2017; Age 85 or older (top-coded).\nNext steps:\n- [care-team] Add to the proactive outreach list: a nurse call in the next 2 weeks and a clear same-day contact route instead of the ER.\n- [care-team] High care use last year: review what drove it and whether one team owns the plan.\n- [care-team] Nights in hospital last year: confirm a discharge follow-up plan and who to call first.\n- [care-team] Older age: a lower bar for proactive check-ins is reasonable.",
+      "structuredContent": {
+        "module": "c1",
+        "moduleName": "C1 Care Team Risk",
+        "survivorId": "c1-S71188550",
+        "displayName": "S71188550 · 85M · prostate",
+        "status": "alert",
+        "headline": "Acute care risk 70% for 2018 (high), driven by nights in hospital last year",
+        "summary": "70% predicted chance of an ER visit or hospital stay in 2018 (average survivor 29%). Status alert: alert from 43%, watch from 29%. Main drivers: $44,900 total health spending in 2017 (median survivor about $6,700); 26 night(s) in hospital in 2017; Age 85 or older (top-coded).",
+        "risk": 0.6984,
+        "thresholds": {
+          "alert": 0.43,
+          "watch": 0.29
+        },
+        "evidence": [
+          {
+            "kind": "model",
+            "text": "Predicted chance of an ER visit or hospital stay in 2018: 70%. In the alert tier, 57% of past survivors had one."
+          },
+          {
+            "kind": "care-intensity",
+            "text": "$44,900 total health spending in 2017 (median survivor about $6,700) (raises risk)"
+          },
+          {
+            "kind": "prior-acute-care",
+            "text": "26 night(s) in hospital in 2017 (raises risk)"
+          },
+          {
+            "kind": "demographic",
+            "text": "Age 85 or older (top-coded) (raises risk)"
+          },
+          {
+            "kind": "prior-acute-care",
+            "text": "4 hospital stay(s) in 2017 (raises risk)"
+          }
+        ],
+        "recommendations": [
+          {
+            "audience": "care-team",
+            "text": "Add to the proactive outreach list: a nurse call in the next 2 weeks and a clear same-day contact route instead of the ER."
+          },
+          {
+            "audience": "care-team",
+            "text": "High care use last year: review what drove it and whether one team owns the plan."
+          },
+          {
+            "audience": "care-team",
+            "text": "Nights in hospital last year: confirm a discharge follow-up plan and who to call first."
+          },
+          {
+            "audience": "care-team",
+            "text": "Older age: a lower bar for proactive check-ins is reasonable."
+          },
+          {
+            "audience": "survivor",
+            "text": "If a symptom is getting worse, call your cancer care team first: they can often help the same day without an ER visit."
+          }
+        ],
+        "profile": {
+          "age": 85,
+          "sex": "male",
+          "raceEthnicity": "NH White",
+          "insurance2017": "Any private",
+          "cancerTypes": [
+            "prostate"
+          ],
+          "currentTreatment": "no",
+          "region": "Midwest",
+          "dataSource": "MEPS 2017 survey (real survivor, ID reassigned by organisers)"
+        },
+        "surveyScores2017": {
+          "physical_score": 35.8,
+          "mental_score": 60.9,
+          "distress_k6": 0,
+          "depression_phq2": 0,
+          "pain": 2,
+          "fatigue": 1,
+          "financial_toxicity": 1,
+          "cost_delay": 0
+        },
+        "use2017": {
+          "erVisits": 3,
+          "hospitalStays": 4,
+          "officeVisits": 17,
+          "rxFills": 18
+        },
+        "caveat": "Association, not cause: these factors flag who may need help; changing one is not proven to prevent an ER visit. Risk is from survey answers only (clinical records did not improve it).",
+        "consoleUrl": "https://patient-360.raava.dev/#p-c1-S71188550"
+      }
+    },
+    {
+      "name": "get_survivor",
+      "args": {
+        "survivorId": "c3-P03000"
+      },
+      "ms": 103,
+      "isError": false,
+      "summary": "C3 Bad Week Radar · P03000 · 49M · kidney · ALERT · URGENT\nUrgent: ER or hospital risk 10% in the next 7 days, about 9x usual\nUrgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\nNext steps:\n- [today] Call today. Ask how they feel, about fever, fluids and anything new. If anything is off, have them call their care team now.\n- [within 2 days] Check in this week about sleep: nights, naps, worries. Share the sleep tips sheet.\n- [this week] Move the next coaching call earlier and plan around the expected low point.\n- [this week] Reach out in Spanish, or book an interpreter for the call.",
+      "structuredContent": {
+        "module": "c3",
+        "moduleName": "C3 Bad Week Radar",
+        "survivorId": "c3-P03000",
+        "displayName": "P03000 · 49M · kidney",
+        "status": "alert",
+        "headline": "Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual",
+        "summary": "Urgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.",
+        "urgent": true,
+        "urgentRisk": 0.104,
+        "risk": 0.078,
+        "scheduleRisk": 0.021,
+        "thresholds": {
+          "alert": 0.156,
+          "watch": 0.105,
+          "urgent": 0.058
+        },
+        "profile": {
+          "age": 49,
+          "sex": "male",
+          "cancerType": "kidney",
+          "stage": "I",
+          "treatmentPlan": "Immunotherapy every 21 days",
+          "device": "Fitbit smartwatch",
+          "language": "Spanish",
+          "livesAlone": "no",
+          "context": "Day 16 of cycle 3 (Immunotherapy every 21 days)"
+        },
+        "evidence": [
+          {
+            "label": "Sleep",
+            "text": "Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h",
+            "riskShare": 0.063
+          },
+          {
+            "label": "Resting heart rate",
+            "text": "Resting heart rate +2.8 bpm vs their usual (88 vs 86)",
+            "riskShare": 0.034
+          },
+          {
+            "label": "Treatment calendar",
+            "text": "Day 16 of cycle 3 (Immunotherapy every 21 days). The calendar alone predicts 2% risk of a rough patch this week.",
+            "riskShare": 0.021
+          }
+        ],
+        "recommendations": [
+          {
+            "action": "Call today. Ask how they feel, about fever, fluids and anything new. If anything is off, have them call their care team now.",
+            "why": "Their wearable pattern matches the days before an ER visit or hospital stay. The coach does not diagnose; the care team decides.",
+            "urgency": "today"
+          },
+          {
+            "action": "Check in this week about sleep: nights, naps, worries. Share the sleep tips sheet.",
+            "why": "Sleep got shorter or more broken than usual.",
+            "urgency": "within 2 days"
+          },
+          {
+            "action": "Move the next coaching call earlier and plan around the expected low point.",
+            "why": "The forecast covers the next 7 days.",
+            "urgency": "this week"
+          },
+          {
+            "action": "Reach out in Spanish, or book an interpreter for the call.",
+            "why": "Their preferred language is Spanish; a rough week is harder to describe in a second language.",
+            "urgency": "this week",
+            "kind": "social"
+          }
+        ],
+        "consoleUrl": "https://patient-360.raava.dev/#p-c3-P03000"
+      }
+    },
+    {
+      "name": "get_survivor",
+      "args": {
+        "survivorId": "c4-N0072"
+      },
+      "ms": 128,
+      "isError": false,
+      "summary": "C4 Glucose Guide · N0072 · 61F · ovarian · ALERT\nHigh most of the day: 63% in range, average 178 mg/dL\n61-year-old female, ovarian cancer, 1.7 years after treatment; type 2 diabetes at start; group: coaching; night shift. Average sugar 178 mg/dL in weeks 1-2, 63% of readings in range. Median rise after dinner 108 mg/dL. ML forecast for a typical dinner: 106 mg/dL. Synthetic participant (made-up data).\nNext steps:\n- Only 62.7% of your readings were in the 70-180 range (weeks 1-2); the usual target is more than 70%. Your average was 178.3 mg/dL. Bring this to your next visit.\n- You walked after 0 of your scored meals, too few to measure your own effect yet. Across the program, a walk after dinner went with a rise about 18.3 mg/dL smaller in the same person, more than after other meals (14.6 mg/dL). 10 to 19 minutes got most of the gain: 17.5 mg/dL less, against 19.5 for 20-29 minutes and 16.6 for 30+ minutes. A check in real adults (CGMacros) pointed the same way, at about a fifth of the program's size, but it is not proven there yet.\n- You work nights, so clock-time rules about late dinners don't fit you. Keep your main meal at the same point in your waking day.",
+      "structuredContent": {
+        "module": "c4",
+        "moduleName": "C4 Glucose Guide",
+        "survivorId": "c4-N0072",
+        "displayName": "N0072 · 61F · ovarian",
+        "status": "alert",
+        "headline": "High most of the day: 63% in range, average 178 mg/dL",
+        "summary": "61-year-old female, ovarian cancer, 1.7 years after treatment; type 2 diabetes at start; group: coaching; night shift. Average sugar 178 mg/dL in weeks 1-2, 63% of readings in range. Median rise after dinner 108 mg/dL. ML forecast for a typical dinner: 106 mg/dL. Synthetic participant (made-up data).",
+        "statusReasons": [
+          "time in range below 70%",
+          "more than 5% of readings above 250"
+        ],
+        "tags": [
+          "In range 63%",
+          "Night shift",
+          "Walks after 0/23 meals"
+        ],
+        "profile": {
+          "age": 61,
+          "sex": "female",
+          "cancerType": "ovarian",
+          "yearsSinceTreatment": 1.7,
+          "bloodSugarGroup": "type 2 diabetes",
+          "group": "coaching",
+          "workSchedule": "night shift"
+        },
+        "evidence": [
+          {
+            "id": "tir",
+            "label": "Time in range 70-180 mg/dL (weeks 1-2)",
+            "value": 62.7,
+            "unit": "%"
+          },
+          {
+            "id": "mean_glucose",
+            "label": "Average blood sugar (weeks 1-2)",
+            "value": 178.3,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "tar180",
+            "label": "Readings above 180 mg/dL (weeks 1-2)",
+            "value": 37.3,
+            "unit": "%"
+          },
+          {
+            "id": "tar250",
+            "label": "Readings above 250 mg/dL (weeks 1-2)",
+            "value": 10.9,
+            "unit": "%"
+          },
+          {
+            "id": "tbr70",
+            "label": "Readings below 70 mg/dL (weeks 1-2)",
+            "value": 0,
+            "unit": "%"
+          },
+          {
+            "id": "gmi",
+            "label": "Glucose management indicator (weeks 1-2)",
+            "value": 7.6,
+            "unit": "%"
+          },
+          {
+            "id": "meals_scored",
+            "label": "Meals with a clean sugar curve",
+            "value": 23,
+            "unit": "meals"
+          },
+          {
+            "id": "median_rise",
+            "label": "Typical rise after a meal (median)",
+            "value": 105,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "dinner_rise",
+            "label": "Typical rise after dinner (median)",
+            "value": 107.5,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "dinner_count",
+            "label": "Dinners with a clean sugar curve",
+            "value": 8,
+            "unit": "meals"
+          },
+          {
+            "id": "late_share",
+            "label": "Dinners started at 8 pm or later",
+            "value": 37.5,
+            "unit": "%"
+          },
+          {
+            "id": "walk_meals",
+            "label": "Meals followed by a walk",
+            "value": 0,
+            "unit": "meals"
+          },
+          {
+            "id": "cohort_walk",
+            "label": "Program-wide: rise after meals with a walk vs without (same person)",
+            "value": -17.8,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "cohort_walk_10_19",
+            "label": "Program-wide: rise after a 10-19 min walk vs no walk",
+            "value": -17.5,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "cohort_walk_20_29",
+            "label": "Program-wide: rise after a 20-29 min walk vs no walk",
+            "value": -19.5,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "cohort_walk_30plus",
+            "label": "Program-wide: rise after a 30+ min walk vs no walk",
+            "value": -16.6,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "cohort_dinner_8_9pm",
+            "label": "Program-wide: rise after dinner at 8-9 pm vs before 6 pm (same person)",
+            "value": 13.3,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "cohort_late",
+            "label": "Program-wide: rise after dinners at 8 pm or later vs earlier (same person)",
+            "value": 9.2,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "cohort_walk_dinner",
+            "label": "Program-wide: rise after dinner with a walk vs without (same person)",
+            "value": -18.3,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "cohort_walk_other",
+            "label": "Program-wide: rise after other meals with a walk vs without (same person)",
+            "value": -14.6,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "trial_fast_hba1c_group",
+            "label": "Randomized, people who started with type 2 diabetes: HbA1c change, coaching + overnight fast vs coaching alone",
+            "value": -0.08,
+            "unit": "% points"
+          },
+          {
+            "id": "trial_fast_adherence",
+            "label": "Randomized: extra overnight fast hours in the fast arm vs coaching alone",
+            "value": 1,
+            "unit": "hours"
+          },
+          {
+            "id": "trial_fast_hba1c",
+            "label": "Randomized: HbA1c change, coaching + overnight fast vs coaching alone",
+            "value": -0.03,
+            "unit": "% points"
+          },
+          {
+            "id": "trial_fast_fpg",
+            "label": "Randomized: fasting glucose change, coaching + overnight fast vs coaching alone",
+            "value": -1.3,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "real_late_dinner",
+            "label": "Real-data check (CGMacros, 45 real adults): dinner at 8 pm or later vs earlier",
+            "value": 2.6,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "real_movement",
+            "label": "Real-data check (CGMacros): rise per extra MET of movement in the hour after a meal",
+            "value": -1.3,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "real_walk",
+            "label": "Real-data check (CGMacros): rise after meals followed by a walk vs not",
+            "value": -3.2,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "real_fast",
+            "label": "Real-data check (NHANES survivors, survey-weighted): HbA1c per extra hour of overnight fast",
+            "value": 0.013,
+            "unit": "% points"
+          },
+          {
+            "id": "cohort_walk_negctrl",
+            "label": "Check: pre-meal sugar before meals that were later followed by a walk vs not (same person)",
+            "value": -0.3,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "cohort_walk_evalue",
+            "label": "Check: how strongly a hidden factor would have to link to both walking and the rise to explain the walk effect away (E-value)",
+            "value": 3.9,
+            "unit": "x (risk ratio)"
+          },
+          {
+            "id": "cohort_walk_fe",
+            "label": "Statistics cross-check (fixed-effects regression): rise with a walk after the meal, same person",
+            "value": -17.6,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "cohort_late_fe",
+            "label": "Statistics cross-check (fixed-effects regression): rise with dinner at 8 pm or later, same person",
+            "value": 9.1,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "ml_forecast_dinner",
+            "label": "ML forecast: expected rise after your typical dinner",
+            "value": 105.8,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "ml_forecast_error",
+            "label": "ML forecast: typical miss on a meal it never saw",
+            "value": 14,
+            "unit": "mg/dL"
+          },
+          {
+            "id": "trial_fast_heterogeneity",
+            "label": "Randomized: do blood sugar groups differ in the fast effect on HbA1c? (test p-value)",
+            "value": 0.15,
+            "unit": "p"
+          }
+        ],
+        "recommendations": [
+          {
+            "title": "Share these readings with your care team",
+            "text": "Only 62.7% of your readings were in the 70-180 range (weeks 1-2); the usual target is more than 70%. Your average was 178.3 mg/dL. Bring this to your next visit.",
+            "basis": "rule"
+          },
+          {
+            "title": "Try a 10 to 20 minute walk after dinner",
+            "text": "You walked after 0 of your scored meals, too few to measure your own effect yet. Across the program, a walk after dinner went with a rise about 18.3 mg/dL smaller in the same person, more than after other meals (14.6 mg/dL). 10 to 19 minutes got most of the gain: 17.5 mg/dL less, against 19.5 for 20-29 minutes and 16.6 for 30+ minutes. A check in real adults (CGMacros) pointed the same way, at about a fifth of the program's size, but it is not proven there yet.",
+            "basis": "cohort"
+          },
+          {
+            "title": "Keep meal times steady around your shifts",
+            "text": "You work nights, so clock-time rules about late dinners don't fit you. Keep your main meal at the same point in your waking day.",
+            "basis": "rule"
+          }
+        ],
+        "dataNote": "Synthetic data from the Crane Lab hackathon set. Nobody in it is real.",
+        "consoleUrl": "https://patient-360.raava.dev/#p-c4-N0072"
+      }
+    },
+    {
+      "name": "get_survivor",
+      "args": {
+        "survivorId": "c5-P0002"
+      },
+      "ms": 103,
+      "isError": false,
+      "summary": "C5 Coach's Co-pilot · María · 52F · colorectal · ALERT\nMedical concern at 06:18 in call 5: a person must follow up today\n52-year-old female, colorectal cancer. Program focus: movement. Calls in English. Coach Kendra (exercise coach).\nNext steps:\n- [today] Tell the care team today and log the hand-off.",
+      "structuredContent": {
+        "module": "c5",
+        "moduleName": "C5 Coach's Co-pilot",
+        "survivorId": "c5-P0002",
+        "displayName": "María · 52F · colorectal",
+        "status": "alert",
+        "headline": "Medical concern at 06:18 in call 5: a person must follow up today",
+        "summary": "52-year-old female, colorectal cancer. Program focus: movement. Calls in English. Coach Kendra (exercise coach).",
+        "profile": {
+          "firstName": "María",
+          "age": 52,
+          "sex": "female",
+          "cancerType": "colorectal",
+          "language": "English",
+          "focus": "movement",
+          "coach": "Kendra"
+        },
+        "evidence": [
+          {
+            "kind": "flag-medical",
+            "text": "06:18 “Oh, before you go, i get out of breath just walking to the kitchen.”",
+            "source": "supervisor label; kind from Clef"
+          },
+          {
+            "kind": "call",
+            "text": "Call 5 (week 8, 2025-08-18): coach score 81/100",
+            "callId": "CALL00009"
+          }
+        ],
+        "recommendations": [
+          {
+            "action": "Tell the care team today and log the hand-off.",
+            "urgency": "today"
+          }
+        ],
+        "calls": [
+          {
+            "callId": "CALL00009",
+            "date": "2025-08-18",
+            "callNumber": 5,
+            "week": 8,
+            "goalTopic": "sleep",
+            "language": "English",
+            "score": 81,
+            "status": "alert",
+            "flaggedLines": 1
+          }
+        ],
+        "consoleUrl": "https://patient-360.raava.dev/#p-c5-P0002"
+      }
+    },
+    {
+      "name": "get_survivor",
+      "args": {
+        "survivorId": "c3-P03000",
+        "includeCharts": true
+      },
+      "ms": 113,
+      "isError": false,
+      "summary": "C3 Bad Week Radar · P03000 · 49M · kidney · ALERT · URGENT\nUrgent: ER or hospital risk 10% in the next 7 days, about 9x usual\nUrgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\nNext steps:\n- [today] Call today. Ask how they feel, about fever, fluids and anything new. If anything is off, have them call their care team now.\n- [within 2 days] Check in this week about sleep: nights, naps, worries. Share the sleep tips sheet.\n- [this week] Move the next coaching call earlier and plan around the expected low point.\n- [this week] Reach out in Spanish, or book an interpreter for the call.",
+      "structuredContent": {
+        "module": "c3",
+        "moduleName": "C3 Bad Week Radar",
+        "survivorId": "c3-P03000",
+        "displayName": "P03000 · 49M · kidney",
+        "status": "alert",
+        "headline": "Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual",
+        "summary": "Urgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.",
+        "urgent": true,
+        "urgentRisk": 0.104,
+        "risk": 0.078,
+        "scheduleRisk": 0.021,
+        "thresholds": {
+          "alert": 0.156,
+          "watch": 0.105,
+          "urgent": 0.058
+        },
+        "profile": {
+          "age": 49,
+          "sex": "male",
+          "cancerType": "kidney",
+          "stage": "I",
+          "treatmentPlan": "Immunotherapy every 21 days",
+          "device": "Fitbit smartwatch",
+          "language": "Spanish",
+          "livesAlone": "no",
+          "context": "Day 16 of cycle 3 (Immunotherapy every 21 days)"
+        },
+        "evidence": [
+          {
+            "label": "Sleep",
+            "text": "Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h",
+            "riskShare": 0.063
+          },
+          {
+            "label": "Resting heart rate",
+            "text": "Resting heart rate +2.8 bpm vs their usual (88 vs 86)",
+            "riskShare": 0.034
+          },
+          {
+            "label": "Treatment calendar",
+            "text": "Day 16 of cycle 3 (Immunotherapy every 21 days). The calendar alone predicts 2% risk of a rough patch this week.",
+            "riskShare": 0.021
+          }
+        ],
+        "recommendations": [
+          {
+            "action": "Call today. Ask how they feel, about fever, fluids and anything new. If anything is off, have them call their care team now.",
+            "why": "Their wearable pattern matches the days before an ER visit or hospital stay. The coach does not diagnose; the care team decides.",
+            "urgency": "today"
+          },
+          {
+            "action": "Check in this week about sleep: nights, naps, worries. Share the sleep tips sheet.",
+            "why": "Sleep got shorter or more broken than usual.",
+            "urgency": "within 2 days"
+          },
+          {
+            "action": "Move the next coaching call earlier and plan around the expected low point.",
+            "why": "The forecast covers the next 7 days.",
+            "urgency": "this week"
+          },
+          {
+            "action": "Reach out in Spanish, or book an interpreter for the call.",
+            "why": "Their preferred language is Spanish; a rough week is harder to describe in a second language.",
+            "urgency": "this week",
+            "kind": "social"
+          }
+        ],
+        "chartsLast14Days": {
+          "dates": [
+            "2025-01-18",
+            "2025-01-19",
+            "2025-01-20",
+            "2025-01-21",
+            "2025-01-22",
+            "2025-01-23",
+            "2025-01-24",
+            "2025-01-25",
+            "2025-01-26",
+            "2025-01-27",
+            "2025-01-28",
+            "2025-01-29",
+            "2025-01-30",
+            "2025-01-31"
+          ],
+          "risk": [
+            0.014,
+            0.013,
+            0.017,
+            0.02,
+            0.022,
+            0.013,
+            0.014,
+            0.012,
+            0.037,
+            0.02,
+            0.019,
+            0.018,
+            0.02,
+            0.078
+          ],
+          "urgentRisk": [
+            0.001,
+            0.001,
+            0.003,
+            0.006,
+            0.015,
+            0.003,
+            0.004,
+            0.003,
+            0.009,
+            0.003,
+            0.003,
+            0.005,
+            0.009,
+            0.104
+          ],
+          "steps": [
+            1453,
+            2194,
+            1664,
+            1891,
+            1995,
+            2857,
+            3259,
+            2839,
+            3674,
+            1379,
+            1545,
+            2242,
+            2390,
+            3173
+          ],
+          "restingHeartRate": [
+            86.8,
+            88.4,
+            85.3,
+            85.6,
+            87.9,
+            85.8,
+            87,
+            85.6,
+            87.1,
+            86.4,
+            85.3,
+            88.4,
+            86.8,
+            90
+          ],
+          "hrv": [
+            29.5,
+            34.4,
+            25,
+            30.9,
+            34,
+            23.1,
+            31.8,
+            28.8,
+            25.3,
+            30,
+            31.6,
+            23.9,
+            25.3,
+            23.6
+          ],
+          "sleepHours": [
+            6.95,
+            7.65,
+            6.68,
+            5.78,
+            7.42,
+            5.82,
+            7.05,
+            6.97,
+            7.97,
+            7.1,
+            6.68,
+            5.85,
+            7.1,
+            6.22
+          ],
+          "skinTempChange": [
+            0.59,
+            0.13,
+            0.8,
+            -0.14,
+            1.34,
+            0.31,
+            -0.47,
+            0.07,
+            0.12,
+            -0.38,
+            0.55,
+            -0.19,
+            0.55,
+            -0.45
+          ],
+          "watchWornHours": [
+            15.7,
+            22.4,
+            22.9,
+            19.7,
+            24,
+            23.2,
+            23.5,
+            22.1,
+            19.6,
+            20.2,
+            22,
+            21.1,
+            13.4,
+            21
+          ],
+          "doseDays": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "selfReportedFeeling": [
+            3,
+            5,
+            5,
+            null,
+            null,
+            null,
+            4,
+            4,
+            4,
+            null,
+            null,
+            2,
+            2,
+            2
+          ]
+        },
+        "consoleUrl": "https://patient-360.raava.dev/#p-c3-P03000"
+      }
+    },
+    {
+      "name": "get_survivor",
+      "args": {
+        "survivorId": "c1-NOPE"
+      },
+      "ms": 145,
+      "isError": true,
+      "summary": "Error: Not found. /api/c1/survivors/c1-NOPE: HTTP 404 survivor not found"
+    },
+    {
+      "name": "get_survivor",
+      "args": {
+        "survivorId": "x9-123"
+      },
+      "ms": 242,
+      "isError": true,
+      "summary": "Error: survivorId must start with c1-, c3-, c4- or c5- (got \"x9-123\")"
+    },
+    {
+      "name": "patient_overview",
+      "args": {
+        "survivorId": "c3-P03000"
+      },
+      "ms": 194,
+      "isError": false,
+      "summary": "P03000 · 49M · kidney: ALERT in C3 Bad Week Radar (1 of 60). Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\nFound in: c3. Not found in: c1, c4, c5. The modules use separate cohorts: C1 ids are c1-S…, C3 c3-P0…(5 digits), C4 c4-N…, C5 c5-P0…(4 digits). No id appears in two modules, so one person has data in one module only.",
+      "structuredContent": {
+        "survivorId": "c3-P03000",
+        "modules": {
+          "c1": {
+            "enrolled": false
+          },
+          "c3": {
+            "enrolled": true,
+            "survivorId": "c3-P03000",
+            "status": "alert",
+            "headline": "Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual",
+            "rank": "1 of 60"
+          },
+          "c4": {
+            "enrolled": false
+          },
+          "c5": {
+            "enrolled": false
+          }
+        },
+        "home": {
+          "module": "c3",
+          "moduleName": "C3 Bad Week Radar",
+          "survivorId": "c3-P03000",
+          "displayName": "P03000 · 49M · kidney",
+          "status": "alert",
+          "headline": "Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual",
+          "summary": "Urgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.",
+          "urgent": true,
+          "urgentRisk": 0.104,
+          "risk": 0.078,
+          "scheduleRisk": 0.021,
+          "thresholds": {
+            "alert": 0.156,
+            "watch": 0.105,
+            "urgent": 0.058
+          },
+          "profile": {
+            "age": 49,
+            "sex": "male",
+            "cancerType": "kidney",
+            "stage": "I",
+            "treatmentPlan": "Immunotherapy every 21 days",
+            "device": "Fitbit smartwatch",
+            "language": "Spanish",
+            "livesAlone": "no",
+            "context": "Day 16 of cycle 3 (Immunotherapy every 21 days)"
+          },
+          "evidence": [
+            {
+              "label": "Sleep",
+              "text": "Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h",
+              "riskShare": 0.063
+            },
+            {
+              "label": "Resting heart rate",
+              "text": "Resting heart rate +2.8 bpm vs their usual (88 vs 86)",
+              "riskShare": 0.034
+            },
+            {
+              "label": "Treatment calendar",
+              "text": "Day 16 of cycle 3 (Immunotherapy every 21 days). The calendar alone predicts 2% risk of a rough patch this week.",
+              "riskShare": 0.021
+            }
+          ],
+          "recommendations": [
+            {
+              "action": "Call today. Ask how they feel, about fever, fluids and anything new. If anything is off, have them call their care team now.",
+              "why": "Their wearable pattern matches the days before an ER visit or hospital stay. The coach does not diagnose; the care team decides.",
+              "urgency": "today"
+            },
+            {
+              "action": "Check in this week about sleep: nights, naps, worries. Share the sleep tips sheet.",
+              "why": "Sleep got shorter or more broken than usual.",
+              "urgency": "within 2 days"
+            },
+            {
+              "action": "Move the next coaching call earlier and plan around the expected low point.",
+              "why": "The forecast covers the next 7 days.",
+              "urgency": "this week"
+            },
+            {
+              "action": "Reach out in Spanish, or book an interpreter for the call.",
+              "why": "Their preferred language is Spanish; a rough week is harder to describe in a second language.",
+              "urgency": "this week",
+              "kind": "social"
+            }
+          ],
+          "consoleUrl": "https://patient-360.raava.dev/#p-c3-P03000"
+        },
+        "idsJoin": false,
+        "note": "The modules use separate cohorts: C1 ids are c1-S…, C3 c3-P0…(5 digits), C4 c4-N…, C5 c5-P0…(4 digits). No id appears in two modules, so one person has data in one module only."
+      }
+    },
+    {
+      "name": "module_metrics",
+      "args": {
+        "module": "c1"
+      },
+      "ms": 178,
+      "isError": false,
+      "summary": "C1 live model: Random forest (300 trees (forest). AUROC 0.713 (95% CI 0.662 to 0.764) vs baseline 0.659, out-of-fold on the development survivors. Gain over baseline: AUROC +0.053 (95% CI -0.001 to 0.105, P(better) 0.971), Brier -0.021 (95% CI -0.035 to -0.007). Held-out status mix {\"alert\":40,\"watch\":43,\"ok\":116}.",
+      "structuredContent": {
+        "module": "c1",
+        "moduleName": "C1 Care Team Risk",
+        "asOf": "2017-12-31T00:00:00Z",
+        "outcome": "Any ER visit or hospital stay in 2018 (outcome_acute_care_2018)",
+        "data": {
+          "devSurvivors": 466,
+          "devPositives": 134,
+          "heldoutSurvivors": 199,
+          "predictorsFrom": "2017 MEPS only (2018 file used for the outcome column only)"
+        },
+        "validation": "10x repeated stratified 5-fold CV on the development set, one row per survivor; OOF predictions averaged over repeats; 2000-sample patient bootstrap for 95% CIs; paired bootstrap for differences.",
+        "finalModel": {
+          "key": "forest",
+          "name": "Random forest (300 trees, min leaf 10) with sigmoid calibration, on 16 features: 2017 care use (ER, hospital stays and nights, office, outpatient, home health, prescriptions, spending), age, physical and mental health scores, distress, depression screen, self-rated health, missed work days",
+          "chosenBy": "nested cross-validation of a 37-candidate model search (runs/autoresearch): it won 6 of 10 outer folds",
+          "previous": "L2 logistic regression on 34 survey-domain features (the first submission)"
+        },
+        "metrics": {
+          "forest": {
+            "auroc": {
+              "value": 0.7127989570221184,
+              "ci95": [
+                0.662325942116102,
+                0.7638970658004742
+              ]
+            },
+            "auprc": {
+              "value": 0.5078127975600191,
+              "ci95": [
+                0.42293901907376646,
+                0.5981872372571008
+              ]
+            },
+            "brier": {
+              "value": 0.17959085396966648,
+              "ci95": [
+                0.16152185125206428,
+                0.19824151669787296
+              ]
+            },
+            "cal_slope": {
+              "value": 1.1027281437453391,
+              "ci95": [
+                0.8222359309856233,
+                1.4350184930267165
+              ]
+            }
+          },
+          "baseline": {
+            "auroc": {
+              "value": 0.6593463405862255,
+              "ci95": [
+                0.6025372827387513,
+                0.7180033339033569
+              ]
+            },
+            "auprc": {
+              "value": 0.42264841486447235,
+              "ci95": [
+                0.35602526986661986,
+                0.5171181223936807
+              ]
+            },
+            "brier": {
+              "value": 0.20076214529615172,
+              "ci95": [
+                0.17854780373247575,
+                0.22241324230065246
+              ]
+            },
+            "cal_slope": {
+              "value": 0.44605594589114866,
+              "ci95": [
+                0.24817686681625262,
+                0.6949211576173276
+              ]
+            }
+          }
+        },
+        "gainOverBaseline": {
+          "auroc": {
+            "value": 0.05345261643589283,
+            "ci95": [
+              -0.0012418160695974814,
+              0.10476714204627115
+            ],
+            "p_better": 0.971
+          },
+          "auprc": {
+            "value": 0.08516438269554671,
+            "ci95": [
+              0.01700177209696026,
+              0.14581679516717885
+            ],
+            "p_better": 0.9955
+          },
+          "brier": {
+            "value": -0.021171291326485236,
+            "ci95": [
+              -0.03460302573122142,
+              -0.007139706666116317
+            ],
+            "p_better": 0.9985
+          },
+          "log_loss": {
+            "value": -0.06727313379778133,
+            "ci95": [
+              -0.10675429744275372,
+              -0.02649696634551372
+            ],
+            "p_better": 1
+          }
+        },
+        "tiers": [
+          {
+            "status": "alert",
+            "riskFrom": 0.43,
+            "riskTo": 1,
+            "n": 92,
+            "observedRate": 0.5652173913043478
+          },
+          {
+            "status": "watch",
+            "riskFrom": 0.29,
+            "riskTo": 0.43,
+            "n": 97,
+            "observedRate": 0.29896907216494845
+          },
+          {
+            "status": "ok",
+            "riskFrom": 0,
+            "riskTo": 0.29,
+            "n": 277,
+            "observedRate": 0.19133574007220217
+          }
+        ],
+        "plainFactors": [
+          {
+            "factor": "ER visit or hospital stay in 2017",
+            "rateRatio": 2.1289795918367345
+          },
+          {
+            "factor": "Age 75 or older",
+            "rateRatio": 1.8491494158639066
+          },
+          {
+            "factor": "Positive depression screen (PHQ-2 3+)",
+            "rateRatio": 1.7754010695187163
+          },
+          {
+            "factor": "Physical health score under 40",
+            "rateRatio": 1.6914265258636119
+          },
+          {
+            "factor": "20+ prescription fills in 2017",
+            "rateRatio": 1.68289384719405
+          },
+          {
+            "factor": "Fair or poor self-rated physical health",
+            "rateRatio": 1.6405
+          },
+          {
+            "factor": "Distress K6 5 or more",
+            "rateRatio": 1.3464258513763465
+          },
+          {
+            "factor": "Public insurance only",
+            "rateRatio": 1.1900030111412225
+          },
+          {
+            "factor": "Moderate+ fatigue",
+            "rateRatio": 1.1236702127659575
+          },
+          {
+            "factor": "Pain 5 or more of 10",
+            "rateRatio": 1.1149750054336014
+          },
+          {
+            "factor": "Delayed care because of cost",
+            "rateRatio": 1.0015782828282829
+          },
+          {
+            "factor": "2+ financial hardship items",
+            "rateRatio": 0.9494505494505494
+          },
+          {
+            "factor": "Currently in cancer treatment",
+            "rateRatio": 0.9388576025744167
+          }
+        ],
+        "clinicalRecords": "No meaningful gain: clinical detail (stage, comorbidities) adds nothing even inside Synthea; Synthea-derived scores give the MEPS model at most a tiny Brier gain (about -0.001) and no clear AUROC gain. But a Synthea model on shared variables alone ranks real survivors about as well as the final survey model (tie within CI)",
+        "heldoutStatusMix": {
+          "alert": 40,
+          "watch": 43,
+          "ok": 116
+        },
+        "caveats": [
+          "Associations, not causes. Prior acute care and poor physical function dominate; they mark need, not levers.",
+          "Small data: 466 development survivors, 134 with the outcome. The ranking gain over the baseline (nested CV +0.04) is not statistically significant; the gain in probability quality (log loss, Brier) is.",
+          "Subgroups with n < 30 or < 10 events (Hispanic, NH Asian, NH other, uninsured, colon, lung) are too small to judge.",
+          "MEPS is a US national sample; the Synthea clinical records are synthetic and resemble South Florida. Nothing from Synthea is evidence about real patients."
+        ]
+      }
+    },
+    {
+      "name": "module_metrics",
+      "args": {
+        "module": "c3"
+      },
+      "ms": 159,
+      "isError": false,
+      "summary": "C3 Radar on held-out patients: week AUC 0.827 vs schedule-only 0.808; rough-patch episode recall 0.476 vs 0.359; ER/admission recall 0.363 vs 0.22; median lead 6 days.",
+      "structuredContent": {
+        "module": "c3",
+        "moduleName": "C3 Bad Week Radar",
+        "asOf": "2025-01-31",
+        "definition": {
+          "label_version": "v2",
+          "rough_day": "relative to the person: daily feeling 1, or 2+ points below their own median of the last 28 check-ins (until 5 check-ins: feeling <= 2); OR on the weekly check-in any of fatigue, nausea, pain, appetite loss, diarrhea, trouble sleeping, anxiety, sadness >= 3 or 2+ above their own usual; OR ER visit / admission / treatment paused. Skipped check-ins are not counted as rough; they are shown to the coach as a warning sign (rough rate on return rises ~1.8x after 5 skips) with a same-day wearable estimate",
+          "rough_patch": "a rough day followed by another within 3 days, or any clinical event; onset = first patch day after 7 quiet days",
+          "forecast": "each evening, P(rough patch onset in the next 7 days); days already inside a patch are not scored",
+          "early_warning": "an alert counts only if it fires 2+ days before onset",
+          "inputs": "the person's own check-ins vs their usual (feeling, weekly symptoms; values up to 3 days ago), skipped check-ins and missed coaching calls, wearable signals vs personal baseline, wear time, known treatment schedule. No events, no diary text.",
+          "split": "by patient: 60% train, 15% validation (thresholds), 25% test (all numbers below)",
+          "alert_budget": "thresholds put 5% of quiet validation days on alert, same budget for every method"
+        },
+        "counts": {
+          "patients": 3000,
+          "test_patients": 750,
+          "onsets_total": 3013,
+          "label_missing_feeling_share": 0.545
+        },
+        "model": {
+          "name": "Radar (gradient boosting, check-ins + wearable + schedule)",
+          "weeks": {
+            "weeks": 14501,
+            "rough_weeks": 685,
+            "auc": 0.827,
+            "precision": 0.231,
+            "recall": 0.276,
+            "alert_share": 0.056
+          },
+          "episodes": {
+            "episode_recall": 0.476,
+            "median_lead_days": 6,
+            "er_recall": 0.363,
+            "alert_precision": 0.184,
+            "alerts_per_patient_month": 0.48
+          }
+        },
+        "scheduleBaseline": {
+          "name": "Baseline: treatment schedule only (same learner)",
+          "weeks": {
+            "weeks": 14501,
+            "rough_weeks": 685,
+            "auc": 0.808,
+            "precision": 0.197,
+            "recall": 0.257,
+            "alert_share": 0.062
+          },
+          "episodes": {
+            "episode_recall": 0.359,
+            "median_lead_days": 7,
+            "er_recall": 0.22,
+            "alert_precision": 0.106,
+            "alerts_per_patient_month": 0.36
+          }
+        },
+        "liftVsScheduleCi95": {
+          "episode_recall_diff": [
+            0.078,
+            0.152
+          ],
+          "er_recall_diff": [
+            0.085,
+            0.199
+          ],
+          "reps": 1000,
+          "unit": "patients"
+        },
+        "urgent": {
+          "definition": "P(ER visit or hospital admission in the next 7 days); urgent when in the top 3% of validation days. Separate flag; does not change the rough-patch status.",
+          "methods": {
+            "urgent": {
+              "er_events": 182,
+              "er_recall_2to7d": 0.467,
+              "median_lead_days": 4,
+              "flag_precision": 0.074,
+              "flags_per_patient_month": 0.38,
+              "auc": 0.859,
+              "average_precision": 0.064,
+              "base_rate": 0.0119
+            },
+            "schedule": {
+              "er_events": 182,
+              "er_recall_2to7d": 0.363,
+              "median_lead_days": 5,
+              "flag_precision": 0.069,
+              "flags_per_patient_month": 0.23,
+              "auc": 0.845,
+              "average_precision": 0.0486,
+              "base_rate": 0.0119
+            },
+            "radar": {
+              "er_events": 182,
+              "er_recall_2to7d": 0.286,
+              "median_lead_days": 5.5,
+              "flag_precision": 0.061,
+              "flags_per_patient_month": 0.27,
+              "auc": 0.788,
+              "average_precision": 0.0362,
+              "base_rate": 0.0119
+            }
+          }
+        },
+        "calibration": {
+          "brier": 0.0407,
+          "base_rate": 0.0466,
+          "brier_if_base_rate": 0.0445
+        },
+        "subgroups": {
+          "age_group": [
+            {
+              "group": "50-64",
+              "patients": 327,
+              "rough_weeks": 291,
+              "auc": 0.803,
+              "recall": 0.251,
+              "precision": 0.215,
+              "recall_ci95": [
+                0.201,
+                0.302
+              ]
+            },
+            {
+              "group": "65+",
+              "patients": 262,
+              "rough_weeks": 252,
+              "auc": 0.85,
+              "recall": 0.298,
+              "precision": 0.273,
+              "recall_ci95": [
+                0.24,
+                0.37
+              ]
+            },
+            {
+              "group": "under 50",
+              "patients": 161,
+              "rough_weeks": 142,
+              "auc": 0.837,
+              "recall": 0.289,
+              "precision": 0.203,
+              "recall_ci95": [
+                0.224,
+                0.365
+              ]
+            }
+          ],
+          "sex": [
+            {
+              "group": "female",
+              "patients": 436,
+              "rough_weeks": 437,
+              "auc": 0.817,
+              "recall": 0.291,
+              "precision": 0.229,
+              "recall_ci95": [
+                0.252,
+                0.336
+              ]
+            },
+            {
+              "group": "male",
+              "patients": 314,
+              "rough_weeks": 248,
+              "auc": 0.838,
+              "recall": 0.25,
+              "precision": 0.237,
+              "recall_ci95": [
+                0.194,
+                0.303
+              ]
+            }
+          ],
+          "race_ethnicity": [
+            {
+              "group": "Asian",
+              "patients": 24,
+              "rough_weeks": 22,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "Black",
+              "patients": 154,
+              "rough_weeks": 149,
+              "auc": 0.827,
+              "recall": 0.255,
+              "precision": 0.247,
+              "recall_ci95": [
+                0.177,
+                0.332
+              ]
+            },
+            {
+              "group": "Hispanic or Latino",
+              "patients": 396,
+              "rough_weeks": 354,
+              "auc": 0.838,
+              "recall": 0.291,
+              "precision": 0.25,
+              "recall_ci95": [
+                0.238,
+                0.335
+              ]
+            },
+            {
+              "group": "Other or more than one",
+              "patients": 32,
+              "rough_weeks": 27,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "White",
+              "patients": 144,
+              "rough_weeks": 133,
+              "auc": 0.798,
+              "recall": 0.278,
+              "precision": 0.2,
+              "recall_ci95": [
+                0.196,
+                0.366
+              ]
+            }
+          ],
+          "preferred_language": [
+            {
+              "group": "English",
+              "patients": 445,
+              "rough_weeks": 409,
+              "auc": 0.818,
+              "recall": 0.267,
+              "precision": 0.218,
+              "recall_ci95": [
+                0.216,
+                0.312
+              ]
+            },
+            {
+              "group": "Haitian Creole",
+              "patients": 60,
+              "rough_weeks": 60,
+              "auc": 0.828,
+              "recall": 0.217,
+              "precision": 0.22,
+              "recall_ci95": [
+                0.103,
+                0.358
+              ]
+            },
+            {
+              "group": "Spanish",
+              "patients": 245,
+              "rough_weeks": 216,
+              "auc": 0.845,
+              "recall": 0.31,
+              "precision": 0.261,
+              "recall_ci95": [
+                0.252,
+                0.374
+              ]
+            }
+          ],
+          "cancer_type": [
+            {
+              "group": "bladder",
+              "patients": 26,
+              "rough_weeks": 26,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "breast",
+              "patients": 158,
+              "rough_weeks": 150,
+              "auc": 0.782,
+              "recall": 0.207,
+              "precision": 0.163,
+              "recall_ci95": [
+                0.14,
+                0.276
+              ]
+            },
+            {
+              "group": "cervical",
+              "patients": 18,
+              "rough_weeks": 14,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "colorectal",
+              "patients": 68,
+              "rough_weeks": 105,
+              "auc": 0.775,
+              "recall": 0.276,
+              "precision": 0.284,
+              "recall_ci95": [
+                0.184,
+                0.383
+              ]
+            },
+            {
+              "group": "endometrial",
+              "patients": 43,
+              "rough_weeks": 41,
+              "auc": 0.854,
+              "recall": 0.366,
+              "precision": 0.246,
+              "recall_ci95": [
+                0.225,
+                0.54
+              ]
+            },
+            {
+              "group": "head and neck",
+              "patients": 30,
+              "rough_weeks": 21,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "kidney",
+              "patients": 20,
+              "rough_weeks": 5,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "leukemia",
+              "patients": 17,
+              "rough_weeks": 10,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "lung",
+              "patients": 62,
+              "rough_weeks": 57,
+              "auc": 0.852,
+              "recall": 0.404,
+              "precision": 0.267,
+              "recall_ci95": [
+                0.298,
+                0.51
+              ]
+            },
+            {
+              "group": "lymphoma",
+              "patients": 61,
+              "rough_weeks": 68,
+              "auc": 0.826,
+              "recall": 0.309,
+              "precision": 0.219,
+              "recall_ci95": [
+                0.193,
+                0.422
+              ]
+            },
+            {
+              "group": "melanoma",
+              "patients": 21,
+              "rough_weeks": 6,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "multiple myeloma",
+              "patients": 32,
+              "rough_weeks": 18,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "ovarian",
+              "patients": 53,
+              "rough_weeks": 72,
+              "auc": 0.76,
+              "recall": 0.25,
+              "precision": 0.257,
+              "recall_ci95": [
+                0.159,
+                0.346
+              ]
+            },
+            {
+              "group": "pancreatic",
+              "patients": 24,
+              "rough_weeks": 22,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "prostate",
+              "patients": 71,
+              "rough_weeks": 21,
+              "note": "too few rough weeks to judge"
+            },
+            {
+              "group": "sarcoma",
+              "patients": 23,
+              "rough_weeks": 30,
+              "auc": 0.777,
+              "recall": 0.133,
+              "precision": 0.129,
+              "recall_ci95": [
+                0,
+                0.261
+              ]
+            },
+            {
+              "group": "stomach",
+              "patients": 23,
+              "rough_weeks": 19,
+              "note": "too few rough weeks to judge"
+            }
+          ],
+          "device": [
+            {
+              "group": "Fitbit smartwatch",
+              "patients": 423,
+              "rough_weeks": 409,
+              "auc": 0.814,
+              "recall": 0.249,
+              "precision": 0.219,
+              "recall_ci95": [
+                0.206,
+                0.292
+              ]
+            },
+            {
+              "group": "Fitbit tracker",
+              "patients": 327,
+              "rough_weeks": 276,
+              "auc": 0.844,
+              "recall": 0.315,
+              "precision": 0.248,
+              "recall_ci95": [
+                0.268,
+                0.372
+              ]
+            }
+          ],
+          "lives_alone": [
+            {
+              "group": "no",
+              "patients": 566,
+              "rough_weeks": 498,
+              "auc": 0.822,
+              "recall": 0.279,
+              "precision": 0.224,
+              "recall_ci95": [
+                0.239,
+                0.321
+              ]
+            },
+            {
+              "group": "yes",
+              "patients": 184,
+              "rough_weeks": 187,
+              "auc": 0.841,
+              "recall": 0.267,
+              "precision": 0.254,
+              "recall_ci95": [
+                0.199,
+                0.343
+              ]
+            }
+          ]
+        },
+        "realDataCheck": {
+          "dataset": "fatigue_study_daily.csv (Rao et al. 2023), people with a Fitbit",
+          "people": 204,
+          "days": 5236,
+          "next_day_auc_wearable_only_prev2days": 0.482,
+          "next_day_auc_yesterdays_self_rating": 0.64
+        }
+      }
+    },
+    {
+      "name": "module_metrics",
+      "args": {
+        "module": "c4"
+      },
+      "ms": 96,
+      "isError": false,
+      "summary": "C4 cohort (within-person, mg/dL change in post-meal rise): walk after a meal -17.77 [-19.19, -16.35]; late dinner +9.21 [7.09, 11.32]; per 10 g carbs +6.46.",
+      "structuredContent": {
+        "module": "c4",
+        "moduleName": "C4 Glucose Guide",
+        "source": "synthetic 12-week program (made up), 500 sensor wearers; checkups for all 2,000",
+        "note": "effects.<name> = within-person change in the post-meal rise (mg/dL) with 95% CI; negative = smaller rise.",
+        "effects": {
+          "lateDinner": {
+            "est": 9.21,
+            "lo": 7.09,
+            "hi": 11.32,
+            "se": 1.08,
+            "people": 471,
+            "rows": 4693,
+            "residSd": 21.93
+          },
+          "lateDinnerIauc": {
+            "est": 12.92,
+            "lo": 9.97,
+            "hi": 15.88,
+            "se": 1.51,
+            "people": 471,
+            "rows": 4693,
+            "residSd": 30.93
+          },
+          "walk": {
+            "est": -17.77,
+            "lo": -19.19,
+            "hi": -16.35,
+            "se": 0.72,
+            "people": 500,
+            "rows": 18218,
+            "residSd": 20.05
+          },
+          "walkIauc": {
+            "est": -23.72,
+            "lo": -25.68,
+            "hi": -21.75,
+            "se": 1,
+            "people": 500,
+            "rows": 18218,
+            "residSd": 27.58
+          },
+          "walkAfterDinner": {
+            "est": -18.31,
+            "lo": -20.08,
+            "hi": -16.55,
+            "se": 0.9,
+            "people": 471,
+            "rows": 4693,
+            "residSd": 20.86
+          },
+          "walkAfterOtherMeals": {
+            "est": -14.61,
+            "lo": -16.51,
+            "hi": -12.7,
+            "se": 0.97,
+            "people": 500,
+            "rows": 13323,
+            "residSd": 18.74
+          },
+          "carbsPer10g": {
+            "est": 6.46,
+            "lo": 6.07,
+            "hi": 6.84,
+            "se": 0.2,
+            "people": 500,
+            "rows": 18218,
+            "residSd": 21.08
+          },
+          "fastMorningPerHour": {
+            "est": -0.44,
+            "lo": -0.8,
+            "hi": -0.16,
+            "people": 389,
+            "rows": 3029
+          },
+          "fast13Morning": {
+            "est": -1.14,
+            "lo": -2.07,
+            "hi": -0.03,
+            "people": 389,
+            "rows": 3029
+          }
+        },
+        "statusCounts": {
+          "ok": 339,
+          "watch": 84,
+          "alert": 77
+        },
+        "trialContrasts": {
+          "hba1c_pct": {
+            "mean:coaching": {
+              "est": -0.22,
+              "n": 568
+            },
+            "mean:coaching + overnight fast": {
+              "est": -0.26,
+              "n": 558
+            },
+            "mean:tips by email": {
+              "est": -0.06,
+              "n": 566
+            },
+            "coaching + overnight fast vs coaching": {
+              "est": -0.03,
+              "lo": -0.06,
+              "hi": 0,
+              "n": 1126
+            },
+            "coaching vs tips by email": {
+              "est": -0.17,
+              "lo": -0.19,
+              "hi": -0.15,
+              "n": 1134
+            },
+            "coaching + overnight fast vs tips by email": {
+              "est": -0.2,
+              "lo": -0.23,
+              "hi": -0.18,
+              "n": 1124
+            }
+          },
+          "fasting_glucose_mg_dl": {
+            "mean:coaching": {
+              "est": -3.78,
+              "n": 568
+            },
+            "mean:coaching + overnight fast": {
+              "est": -5.09,
+              "n": 558
+            },
+            "mean:tips by email": {
+              "est": -1.02,
+              "n": 566
+            },
+            "coaching + overnight fast vs coaching": {
+              "est": -1.31,
+              "lo": -2.14,
+              "hi": -0.48,
+              "n": 1126
+            },
+            "coaching vs tips by email": {
+              "est": -2.75,
+              "lo": -3.51,
+              "hi": -1.98,
+              "n": 1134
+            },
+            "coaching + overnight fast vs tips by email": {
+              "est": -4.07,
+              "lo": -4.89,
+              "hi": -3.25,
+              "n": 1124
+            }
+          },
+          "weight_kg": {
+            "mean:coaching": {
+              "est": -1.49,
+              "n": 568
+            },
+            "mean:coaching + overnight fast": {
+              "est": -1.9,
+              "n": 558
+            },
+            "mean:tips by email": {
+              "est": -0.36,
+              "n": 566
+            },
+            "coaching + overnight fast vs coaching": {
+              "est": -0.41,
+              "lo": -0.63,
+              "hi": -0.18,
+              "n": 1126
+            },
+            "coaching vs tips by email": {
+              "est": -1.13,
+              "lo": -1.35,
+              "hi": -0.91,
+              "n": 1134
+            },
+            "coaching + overnight fast vs tips by email": {
+              "est": -1.54,
+              "lo": -1.75,
+              "hi": -1.31,
+              "n": 1124
+            }
+          },
+          "fatigue_score_0_to_52": {
+            "mean:coaching": {
+              "est": 2.95,
+              "n": 568
+            },
+            "mean:coaching + overnight fast": {
+              "est": 2.87,
+              "n": 558
+            },
+            "mean:tips by email": {
+              "est": 2.16,
+              "n": 566
+            },
+            "coaching + overnight fast vs coaching": {
+              "est": -0.09,
+              "lo": -0.64,
+              "hi": 0.47,
+              "n": 1126
+            },
+            "coaching vs tips by email": {
+              "est": 0.8,
+              "lo": 0.29,
+              "hi": 1.35,
+              "n": 1134
+            },
+            "coaching + overnight fast vs tips by email": {
+              "est": 0.71,
+              "lo": 0.16,
+              "hi": 1.22,
+              "n": 1124
+            }
+          },
+          "six_minute_walk_m": {
+            "mean:coaching": {
+              "est": 25.28,
+              "n": 568
+            },
+            "mean:coaching + overnight fast": {
+              "est": 23.84,
+              "n": 558
+            },
+            "mean:tips by email": {
+              "est": 13.25,
+              "n": 566
+            },
+            "coaching + overnight fast vs coaching": {
+              "est": -1.44,
+              "lo": -4.68,
+              "hi": 1.96,
+              "n": 1126
+            },
+            "coaching vs tips by email": {
+              "est": 12.02,
+              "lo": 8.79,
+              "hi": 15.17,
+              "n": 1134
+            },
+            "coaching + overnight fast vs tips by email": {
+              "est": 10.58,
+              "lo": 7.27,
+              "hi": 13.72,
+              "n": 1124
+            }
+          }
+        },
+        "realWorld": {
+          "cgmacros": {
+            "walk10MealCount": 192,
+            "walk10Meals": 1330,
+            "walk10": {
+              "est": -3.2,
+              "lo": -6.89,
+              "hi": 0.48,
+              "se": 1.88,
+              "people": 44,
+              "rows": 1329,
+              "residSd": 25.58
+            },
+            "walkDefinition": "at least 10 straight minutes at 3+ METs (Fitbit) in the hour after the meal; meals with 50+ minutes of Fitbit data",
+            "source": "CGMacros v1.0.0 (PhysioNet 2025): 45 real adults, 10 days, Libre sensor + Fitbit",
+            "meals": 1334,
+            "people": 45,
+            "activeHourShare": 53,
+            "movementPerMet": {
+              "est": -1.262,
+              "lo": -6.226,
+              "hi": 2.629,
+              "people": 44,
+              "rows": 1334
+            },
+            "activeHourVsNot": {
+              "est": -0.668,
+              "lo": -5.904,
+              "hi": 5.044,
+              "people": 44,
+              "rows": 1334
+            },
+            "lateDinner": {
+              "est": 2.61,
+              "lo": -5.11,
+              "hi": 10.33,
+              "se": 3.94,
+              "people": 41,
+              "rows": 314,
+              "residSd": 25.27
+            },
+            "carbsPer10g": {
+              "est": 2.058,
+              "lo": 1.171,
+              "hi": 3.588,
+              "people": 44,
+              "rows": 1334
+            },
+            "lateDinnerCount": 93,
+            "dinnerCount": 317,
+            "walk10Statistics": {
+              "est": -4.387,
+              "lo": -11.375,
+              "hi": 1.446,
+              "people": 44,
+              "rows": 1330
+            },
+            "lateDinnerStatistics": {
+              "est": 4.62,
+              "lo": -1.699,
+              "hi": 11.739,
+              "people": 41,
+              "rows": 317
+            },
+            "engine": "double ML (gradient boosting), same as the program; FE kept as *Statistics"
+          },
+          "nhanesSurvivors": {
+            "source": "NHANES 2011-2014, 808 real cancer survivors; unweighted (survey weights not applied)",
+            "survivors": 808,
+            "medians": {
+              "overnightFastHours": 12.2,
+              "lastEatingHour": 20,
+              "movementMims": 10946,
+              "hba1c": 5.7
+            },
+            "hba1cPerFastHour": {
+              "est": 0.01,
+              "lo": -0.027,
+              "hi": 0.047,
+              "n": 641
+            },
+            "hba1cPerLaterLastMealHour": {
+              "est": 0.039,
+              "lo": -0.012,
+              "hi": 0.09,
+              "n": 641
+            },
+            "hba1cPer1000Mims": {
+              "est": -0.023,
+              "lo": -0.049,
+              "hi": -0.001,
+              "n": 599
+            },
+            "noDiabetes": {
+              "hba1cPerFastHour": {
+                "est": 0.001,
+                "lo": -0.017,
+                "hi": 0.021,
+                "n": 473
+              },
+              "hba1cPer1000Mims": {
+                "est": 0.006,
+                "lo": -0.005,
+                "hi": 0.016,
+                "n": 439
+              }
+            }
+          },
+          "nhanesSurvivorsWeighted": {
+            "source": "NHANES 2011-2014 cancer survivors, survey-weighted (exam weight for HbA1c and movement, 2-day diet weight for eating times); 95% CI from a Rao-Wu bootstrap of PSUs within strata on the full file (domain estimate)",
+            "hba1cPerFastHour": {
+              "est": 0.013,
+              "lo": -0.025,
+              "hi": 0.048,
+              "n": 597,
+              "weight": "survey_weight_diet_2day"
+            },
+            "hba1cPerLaterLastMealHour": {
+              "est": 0.02,
+              "lo": -0.032,
+              "hi": 0.073,
+              "n": 597,
+              "weight": "survey_weight_diet_2day"
+            },
+            "hba1cPer1000Mims": {
+              "est": -0.021,
+              "lo": -0.052,
+              "hi": 0.006,
+              "n": 599,
+              "weight": "survey_weight_exam"
+            },
+            "noDiabetes": {
+              "hba1cPerFastHour": {
+                "est": 0,
+                "lo": -0.017,
+                "hi": 0.017,
+                "n": 444,
+                "weight": "survey_weight_diet_2day"
+              },
+              "hba1cPer1000Mims": {
+                "est": -0.001,
+                "lo": -0.01,
+                "hi": 0.008,
+                "n": 439,
+                "weight": "survey_weight_exam"
+              }
+            }
+          },
+          "methods": "Real-data cross-check for C4: do the synthetic patterns hold in real people?\n\nUsage: uv run --with pandas --with numpy python -I scripts/realworld.py <dataset_dir> <out_dir>\nWrites <out_dir>/realworld.json.\n\n- CGMacros (45 real adults, minute-level Libre sensor + Fitbit): within-person effect of\n  movement in the hour after a meal and of a late dinner (>= 20:00) on the post-meal rise.\n  Rise = max Libre glucose 0-120 min after the meal minus the reading at the meal minute.\n  Meals with another logged meal in the next 120 min are dropped. CIs: cluster bootstrap\n  over people.\n- NHANES 2011-2014 cancer survivors (real, one snapshot each): association of overnight\n  fast, last eating hour and daily movement with HbA1c, adjusted for age and sex. Survey\n  weights are NOT applied in nhanesSurvivors (describes the sample). nhanesSurvivorsWeighted applies the\n  survey weights and design (strata, PSUs) and describes US adult cancer survivors 2011-2014."
+        }
+      }
+    },
+    {
+      "name": "glucose_advice",
+      "args": {
+        "survivorId": "c4-N0072"
+      },
+      "ms": 115,
+      "isError": false,
+      "summary": "Plain-language advice for c4-N0072:\n- Share these readings with your care team: You had 62.7% of your readings in the 70-180 range, which is not quite the target of more than 70%. Your average reading was 178.3 mg/dL, so be sure to discuss this at your next visit.\n- Try a 10 to 20 minute walk after dinner: You didn't walk after any of your scored meals, so you haven't seen the effect yet. Walking after dinner is linked to a rise about 18.3 mg/dL smaller in sugar, with the best results from 10 to 19 minutes of walking.\n- Keep meal times steady around your shifts: Since you work nights, traditional rules about late dinners don't apply to you. Try to keep your main meal at the same point in your waking day, regardless of the clock.",
+      "structuredContent": {
+        "survivorId": "c4-N0072",
+        "model": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+        "items": [
+          {
+            "title": "Share these readings with your care team",
+            "text": "You had 62.7% of your readings in the 70-180 range, which is not quite the target of more than 70%. Your average reading was 178.3 mg/dL, so be sure to discuss this at your next visit.",
+            "source": "ai"
+          },
+          {
+            "title": "Try a 10 to 20 minute walk after dinner",
+            "text": "You didn't walk after any of your scored meals, so you haven't seen the effect yet. Walking after dinner is linked to a rise about 18.3 mg/dL smaller in sugar, with the best results from 10 to 19 minutes of walking.",
+            "source": "ai"
+          },
+          {
+            "title": "Keep meal times steady around your shifts",
+            "text": "Since you work nights, traditional rules about late dinners don't apply to you. Try to keep your main meal at the same point in your waking day, regardless of the clock.",
+            "source": "ai"
+          }
+        ]
+      }
+    },
+    {
+      "name": "reveal_outcome_demo",
+      "args": {
+        "survivorId": "c3-P03000"
+      },
+      "ms": 186,
+      "isError": true,
+      "summary": "MCP error -32602: Tool reveal_outcome_demo not found"
+    },
+    {
+      "name": "reveal_outcome_demo (?tools=demo)",
+      "args": {
+        "survivorId": "c3-P03000"
+      },
+      "isError": false,
+      "summary": "DEMO ONLY (hidden from coaches). Forecast for c3-P03000: alert, urgent, rough-patch risk 0.078. What happened: rough patch did not start in 14 days; ER/admission none in 14 days."
+    },
+    {
+      "name": "list_coaching_calls",
+      "args": {
+        "limit": 30
+      },
+      "ms": 130,
+      "isError": false,
+      "summary": "27 calls match.\n- CALL00646 Yolanda (c5-P0117) 2025-09-02, coach Jean: score 41/100, 1 flagged line(s) [alert]\n- CALL02285 Osvaldo (c5-P0407) 2025-03-19, coach Jorge: score 46/100, 1 flagged line(s) [alert]\n- CALL01610 Rosa (c5-P0286) 2026-03-30, coach Marisol: score 63/100, 1 flagged line(s) [alert]\n- CALL01506 Miguel (c5-P0268) 2025-06-10, coach Marisol: score 64/100, 1 flagged line(s) [alert]\n- CALL01808 Chris (c5-P0322) 2025-10-13, coach Yolanda: score 72/100, 1 flagged line(s) [alert]\n- CALL02196 Barbara (c5-P0392) 2026-02-09, coach Marisol: score 76/100, 1 flagged line(s) [alert]\n- CALL00009 María (c5-P0002) 2025-08-18, coach Kendra: score 81/100, 1 flagged line(s) [alert]\n- CALL05423 Donna (c5-P0975) 2025-09-17, coach Beth: score 82/100, 1 flagged line(s) [alert]\n- CALL03019 Rosa (c5-P0540) 2025-01-06, coach Rachel: score 93/100, 1 flagged line(s) [alert]\n- CALL04924 Jorge (c5-P0886) 2025-05-20, coach Marcus: score 41/100, 0 flagged line(s) [watch]\n- CALL03228 Linda (c5-P0576) 2025-04-28, coach Marcus: score 45/100, 0 flagged line(s) [watch]\n- CALL04563 Nadège (c5-P0820) 2025-12-23, coach Jean: score 54/100, 0 flagged line(s) [watch]\n- CALL05559 Karen (c5-P0998) 2025-04-08, coach Marcus: score 55/100, 0 flagged line(s) [watch]\n- CALL04019 Sam (c5-P0719) 2025-07-28, coach Marcus: score 57/100, 0 flagged line(s) [watch]\n- CALL02622 Marta (c5-P0468) 2025-11-25, coach Luis: score 58/100, 0 flagged line(s) [watch]\n- CALL01697 Fabiola (c5-P0301) 2025-07-07, coach Beth: score",
+      "structuredContent": {
+        "matched": 27,
+        "calls": [
+          {
+            "callId": "CALL00646",
+            "survivorId": "c5-P0117",
+            "participantName": "Yolanda",
+            "coach": "Jean",
+            "date": "2025-09-02",
+            "callNumber": 5,
+            "week": 8,
+            "goalTopic": "strength",
+            "language": "English",
+            "lines": 44,
+            "score": 41,
+            "status": "alert",
+            "flaggedLines": 1
+          },
+          {
+            "callId": "CALL02285",
+            "survivorId": "c5-P0407",
+            "participantName": "Osvaldo",
+            "coach": "Jorge",
+            "date": "2025-03-19",
+            "callNumber": 5,
+            "week": 8,
+            "goalTopic": "fasting",
+            "language": "Spanish",
+            "lines": 45,
+            "score": 46,
+            "status": "alert",
+            "flaggedLines": 1
+          },
+          {
+            "callId": "CALL01610",
+            "survivorId": "c5-P0286",
+            "participantName": "Rosa",
+            "coach": "Marisol",
+            "date": "2026-03-30",
+            "callNumber": 2,
+            "week": 2,
+            "goalTopic": "cooking",
+            "language": "Spanish",
+            "lines": 56,
+            "score": 63,
+            "status": "alert",
+            "flaggedLines": 1
+          },
+          {
+            "callId": "CALL01506",
+            "survivorId": "c5-P0268",
+            "participantName": "Miguel",
+            "coach": "Marisol",
+            "date": "2025-06-10",
+            "callNumber": 5,
+            "week": 8,
+            "goalTopic": "soda",
+            "language": "English",
+            "lines": 58,
+            "score": 64,
+            "status": "alert",
+            "flaggedLines": 1
+          },
+          {
+            "callId": "CALL01808",
+            "survivorId": "c5-P0322",
+            "participantName": "Chris",
+            "coach": "Yolanda",
+            "date": "2025-10-13",
+            "callNumber": 6,
+            "week": 12,
+            "goalTopic": "after_dinner",
+            "language": "English",
+            "lines": 63,
+            "score": 72,
+            "status": "alert",
+            "flaggedLines": 1
+          },
+          {
+            "callId": "CALL02196",
+            "survivorId": "c5-P0392",
+            "participantName": "Barbara",
+            "coach": "Marisol",
+            "date": "2026-02-09",
+            "callNumber": 4,
+            "week": 6,
+            "goalTopic": "sleep",
+            "language": "English",
+            "lines": 52,
+            "score": 76,
+            "status": "alert",
+            "flaggedLines": 1
+          },
+          {
+            "callId": "CALL00009",
+            "survivorId": "c5-P0002",
+            "participantName": "María",
+            "coach": "Kendra",
+            "date": "2025-08-18",
+            "callNumber": 5,
+            "week": 8,
+            "goalTopic": "sleep",
+            "language": "English",
+            "lines": 58,
+            "score": 81,
+            "status": "alert",
+            "flaggedLines": 1
+          },
+          {
+            "callId": "CALL05423",
+            "survivorId": "c5-P0975",
+            "participantName": "Donna",
+            "coach": "Beth",
+            "date": "2025-09-17",
+            "callNumber": 3,
+            "week": 4,
+            "goalTopic": "strength",
+            "language": "English",
+            "lines": 53,
+            "score": 82,
+            "status": "alert",
+            "flaggedLines": 1
+          },
+          {
+            "callId": "CALL03019",
+            "survivorId": "c5-P0540",
+            "participantName": "Rosa",
+            "coach": "Rachel",
+            "date": "2025-01-06",
+            "callNumber": 1,
+            "week": 1,
+            "goalTopic": "alcohol",
+            "language": "English",
+            "lines": 67,
+            "score": 93,
+            "status": "alert",
+            "flaggedLines": 1
+          },
+          {
+            "callId": "CALL04924",
+            "survivorId": "c5-P0886",
+            "participantName": "Jorge",
+            "coach": "Marcus",
+            "date": "2025-05-20",
+            "callNumber": 1,
+            "week": 1,
+            "goalTopic": "soda",
+            "language": "English",
+            "lines": 36,
+            "score": 41,
+            "status": "watch",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL03228",
+            "survivorId": "c5-P0576",
+            "participantName": "Linda",
+            "coach": "Marcus",
+            "date": "2025-04-28",
+            "callNumber": 2,
+            "week": 2,
+            "goalTopic": "veggies",
+            "language": "English",
+            "lines": 41,
+            "score": 45,
+            "status": "watch",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL04563",
+            "survivorId": "c5-P0820",
+            "participantName": "Nadège",
+            "coach": "Jean",
+            "date": "2025-12-23",
+            "callNumber": 1,
+            "week": 1,
+            "goalTopic": "walking",
+            "language": "English",
+            "lines": 45,
+            "score": 54,
+            "status": "watch",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL05559",
+            "survivorId": "c5-P0998",
+            "participantName": "Karen",
+            "coach": "Marcus",
+            "date": "2025-04-08",
+            "callNumber": 5,
+            "week": 8,
+            "goalTopic": "veggies",
+            "language": "English",
+            "lines": 33,
+            "score": 55,
+            "status": "watch",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL04019",
+            "survivorId": "c5-P0719",
+            "participantName": "Sam",
+            "coach": "Marcus",
+            "date": "2025-07-28",
+            "callNumber": 5,
+            "week": 8,
+            "goalTopic": "alcohol",
+            "language": "English",
+            "lines": 43,
+            "score": 57,
+            "status": "watch",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL02622",
+            "survivorId": "c5-P0468",
+            "participantName": "Marta",
+            "coach": "Luis",
+            "date": "2025-11-25",
+            "callNumber": 3,
+            "week": 4,
+            "goalTopic": "soda",
+            "language": "English",
+            "lines": 39,
+            "score": 58,
+            "status": "watch",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL01697",
+            "survivorId": "c5-P0301",
+            "participantName": "Fabiola",
+            "coach": "Beth",
+            "date": "2025-07-07",
+            "callNumber": 3,
+            "week": 4,
+            "goalTopic": "fasting",
+            "language": "English",
+            "lines": 45,
+            "score": 60,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL02770",
+            "survivorId": "c5-P0495",
+            "participantName": "Barbara",
+            "coach": "Beth",
+            "date": "2025-08-18",
+            "callNumber": 4,
+            "week": 6,
+            "goalTopic": "fasting",
+            "language": "English",
+            "lines": 45,
+            "score": 64,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL04233",
+            "survivorId": "c5-P0760",
+            "participantName": "Rosa",
+            "coach": "Luis",
+            "date": "2025-07-22",
+            "callNumber": 2,
+            "week": 2,
+            "goalTopic": "walking",
+            "language": "Spanish",
+            "lines": 40,
+            "score": 65,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL04396",
+            "survivorId": "c5-P0789",
+            "participantName": "Lourdes",
+            "coach": "Daniela",
+            "date": "2026-03-24",
+            "callNumber": 6,
+            "week": 12,
+            "goalTopic": "walking",
+            "language": "English",
+            "lines": 42,
+            "score": 66,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL01554",
+            "survivorId": "c5-P0276",
+            "participantName": "Miguel",
+            "coach": "Yolanda",
+            "date": "2026-06-09",
+            "callNumber": 6,
+            "week": 12,
+            "goalTopic": "alcohol",
+            "language": "Spanish",
+            "lines": 57,
+            "score": 71,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL02345",
+            "survivorId": "c5-P0419",
+            "participantName": "Gary",
+            "coach": "Jorge",
+            "date": "2026-04-08",
+            "callNumber": 3,
+            "week": 4,
+            "goalTopic": "fasting",
+            "language": "English",
+            "lines": 54,
+            "score": 74,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL01713",
+            "survivorId": "c5-P0304",
+            "participantName": "Jorge",
+            "coach": "Yolanda",
+            "date": "2026-04-01",
+            "callNumber": 4,
+            "week": 6,
+            "goalTopic": "cooking",
+            "language": "Spanish",
+            "lines": 59,
+            "score": 78,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL00627",
+            "survivorId": "c5-P0113",
+            "participantName": "Denise",
+            "coach": "Kendra",
+            "date": "2026-03-17",
+            "callNumber": 4,
+            "week": 6,
+            "goalTopic": "veggies",
+            "language": "English",
+            "lines": 63,
+            "score": 82,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL02350",
+            "survivorId": "c5-P0420",
+            "participantName": "Michael",
+            "coach": "Yolanda",
+            "date": "2025-10-15",
+            "callNumber": 2,
+            "week": 2,
+            "goalTopic": "veggies",
+            "language": "English",
+            "lines": 68,
+            "score": 83,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL04787",
+            "survivorId": "c5-P0861",
+            "participantName": "Carmen",
+            "coach": "Jorge",
+            "date": "2025-10-28",
+            "callNumber": 3,
+            "week": 4,
+            "goalTopic": "strength",
+            "language": "English",
+            "lines": 57,
+            "score": 85,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL01552",
+            "survivorId": "c5-P0276",
+            "participantName": "Miguel",
+            "coach": "Yolanda",
+            "date": "2026-04-29",
+            "callNumber": 4,
+            "week": 6,
+            "goalTopic": "alcohol",
+            "language": "Spanish",
+            "lines": 57,
+            "score": 88,
+            "status": "ok",
+            "flaggedLines": 0
+          },
+          {
+            "callId": "CALL01701",
+            "survivorId": "c5-P0302",
+            "participantName": "Héctor",
+            "coach": "Yolanda",
+            "date": "2025-05-21",
+            "callNumber": 4,
+            "week": 6,
+            "goalTopic": "after_dinner",
+            "language": "English",
+            "lines": 56,
+            "score": 88,
+            "status": "ok",
+            "flaggedLines": 0
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_coaching_call",
+      "args": {
+        "callId": "CALL05559"
+      },
+      "ms": 380,
+      "isError": false,
+      "summary": "CALL05559: Karen with coach Marcus, 2025-04-08, English, goal veggies. Supervisor coach score 55/100. No line needed a person.",
+      "structuredContent": {
+        "callId": "CALL05559",
+        "survivorId": "c5-P0998",
+        "participantName": "Karen",
+        "coach": {
+          "id": "C07",
+          "name": "Marcus",
+          "role": "exercise coach"
+        },
+        "date": "2025-04-08",
+        "start": "16:00",
+        "language": "English",
+        "goalTopic": "veggies",
+        "callNumber": 5,
+        "week": 8,
+        "durationMin": 3.7,
+        "labels": "supervisor",
+        "score": 55,
+        "scoreParts": {
+          "reflectionsPerQuestion": {
+            "value": 0.33,
+            "target": 2,
+            "points": 5,
+            "max": 30
+          },
+          "complexReflectionPct": {
+            "value": 100,
+            "target": 40,
+            "points": 20,
+            "max": 20
+          },
+          "openQuestionPct": {
+            "value": 67,
+            "target": 50,
+            "points": 20,
+            "max": 20
+          },
+          "miConsistent": {
+            "value": "2 vs 4",
+            "target": "no persuade or confront",
+            "points": 10,
+            "max": 30
+          }
+        },
+        "flags": [],
+        "status": "watch",
+        "lineCount": 33,
+        "lines": [
+          {
+            "n": 1,
+            "t": "00:00",
+            "speaker": "coach",
+            "text": "Hi Karen, it's Marcus from the coaching program. Is now still a good time?",
+            "label": "other"
+          },
+          {
+            "n": 2,
+            "t": "00:08",
+            "speaker": "participant",
+            "text": "Yes, go ahead.",
+            "label": "neutral"
+          },
+          {
+            "n": 3,
+            "t": "00:11",
+            "speaker": "coach",
+            "text": "Are you feeling okay this week?",
+            "label": "closed question"
+          },
+          {
+            "n": 4,
+            "t": "00:16",
+            "speaker": "participant",
+            "text": "I've had more energy, I noticed that.",
+            "label": "neutral"
+          },
+          {
+            "n": 5,
+            "t": "00:22",
+            "speaker": "coach",
+            "text": "That's great to hear.",
+            "label": "other"
+          },
+          {
+            "n": 6,
+            "t": "00:28",
+            "speaker": "coach",
+            "text": "Did you hit your goal this week?",
+            "label": "closed question"
+          },
+          {
+            "n": 7,
+            "t": "00:33",
+            "speaker": "participant",
+            "text": "Zero. I'm not going to lie to you.",
+            "label": "neutral"
+          },
+          {
+            "n": 8,
+            "t": "00:39",
+            "speaker": "coach",
+            "text": "That sounds like an excuse to me.",
+            "label": "confront"
+          },
+          {
+            "n": 9,
+            "t": "00:45",
+            "speaker": "participant",
+            "text": "Maybe.",
+            "label": "neutral"
+          },
+          {
+            "n": 10,
+            "t": "00:48",
+            "speaker": "coach",
+            "text": "What do you think the next step should be?",
+            "label": "open question"
+          },
+          {
+            "n": 11,
+            "t": "00:53",
+            "speaker": "participant",
+            "text": "I'm going to do it Monday, Wednesday and Friday.",
+            "label": "change"
+          },
+          {
+            "n": 12,
+            "t": "01:00",
+            "speaker": "coach",
+            "text": "Half your plate has to be vegetables. That's the rule.",
+            "label": "persuade"
+          },
+          {
+            "n": 13,
+            "t": "01:21",
+            "speaker": "participant",
+            "text": "I like what I eat. I'm not going to change at my age.",
+            "label": "sustain"
+          },
+          {
+            "n": 14,
+            "t": "01:28",
+            "speaker": "coach",
+            "text": "If you don't do this, your health is going to suffer.",
+            "label": "persuade"
+          },
+          {
+            "n": 15,
+            "t": "01:35",
+            "speaker": "participant",
+            "text": "I guess.",
+            "label": "neutral"
+          },
+          {
+            "n": 16,
+            "t": "01:38",
+            "speaker": "coach",
+            "text": "You're weighing it up, and that's fair.",
+            "label": "complex reflection"
+          },
+          {
+            "n": 17,
+            "t": "01:43",
+            "speaker": "participant",
+            "text": "I need this for my head too, not just my body.",
+            "label": "change"
+          },
+          {
+            "n": 18,
+            "t": "01:50",
+            "speaker": "coach",
+            "text": "You have to make this a priority.",
+            "label": "persuade"
+          },
+          {
+            "n": 19,
+            "t": "01:57",
+            "speaker": "participant",
+            "text": "Everybody keeps telling me that.",
+            "label": "sustain"
+          },
+          {
+            "n": 20,
+            "t": "02:11",
+            "speaker": "coach",
+            "text": "You know your schedule better than anyone.",
+            "label": "emphasize autonomy"
+          },
+          {
+            "n": 21,
+            "t": "02:17",
+            "speaker": "coach",
+            "text": "So it's not that you don't care. It's that the rain keeps getting in the way.",
+            "label": "complex reflection"
+          },
+          {
+            "n": 22,
+            "t": "02:28",
+            "speaker": "participant",
+            "text": "Well, I want to get my energy back. At least I'm trying.",
+            "label": "change"
+          },
+          {
+            "n": 23,
+            "t": "02:37",
+            "speaker": "coach",
+            "text": "It's completely your call.",
+            "label": "emphasize autonomy"
+          },
+          {
+            "n": 24,
+            "t": "02:39",
+            "speaker": "coach",
+            "text": "How would things be different if you kept this up?",
+            "label": "open question"
+          },
+          {
+            "n": 25,
+            "t": "02:47",
+            "speaker": "participant",
+            "text": "I'm not sure.",
+            "label": "neutral"
+          },
+          {
+            "n": 26,
+            "t": "02:50",
+            "speaker": "coach",
+            "text": "So what would you like your goal to be for next week?",
+            "label": "open question"
+          },
+          {
+            "n": 27,
+            "t": "02:59",
+            "speaker": "participant",
+            "text": "Let's say I add a vegetable to lunch and dinner on 5 days.",
+            "label": "change"
+          },
+          {
+            "n": 28,
+            "t": "03:08",
+            "speaker": "coach",
+            "text": "If the rain gets in the way again, what's your backup plan?",
+            "label": "open question"
+          },
+          {
+            "n": 29,
+            "t": "03:15",
+            "speaker": "participant",
+            "text": "I mean, I'll do it right when I wake up, before anything else.",
+            "label": "change"
+          },
+          {
+            "n": 30,
+            "t": "03:24",
+            "speaker": "coach",
+            "text": "I'll text you midweek to see how it's going, and we'll talk again in two weeks.",
+            "label": "other"
+          },
+          {
+            "n": 31,
+            "t": "03:35",
+            "speaker": "participant",
+            "text": "Perfect.",
+            "label": "neutral"
+          },
+          {
+            "n": 32,
+            "t": "03:36",
+            "speaker": "coach",
+            "text": "Talk soon!",
+            "label": "other"
+          },
+          {
+            "n": 33,
+            "t": "03:38",
+            "speaker": "participant",
+            "text": "Thank you, talk soon.",
+            "label": "neutral"
+          }
+        ]
+      }
+    },
+    {
+      "name": "get_coaching_call",
+      "args": {
+        "callId": "CALL99999"
+      },
+      "ms": 143,
+      "isError": true,
+      "summary": "Error: Not found. /api/c5/calls/CALL99999: HTTP 404 call not found"
+    },
+    {
+      "name": "score_conversation",
+      "args": {
+        "transcript": "coach: Hi Rosa, how has your week been with the walking plan?\nparticipant: Not great. I've had a fever since yesterday and my chest feels tight.\ncoach: Okay. So did you manage to do the walks after dinner?\nparticipant: Twice, I think.\ncoach: You really need to walk every day, no excuses.\nparticipant: I know, I want to get back to it.\ncoach: What would make it easier to walk after dinner this week?"
+      },
+      "ms": 1408,
+      "isError": false,
+      "summary": "Coach score 20/100 over 7 lines.\nQuestions 2 open / 1 closed; reflections 0 simple / 0 complex; 1 persuade/confront; change talk 1, sustain talk 0.\nFLAGS: line 2 medical (participant reports a new or worsening symptom: tell the care team today); line 3 missed_concern (coach did not acknowledge or route the participant's concern)\nCue moments: after line 2: Participant raised a medical concern. Help the coach respond with care and connect them to the right person today. | after line 3: The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now.",
+      "structuredContent": {
+        "score": 20,
+        "scoreParts": {
+          "reflectionsPerQuestion": {
+            "value": 0,
+            "target": 2,
+            "points": 0,
+            "max": 30
+          },
+          "complexReflectionPct": {
+            "value": null,
+            "target": 40,
+            "points": 0,
+            "max": 20
+          },
+          "openQuestionPct": {
+            "value": 67,
+            "target": 50,
+            "points": 20,
+            "max": 20
+          },
+          "miConsistent": {
+            "value": "0 MI-consistent vs 1 persuade/confront",
+            "target": "no persuade or confront",
+            "points": 0,
+            "max": 30
+          }
+        },
+        "counts": {
+          "openQuestions": 2,
+          "closedQuestions": 1,
+          "simpleReflections": 0,
+          "complexReflections": 0,
+          "miConsistent": 0,
+          "persuadeOrConfront": 1,
+          "changeTalk": 1,
+          "sustainTalk": 0
+        },
+        "flags": [
+          {
+            "line": 2,
+            "speaker": "participant",
+            "flag": "medical",
+            "meaning": "participant reports a new or worsening symptom: tell the care team today",
+            "text": "Not great. I've had a fever since yesterday and my chest feels tight."
+          },
+          {
+            "line": 3,
+            "speaker": "coach",
+            "flag": "missed_concern",
+            "meaning": "coach did not acknowledge or route the participant's concern",
+            "text": "Okay. So did you manage to do the walks after dinner?"
+          }
+        ],
+        "cueMoments": [
+          {
+            "afterLine": 2,
+            "trigger": "Participant raised a medical concern. Help the coach respond with care and connect them to the right person today."
+          },
+          {
+            "afterLine": 3,
+            "trigger": "The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now."
+          }
+        ],
+        "lines": [
+          {
+            "n": 1,
+            "speaker": "coach",
+            "text": "Hi Rosa, how has your week been with the walking plan?",
+            "tag": "open question",
+            "confidence": 0.545
+          },
+          {
+            "n": 2,
+            "speaker": "participant",
+            "text": "Not great. I've had a fever since yesterday and my chest feels tight.",
+            "tag": "neutral",
+            "flag": "medical",
+            "confidence": 0.087
+          },
+          {
+            "n": 3,
+            "speaker": "coach",
+            "text": "Okay. So did you manage to do the walks after dinner?",
+            "tag": "closed question",
+            "flag": "missed_concern",
+            "confidence": 0.311
+          },
+          {
+            "n": 4,
+            "speaker": "participant",
+            "text": "Twice, I think.",
+            "tag": "neutral",
+            "confidence": 0.515
+          },
+          {
+            "n": 5,
+            "speaker": "coach",
+            "text": "You really need to walk every day, no excuses.",
+            "tag": "persuade",
+            "confidence": 0.701
+          },
+          {
+            "n": 6,
+            "speaker": "participant",
+            "text": "I know, I want to get back to it.",
+            "tag": "change",
+            "confidence": 0.334
+          },
+          {
+            "n": 7,
+            "speaker": "coach",
+            "text": "What would make it easier to walk after dinner this week?",
+            "tag": "open question",
+            "confidence": 0.511
+          }
+        ]
+      }
+    },
+    {
+      "name": "score_conversation",
+      "args": {
+        "callId": "CALL05559"
+      },
+      "ms": 4783,
+      "isError": false,
+      "summary": "Coach score 55/100 over 33 lines of CALL05559.\nQuestions 5 open / 1 closed; reflections 0 simple / 2 complex; 4 persuade/confront; change talk 6, sustain talk 1.\nNo flags.\nCue moments: after line 5: The participant voiced change talk and the coach did not reflect or affirm it. | after line 12: The coach just told the participant what to do without asking permission. | after line 18: The coach just told the participant what to do without asking permission. | after line 23: The participant voiced change talk and the coach did not reflect or affirm it. | after line 28: The participant voiced change talk and the coach did not reflect or affirm it.\nSupervisor: score 55 on the same lines; coach-move agreement 0.94, talk agreement 0.87.",
+      "structuredContent": {
+        "score": 55,
+        "scoreParts": {
+          "reflectionsPerQuestion": {
+            "value": 0.33,
+            "target": 2,
+            "points": 5,
+            "max": 30
+          },
+          "complexReflectionPct": {
+            "value": 100,
+            "target": 40,
+            "points": 20,
+            "max": 20
+          },
+          "openQuestionPct": {
+            "value": 83,
+            "target": 50,
+            "points": 20,
+            "max": 20
+          },
+          "miConsistent": {
+            "value": "2 MI-consistent vs 4 persuade/confront",
+            "target": "no persuade or confront",
+            "points": 10,
+            "max": 30
+          }
+        },
+        "counts": {
+          "openQuestions": 5,
+          "closedQuestions": 1,
+          "simpleReflections": 0,
+          "complexReflections": 2,
+          "miConsistent": 2,
+          "persuadeOrConfront": 4,
+          "changeTalk": 6,
+          "sustainTalk": 1
+        },
+        "flags": [],
+        "cueMoments": [
+          {
+            "afterLine": 5,
+            "trigger": "The participant voiced change talk and the coach did not reflect or affirm it."
+          },
+          {
+            "afterLine": 12,
+            "trigger": "The coach just told the participant what to do without asking permission."
+          },
+          {
+            "afterLine": 18,
+            "trigger": "The coach just told the participant what to do without asking permission."
+          },
+          {
+            "afterLine": 23,
+            "trigger": "The participant voiced change talk and the coach did not reflect or affirm it."
+          },
+          {
+            "afterLine": 28,
+            "trigger": "The participant voiced change talk and the coach did not reflect or affirm it."
+          }
+        ],
+        "lines": [
+          {
+            "n": 1,
+            "speaker": "coach",
+            "text": "Hi Karen, it's Marcus from the coaching program. Is now still a good time?",
+            "tag": "other",
+            "confidence": 0.287
+          },
+          {
+            "n": 2,
+            "speaker": "participant",
+            "text": "Yes, go ahead.",
+            "tag": "neutral",
+            "confidence": 0.823
+          },
+          {
+            "n": 3,
+            "speaker": "coach",
+            "text": "Are you feeling okay this week?",
+            "tag": "open question",
+            "confidence": 0.259
+          },
+          {
+            "n": 4,
+            "speaker": "participant",
+            "text": "I've had more energy, I noticed that.",
+            "tag": "change",
+            "confidence": 0.332
+          },
+          {
+            "n": 5,
+            "speaker": "coach",
+            "text": "That's great to hear.",
+            "tag": "other",
+            "confidence": 0.401
+          },
+          {
+            "n": 6,
+            "speaker": "coach",
+            "text": "Did you hit your goal this week?",
+            "tag": "closed question",
+            "confidence": 0.393
+          },
+          {
+            "n": 7,
+            "speaker": "participant",
+            "text": "Zero. I'm not going to lie to you.",
+            "tag": "neutral",
+            "confidence": 0.528
+          },
+          {
+            "n": 8,
+            "speaker": "coach",
+            "text": "That sounds like an excuse to me.",
+            "tag": "confront",
+            "confidence": 0.913
+          },
+          {
+            "n": 9,
+            "speaker": "participant",
+            "text": "Maybe.",
+            "tag": "neutral",
+            "confidence": 0.204
+          },
+          {
+            "n": 10,
+            "speaker": "coach",
+            "text": "What do you think the next step should be?",
+            "tag": "open question",
+            "confidence": 0.399
+          },
+          {
+            "n": 11,
+            "speaker": "participant",
+            "text": "I'm going to do it Monday, Wednesday and Friday.",
+            "tag": "change",
+            "confidence": 0.907
+          },
+          {
+            "n": 12,
+            "speaker": "coach",
+            "text": "Half your plate has to be vegetables. That's the rule.",
+            "tag": "persuade",
+            "confidence": 0.376
+          },
+          {
+            "n": 13,
+            "speaker": "participant",
+            "text": "I like what I eat. I'm not going to change at my age.",
+            "tag": "sustain",
+            "confidence": 0.181
+          },
+          {
+            "n": 14,
+            "speaker": "coach",
+            "text": "If you don't do this, your health is going to suffer.",
+            "tag": "persuade",
+            "confidence": 0.845
+          },
+          {
+            "n": 15,
+            "speaker": "participant",
+            "text": "I guess.",
+            "tag": "neutral",
+            "confidence": 0.415
+          },
+          {
+            "n": 16,
+            "speaker": "coach",
+            "text": "You're weighing it up, and that's fair.",
+            "tag": "complex reflection",
+            "confidence": 0.12
+          },
+          {
+            "n": 17,
+            "speaker": "participant",
+            "text": "I need this for my head too, not just my body.",
+            "tag": "change",
+            "confidence": 0.655
+          },
+          {
+            "n": 18,
+            "speaker": "coach",
+            "text": "You have to make this a priority.",
+            "tag": "persuade",
+            "confidence": 0.409
+          },
+          {
+            "n": 19,
+            "speaker": "participant",
+            "text": "Everybody keeps telling me that.",
+            "tag": "neutral",
+            "confidence": 0.384
+          },
+          {
+            "n": 20,
+            "speaker": "coach",
+            "text": "You know your schedule better than anyone.",
+            "tag": "emphasize autonomy",
+            "confidence": 0.851
+          },
+          {
+            "n": 21,
+            "speaker": "coach",
+            "text": "So it's not that you don't care. It's that the rain keeps getting in the way.",
+            "tag": "complex reflection",
+            "confidence": 0.193
+          },
+          {
+            "n": 22,
+            "speaker": "participant",
+            "text": "Well, I want to get my energy back. At least I'm trying.",
+            "tag": "change",
+            "confidence": 0.773
+          },
+          {
+            "n": 23,
+            "speaker": "coach",
+            "text": "It's completely your call.",
+            "tag": "emphasize autonomy",
+            "confidence": 0.852
+          },
+          {
+            "n": 24,
+            "speaker": "coach",
+            "text": "How would things be different if you kept this up?",
+            "tag": "open question",
+            "confidence": 0.754
+          },
+          {
+            "n": 25,
+            "speaker": "participant",
+            "text": "I'm not sure.",
+            "tag": "neutral",
+            "confidence": 0.231
+          },
+          {
+            "n": 26,
+            "speaker": "coach",
+            "text": "So what would you like your goal to be for next week?",
+            "tag": "open question",
+            "confidence": 0.569
+          },
+          {
+            "n": 27,
+            "speaker": "participant",
+            "text": "Let's say I add a vegetable to lunch and dinner on 5 days.",
+            "tag": "change",
+            "confidence": 0.739
+          },
+          {
+            "n": 28,
+            "speaker": "coach",
+            "text": "If the rain gets in the way again, what's your backup plan?",
+            "tag": "open question",
+            "confidence": 0.694
+          },
+          {
+            "n": 29,
+            "speaker": "participant",
+            "text": "I mean, I'll do it right when I wake up, before anything else.",
+            "tag": "change",
+            "confidence": 0.735
+          },
+          {
+            "n": 30,
+            "speaker": "coach",
+            "text": "I'll text you midweek to see how it's going, and we'll talk again in two weeks.",
+            "tag": "other",
+            "confidence": 0.379
+          },
+          {
+            "n": 31,
+            "speaker": "participant",
+            "text": "Perfect.",
+            "tag": "neutral",
+            "confidence": 0.532
+          },
+          {
+            "n": 32,
+            "speaker": "coach",
+            "text": "Talk soon!",
+            "tag": "other",
+            "confidence": 0.773
+          },
+          {
+            "n": 33,
+            "speaker": "participant",
+            "text": "Thank you, talk soon.",
+            "tag": "neutral",
+            "confidence": 0.656
+          }
+        ],
+        "comparison": {
+          "supervisorScoreFullCall": 55,
+          "supervisorScoreSameLines": 55,
+          "coachMoveAgreement": 0.94,
+          "participantTalkAgreement": 0.87,
+          "supervisorNeedsHumanLines": []
+        }
+      }
+    },
+    {
+      "name": "coaching_cue",
+      "args": {
+        "recent": [
+          {
+            "speaker": "coach",
+            "text": "Hi Rosa, how has your week been with the walking plan?",
+            "tag": "open question"
+          },
+          {
+            "speaker": "participant",
+            "text": "Not great. I've had a fever since yesterday and my chest feels tight.",
+            "tag": "neutral",
+            "flag": "medical"
+          },
+          {
+            "speaker": "coach",
+            "text": "Okay. So did you manage to do the walks after dinner?",
+            "tag": "closed question",
+            "flag": "missed_concern"
+          }
+        ]
+      },
+      "ms": 2658,
+      "isError": false,
+      "summary": "Cue: Acknowledge the fever and chest tightness first, reflect it back, and invite her to say more before returning to the walking plan.\nSay: \"I want to pause on what you just shared — fever and chest tightness since yesterday sounds uncomfortable. Can you tell me more about how you're feeling?\"\nWhy: The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now.",
+      "structuredContent": {
+        "cue": "Acknowledge the fever and chest tightness first, reflect it back, and invite her to say more before returning to the walking plan.",
+        "say": "I want to pause on what you just shared — fever and chest tightness since yesterday sounds uncomfortable. Can you tell me more about how you're feeling?",
+        "ms": 2541,
+        "trigger": "The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now.",
+        "triggerSource": "copilot-rule",
+        "lines": [
+          {
+            "speaker": "coach",
+            "text": "Hi Rosa, how has your week been with the walking plan?",
+            "tag": "open question"
+          },
+          {
+            "speaker": "participant",
+            "text": "Not great. I've had a fever since yesterday and my chest feels tight.",
+            "tag": "neutral",
+            "flag": "medical"
+          },
+          {
+            "speaker": "coach",
+            "text": "Okay. So did you manage to do the walks after dinner?",
+            "tag": "closed question",
+            "flag": "missed_concern"
+          }
+        ]
+      }
+    },
+    {
+      "name": "score_conversation",
+      "args": {
+        "transcript": "hello there"
+      },
+      "ms": 72,
+      "isError": true,
+      "summary": "Error: cannot read the speaker in \"hello there\"; start each line with \"coach:\" or \"participant:\""
+    },
+    {
+      "name": "search",
+      "args": {
+        "query": "urgent"
+      },
+      "ms": 33,
+      "isError": false,
+      "summary": "{\"results\":[{\"id\":\"c3-P03000\",\"title\":\"P03000 · 49M · kidney [alert, urgent]: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\",\"url\":\"https://patient-360.raava.dev/#p-c3-P03000\"},{\"id\":\"c3-P02185\",\"title\":\"P02185 · 42M · lymphoma [alert, urgent]: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual\",\"url\":\"https://patient-360.raava.dev/#p-c3-P02185\"}]}",
+      "structuredContent": {
+        "results": [
+          {
+            "id": "c3-P03000",
+            "title": "P03000 · 49M · kidney [alert, urgent]: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual",
+            "url": "https://patient-360.raava.dev/#p-c3-P03000"
+          },
+          {
+            "id": "c3-P02185",
+            "title": "P02185 · 42M · lymphoma [alert, urgent]: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual",
+            "url": "https://patient-360.raava.dev/#p-c3-P02185"
+          }
+        ]
+      }
+    },
+    {
+      "name": "fetch",
+      "args": {
+        "id": "c3-P03000"
+      },
+      "ms": 181,
+      "isError": false,
+      "summary": "{\"id\":\"c3-P03000\",\"title\":\"C3 Bad Week Radar: P03000 · 49M · kidney\",\"text\":\"Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\\nUrgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\\n\\n{\\\"module\\\":\\\"c3\\\",\\\"moduleName\\\":\\\"C3 Bad Week Radar\\\",\\\"survivorId\\\":\\\"c3-P03000\\\",\\\"displayName\\\":\\\"P03000 · 49M · kidney\\\",\\\"status\\\":\\\"alert\\\",\\\"headline\\\":\\\"Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\\\",\\\"summary\\\":\\\"Urgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\\\",\\\"urgent\\\":true,\\\"urgentRisk\\\":0.104,\\\"risk\\\":0.078,\\\"scheduleRisk\\\":0.021,\\\"thresholds\\\":{\\\"alert\\\":0.156,\\\"watch\\\":0.105,\\\"urgent\\\":0.058},\\\"profile\\\":{\\\"age\\\":49,\\\"sex\\\":\\\"male\\\",\\\"cancerType\\\":\\\"kidney\\\",\\\"stage\\\":\\\"I\\\",\\\"treatmentPlan\\\":\\\"Immunotherapy every 21 days\\\",\\\"device\\\":\\\"Fitbit smartwatch\\\",\\\"language\\\":\\\"Spanish\\\",\\\"livesAlone\\\":\\\"no\\",
+      "structuredContent": {
+        "id": "c3-P03000",
+        "title": "C3 Bad Week Radar: P03000 · 49M · kidney",
+        "text": "Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\nUrgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\n\n{\"module\":\"c3\",\"moduleName\":\"C3 Bad Week Radar\",\"survivorId\":\"c3-P03000\",\"displayName\":\"P03000 · 49M · kidney\",\"status\":\"alert\",\"headline\":\"Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\",\"summary\":\"Urgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\",\"urgent\":true,\"urgentRisk\":0.104,\"risk\":0.078,\"scheduleRisk\":0.021,\"thresholds\":{\"alert\":0.156,\"watch\":0.105,\"urgent\":0.058},\"profile\":{\"age\":49,\"sex\":\"male\",\"cancerType\":\"kidney\",\"stage\":\"I\",\"treatmentPlan\":\"Immunotherapy every 21 days\",\"device\":\"Fitbit smartwatch\",\"language\":\"Spanish\",\"livesAlone\":\"no\",\"context\":\"Day 16 of cycle 3 (Immunotherapy every 21 days)\"},\"evidence\":[{\"label\":\"Sleep\",\"text\":\"Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h\",\"riskShare\":0.063},{\"label\":\"Resting heart rate\",\"text\":\"Resting heart rate +2.8 bpm vs their usual (88 vs 86)\",\"riskShare\":0.034},{\"label\":\"Treatment calendar\",\"text\":\"Day 16 of cycle 3 (Immunotherapy every 21 days). The calendar alone predicts 2% risk of a rough patch this week.\",\"riskShare\":0.021}],\"recommendations\":[{\"action\":\"Call today. Ask how they feel, about fever, fluids and anything new. If anything is off, have them call their care team now.\",\"why\":\"Their wearable pattern matches the days before an ER visit or hospital stay. The coach does not diagnose; the care team decides.\",\"urgency\":\"today\"},{\"action\":\"Check in this week about sleep: nights, naps, worries. Share the sleep tips sheet.\",\"why\":\"Sleep got shorter or more broken than usual.\",\"urgency\":\"within 2 days\"},{\"action\":\"Move the next coaching call earlier and plan around the expected low point.\",\"why\":\"The forecast covers the next 7 days.\",\"urgency\":\"this week\"},{\"action\":\"Reach out in Spanish, or book an interpreter for the call.\",\"why\":\"Their preferred language is Spanish; a rough week is harder to describe in a second language.\",\"urgency\":\"this week\",\"kind\":\"social\"}],\"consoleUrl\":\"https://patient-360.raava.dev/#p-c3-P03000\"}",
+        "url": "https://patient-360.raava.dev/#p-c3-P03000",
+        "metadata": {
+          "module": "c3",
+          "status": "alert"
+        }
+      }
+    }
+  ]
+}
