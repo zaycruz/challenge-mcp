@@ -153,11 +153,16 @@ export async function metrics(env: Env, m: Exclude<Module, "c5">) {
     const ms = isRecord(d.metrics) ? d.metrics : {};
     const short = (x: unknown) => (isRecord(x) ? Object.fromEntries(["auroc", "auprc", "brier", "cal_slope"].map((k) => [k, ci(x[k])])) : x);
     const tiers = isRecord(d.tiers) ? d.tiers : {};
+    // The live model is whatever finalModel.key names (the forest since the model search); never hard-code one.
+    const fm = isRecord(d.finalModel) ? d.finalModel : {};
+    const key = typeof fm.key === "string" && isRecord(ms[fm.key]) ? fm.key : "logistic";
+    const deltas = isRecord(d.deltaVsBaseline) ? d.deltaVsBaseline : {};
+    const delta = isRecord(deltas[key]) ? Object.fromEntries(Object.entries(deltas[key] as Record<string, unknown>).map(([k, v]) => [k, isRecord(v) ? pick(v, ["value", "ci95", "p_better"]) : v])) : null;
     return {
       module: m, moduleName: MODULE_INFO[m].name, asOf: d.asOf, outcome: d.outcome, data: d.data, validation: d.validation,
-      finalModel: isRecord(d.finalModel) ? d.finalModel.name : d.finalModel,
-      metrics: { logistic: short(ms.logistic), baseline: short(ms.baseline) },
-      deltaVsBaseline: d.deltaVsBaseline,
+      finalModel: { key, name: fm.name ?? fm, chosenBy: fm.chosenBy, previous: fm.previous },
+      metrics: { [key]: short(ms[key]), baseline: short(ms.baseline) },
+      gainOverBaseline: delta,
       tiers: list(tiers.tiers).map((t) => pick(t, ["status", "riskFrom", "riskTo", "n", "observedRate"])),
       plainFactors: list(d.plainFactors).map((f) => ({ factor: f.factor, rateRatio: f.rateRatio })),
       clinicalRecords: isRecord(d.clinicalRecords) ? d.clinicalRecords.verdict : d.clinicalRecords,

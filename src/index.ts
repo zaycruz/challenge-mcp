@@ -47,9 +47,13 @@ const lineArg = z.object({
 });
 const transcriptArg = z.union([z.array(lineArg), z.string()]).describe(`The call, oldest line first, at most ${MAX_LINES} lines. Either [{speaker, text}] or plain text with one "coach: …" / "participant: …" per line.`);
 
+const TRIAGE_DEFAULT = 10, TRIAGE_MAX = 25;
+const COHORTS_NOT_JOINED = "Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.";
+
 const rowLine = (r: Row) => `- ${r.survivorId} [${r.status}${r.urgent ? ", URGENT" : ""}] ${r.displayName}: ${r.headline}`;
 
-function buildServer(env: Env) {
+/** `demo` adds reveal_outcome_demo; only the /mcp?tools=demo endpoint sets it, so the default tools/list never shows it. */
+function buildServer(env: Env, demo = false) {
   const server = new McpServer(
     { name: "emerge-challenge-mcp", title: "Emerge Hackathon challenge APIs", version: VERSION },
     { instructions: `Care-team tools over the Emerge Hackathon modules (Sylvester cancer-survivor track). ${IDS_DO_NOT_JOIN} Status everywhere is alert > watch > ok. Coaches do not diagnose: route medical items to the care team. Start with triage_today or list_survivors, then get_survivor. Use score_conversation for a coaching transcript and coaching_cue for what to say next.` },
@@ -57,34 +61,54 @@ function buildServer(env: Env) {
 
   server.registerTool("triage_today", {
     title: "Who needs attention today (all modules)",
-    description: "Cross-module worklist: every survivor on alert (C3 urgent ER/hospital risk first) across C1, C3, C4 and C5, plus the status mix per module. Use for 'who should the care team call today?'.",
+    description: "Short ranked worklist across C1, C3, C4 and C5 (default 10, at most 25): C3 urgent ER/hospital risk first, then the top alert from each cohort in turn, so no one cohort fills the list. Each row names its cohort and its own reason. The four cohorts are separate groups of people and are not joined. Use for 'who should the care team call today?'.",
     inputSchema: {
-      modules: z.array(moduleArg).optional().describe("Limit to these modules; default all four"),
-      includeWatch: z.boolean().optional().describe("Also list 'watch' survivors (default false)"),
-      limit: z.number().int().min(1).max(100).optional().describe("Max rows (default 25)"),
+      modules: z.array(moduleArg).optional().describe("Limit to these cohorts; default all four"),
+      includeWatch: z.boolean().optional().describe("Also rank 'watch' survivors after the alerts (default false)"),
+      limit: z.number().int().min(1).max(TRIAGE_MAX).optional().describe(`Rows to return (default ${TRIAGE_DEFAULT}, max ${TRIAGE_MAX})`),
     },
     annotations: { title: "Triage today", ...READ },
   }, wrap(async ({ modules, includeWatch, limit }) => {
     const ms = modules?.length ? modules : [...MODULES];
     const got = await Promise.allSettled(ms.map((m) => roster(env, m)));
-    const counts: Record<string, unknown> = {};
-    const rows: (Row & { module: Module })[] = [];
+    const counts: Record<string, Record<string, number>> = {};
+    const queues = new Map<Module, Row[]>();
     const down: string[] = [];
     got.forEach((g, i) => {
       if (g.status === "rejected") { down.push(`${ms[i]}: ${g.reason instanceof Error ? g.reason.message : g.reason}`); return; }
       counts[ms[i]] = statusCounts(g.value);
-      rows.push(...g.value.filter((r) => r.status === "alert" || (includeWatch && r.status === "watch")).map((r) => ({ module: ms[i], ...r })));
+      // Rosters arrive ranked by each module (urgent, then status, then risk); keep that order inside a cohort.
+      queues.set(ms[i], g.value.filter((r) => r.status === "alert" || (includeWatch && r.status === "watch")));
     });
-    rows.sort((a, b) => Number(!!b.urgent) - Number(!!a.urgent) || RANK[a.status] - RANK[b.status] || MODULES.indexOf(a.module) - MODULES.indexOf(b.module));
-    const shown = rows.slice(0, limit ?? 25);
-    const urgent = rows.filter((r) => r.urgent).length;
+    const take = (m: Module, r: Row) => { const q = queues.get(m)!; q.splice(q.indexOf(r), 1); return { module: m, r }; };
+    const picked: { module: Module; r: Row }[] = [];
+    for (const [m, q] of queues) for (const r of q.filter((x) => x.urgent)) picked.push(take(m, r));
+    // Then round-robin across cohorts: alerts before watch, best-ranked first in each cohort.
+    for (const status of ["alert", "watch"]) {
+      for (let more = true; more;) {
+        more = false;
+        for (const [m, q] of queues) {
+          const r = q.find((x) => x.status === status);
+          if (r) { picked.push(take(m, r)); more = true; }
+        }
+      }
+    }
+    const cap = limit ?? TRIAGE_DEFAULT;
+    const rows = picked.slice(0, cap).map(({ module, r }, i) => ({
+      rank: i + 1, cohort: module, cohortName: MODULE_INFO[module].name, survivorId: r.survivorId, displayName: r.displayName,
+      status: r.status, ...(r.urgent ? { urgent: true } : {}),
+      reason: `${MODULE_INFO[module].name}: ${r.headline}`,
+    }));
+    const urgent = picked.filter((x) => x.r.urgent).length;
+    const perCohort = Object.fromEntries(ms.filter((m) => counts[m]).map((m) => [m, { cohort: MODULE_INFO[m].name, people: MODULE_INFO[m].about, statusCounts: counts[m], shown: rows.filter((r) => r.cohort === m).length }]));
     const summary = [
-      `${rows.length} survivors need attention (${urgent} urgent, C3 ER/hospital risk in 7 days). Per module: ${Object.entries(counts).map(([m, c]) => `${m} ${JSON.stringify(c)}`).join("; ")}.`,
-      ...shown.map(rowLine),
-      ...(rows.length > shown.length ? [`…and ${rows.length - shown.length} more (raise limit).`] : []),
+      `Top ${rows.length} of ${picked.length} survivors needing attention (${urgent} urgent). ${COHORTS_NOT_JOINED}`,
+      ...rows.map((r) => `${r.rank}. ${r.survivorId} [${r.status}${r.urgent ? ", URGENT" : ""}] ${r.reason}`),
+      `Per cohort: ${Object.entries(perCohort).map(([m, c]) => `${m} ${JSON.stringify(c.statusCounts)}`).join("; ")}.`,
+      ...(picked.length > rows.length ? [`${picked.length - rows.length} more not shown; use list_survivors per module.`] : []),
       ...(down.length ? [`Unavailable: ${down.join("; ")}`] : []),
     ].join("\n");
-    return ok(summary, { total: rows.length, urgent, statusCounts: counts, rows: shown, unavailable: down, note: IDS_DO_NOT_JOIN });
+    return ok(summary, { shown: rows.length, needingAttention: picked.length, urgent, cohortsJoined: false, note: COHORTS_NOT_JOINED, rows, perCohort, unavailable: down });
   }));
 
   server.registerTool("list_survivors", {
@@ -157,8 +181,10 @@ function buildServer(env: Env) {
     const d = await metrics(env, module);
     let summary = `${MODULE_INFO[module].name} metrics.`;
     if (module === "c1") {
-      const l = (d as { metrics: { logistic: Record<string, { value: number; ci95: number[] }> } }).metrics.logistic;
-      summary = `C1: logistic model AUROC ${l.auroc.value.toFixed(3)} (95% CI ${l.auroc.ci95.map((x) => x.toFixed(2)).join("-")}), Brier ${l.brier.value.toFixed(3)}, out-of-fold on 466 development survivors. Held-out status mix ${JSON.stringify(d.heldoutStatusMix)}.`;
+      const c = d as unknown as { finalModel: { key: string; name: string }; metrics: Record<string, Record<string, { value: number; ci95: number[] }>>; gainOverBaseline: Record<string, { value: number; ci95: number[]; p_better?: number }> | null };
+      const f = (x: number) => x.toFixed(3), band = (x: number[]) => `${x[0].toFixed(3)} to ${x[1].toFixed(3)}`;
+      const m = c.metrics[c.finalModel.key], b = c.metrics.baseline, g = c.gainOverBaseline;
+      summary = `C1 live model: ${c.finalModel.name.split(",")[0].split(" on ")[0]} (${c.finalModel.key}). AUROC ${f(m.auroc.value)} (95% CI ${band(m.auroc.ci95)}) vs baseline ${f(b.auroc.value)}, out-of-fold on the development survivors.${g?.auroc ? ` Gain over baseline: AUROC +${f(g.auroc.value)} (95% CI ${band(g.auroc.ci95)}, P(better) ${g.auroc.p_better})${g.brier ? `, Brier ${f(g.brier.value)} (95% CI ${band(g.brier.ci95)})` : ""}.` : ""} Held-out status mix ${JSON.stringify(d.heldoutStatusMix)}.`;
     } else if (module === "c3") {
       const m = d as { model: { weeks?: { auc?: number }; episodes?: Record<string, number> }; scheduleBaseline: { weeks?: { auc?: number }; episodes?: Record<string, number> } };
       summary = `C3 Radar on held-out patients: week AUC ${m.model.weeks?.auc} vs schedule-only ${m.scheduleBaseline.weeks?.auc}; rough-patch episode recall ${m.model.episodes?.episode_recall} vs ${m.scheduleBaseline.episodes?.episode_recall}; ER/admission recall ${m.model.episodes?.er_recall} vs ${m.scheduleBaseline.episodes?.er_recall}; median lead ${m.model.episodes?.median_lead_days} days.`;
@@ -182,7 +208,7 @@ function buildServer(env: Env) {
     return ok(summary, { survivorId, model: isRecord(d) ? d.model : null, items });
   }));
 
-  server.registerTool("reveal_outcome_demo", {
+  if (demo) server.registerTool("reveal_outcome_demo", {
     title: "DEMO ONLY: what really happened next (C3)",
     description: "C3 demo only, never for a coach-facing answer: the hidden outcome in the 14 days after the forecast (did a rough patch or ER visit/admission happen, and when). Use only when the user explicitly asks to check the forecast against what happened.",
     inputSchema: { survivorId: z.string().regex(/^c3-/i, "C3 ids start with c3-") },
@@ -377,7 +403,7 @@ export default {
         return withCors(Response.json({ jsonrpc: "2.0", error: { code: -32000, message: "Method not allowed: POST JSON-RPC to /mcp" }, id: null }, { status: 405, headers: { allow: "POST, OPTIONS" } }));
       }
       const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
-      const server = buildServer(env);
+      const server = buildServer(env, url.searchParams.get("tools") === "demo");
       await server.connect(transport);
       return withCors(await transport.handleRequest(req));
     }

@@ -17,15 +17,17 @@ const info = client.getServerVersion();
 check("initialize", info?.name === "emerge-challenge-mcp", JSON.stringify(info));
 
 const { tools } = await client.listTools();
-const EXPECTED = ["triage_today", "list_survivors", "get_survivor", "patient_overview", "module_metrics", "glucose_advice", "reveal_outcome_demo", "list_coaching_calls", "get_coaching_call", "score_conversation", "coaching_cue", "search", "fetch"];
+const EXPECTED = ["triage_today", "list_survivors", "get_survivor", "patient_overview", "module_metrics", "glucose_advice", "list_coaching_calls", "get_coaching_call", "score_conversation", "coaching_cue", "search", "fetch"];
 check("tools/list has every tool", EXPECTED.every((n) => tools.some((t) => t.name === n)), tools.map((t) => t.name).join(", "));
 check("every tool has a non-empty input schema", tools.every((t) => Object.keys(t.inputSchema?.properties ?? {}).length > 0), tools.filter((t) => !Object.keys(t.inputSchema?.properties ?? {}).length).map((t) => t.name).join(", ") || "all have properties");
+check("default tools/list hides reveal_outcome_demo", !tools.some((t) => t.name === "reveal_outcome_demo"));
 check("every tool is marked readOnlyHint", tools.every((t) => t.annotations?.readOnlyHint === true));
 check("every tool has a description of 40+ chars", tools.every((t) => (t.description ?? "").length >= 40));
 
 async function run(name, args, expectError = false) {
   const t0 = Date.now();
-  const r = await client.callTool({ name, arguments: args }, undefined, { timeout: 120_000 });
+  // A protocol error (unknown tool, bad arguments) counts as an error result.
+  const r = await client.callTool({ name, arguments: args }, undefined, { timeout: 120_000 }).catch((e) => ({ isError: true, content: [{ type: "text", text: `protocol error: ${e.message}` }] }));
   const ms = Date.now() - t0;
   const text = r.content?.map((c) => c.text).join("\n") ?? "";
   calls.push({ name, args, ms, isError: !!r.isError, summary: r.content?.[0]?.text?.slice(0, 1500), structuredContent: r.structuredContent });
@@ -34,9 +36,16 @@ async function run(name, args, expectError = false) {
 }
 
 // Rosters and triage
-const triage = await run("triage_today", { limit: 10 });
-check("triage counts all 4 modules", ["c1", "c3", "c4", "c5"].every((m) => triage.statusCounts?.[m]), JSON.stringify(triage.statusCounts));
-check("triage lists urgent C3 first", triage.rows?.[0]?.urgent === true && triage.rows[0].module === "c3", triage.rows?.[0]?.survivorId);
+const triage = await run("triage_today", {});
+check("triage defaults to a short list (10)", triage.rows?.length === 10 && triage.needingAttention > 10, `${triage.rows?.length} of ${triage.needingAttention}`);
+check("triage counts all 4 cohorts", ["c1", "c3", "c4", "c5"].every((m) => triage.perCohort?.[m]?.statusCounts), JSON.stringify(Object.fromEntries(Object.entries(triage.perCohort ?? {}).map(([m, c]) => [m, c.statusCounts]))));
+check("triage lists urgent C3 first", triage.rows?.[0]?.urgent === true && triage.rows[0].cohort === "c3", triage.rows?.[0]?.survivorId);
+check("triage rows have rank, cohort and their own reason", triage.rows?.every((r, i) => r.rank === i + 1 && r.cohort && r.cohortName && r.reason?.startsWith(r.cohortName)) && new Set(triage.rows.map((r) => r.reason)).size === triage.rows.length);
+check("triage mixes cohorts in the top 10", new Set(triage.rows?.map((r) => r.cohort)).size === 4, triage.rows?.map((r) => r.cohort).join(","));
+check("triage says cohorts are not joined", triage.cohortsJoined === false && /not joined/.test(calls.at(-1).summary));
+const triageMax = await run("triage_today", { limit: 25, includeWatch: true });
+check("triage caps at 25", triageMax.rows?.length === 25);
+await run("triage_today", { limit: 26 }, true);
 const ids = {};
 for (const m of ["c1", "c3", "c4", "c5"]) {
   const l = await run("list_survivors", { module: m, limit: 3 });
@@ -64,13 +73,24 @@ check("patient_overview says ids do not join", ov.idsJoin === false && ov.module
 
 for (const m of ["c1", "c3", "c4"]) {
   const d = await run("module_metrics", { module: m });
+  if (m === "c1") {
+    check("module_metrics c1 reads the live finalModel", d.finalModel?.key === "forest" && d.metrics?.forest?.auroc?.value > 0.7 && !("logistic" in (d.metrics ?? {})), `${d.finalModel?.key} AUROC ${d.metrics?.forest?.auroc?.value?.toFixed(3)}`);
+    check("module_metrics c1 gives the gain over baseline with a CI", Array.isArray(d.gainOverBaseline?.auroc?.ci95) && /AUROC 0\.713/.test(calls.at(-1).summary) && /Gain over baseline/.test(calls.at(-1).summary), calls.at(-1).summary.slice(0, 220));
+  }
   if (m === "c3") check("module_metrics c3 has model and baseline", d.model?.weeks?.auc && d.scheduleBaseline?.weeks?.auc, `${d.model?.weeks?.auc} vs ${d.scheduleBaseline?.weeks?.auc}`);
   check(`module_metrics ${m} is compact`, JSON.stringify(d).length < 12_000, `${JSON.stringify(d).length} chars`);
 }
 const adv = await run("glucose_advice", { survivorId: ids.c4 });
 check("glucose_advice returns advice items", Array.isArray(adv.items) && adv.items.length > 0 && adv.items.every((i) => i.text), adv.items?.map((i) => i.source).join(","));
-const demo = await run("reveal_outcome_demo", { survivorId: ids.c3 });
-check("reveal_outcome_demo returns the outcome", demo.outcome && "roughPatchStartsInDays" in demo.outcome);
+await run("reveal_outcome_demo", { survivorId: ids.c3 }, true);
+// The demo tool lives only on /mcp?tools=demo.
+const demoClient = new Client({ name: "challenge-mcp-e2e-demo", version: "1.0.0" });
+await demoClient.connect(new StreamableHTTPClientTransport(new URL(URL_ + "?tools=demo")));
+check("?tools=demo lists reveal_outcome_demo", (await demoClient.listTools()).tools.some((t) => t.name === "reveal_outcome_demo"));
+const demoRes = await demoClient.callTool({ name: "reveal_outcome_demo", arguments: { survivorId: ids.c3 } });
+calls.push({ name: "reveal_outcome_demo (?tools=demo)", args: { survivorId: ids.c3 }, isError: !!demoRes.isError, summary: demoRes.content?.[0]?.text });
+check("reveal_outcome_demo works on ?tools=demo", !demoRes.isError && demoRes.structuredContent?.outcome && "roughPatchStartsInDays" in demoRes.structuredContent.outcome);
+await demoClient.close();
 
 // C5: calls on file, scoring, cues
 const callsList = await run("list_coaching_calls", { limit: 30 });
