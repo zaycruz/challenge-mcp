@@ -1,0 +1,12 @@
+{
+  "name": "challenge-mcp-reproduce",
+  "version": "1.0.0",
+  "description": "Fresh-clone E2E runner for challenge-mcp on Cloudflare Containers",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.151.1"
+  },
+  "private": true
+}

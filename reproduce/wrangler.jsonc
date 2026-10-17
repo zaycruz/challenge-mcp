@@ -1,0 +1,13 @@
+{
+  // Fresh-clone reproduce runner for challenge-mcp: a Cloudflare Container (node:22) that clones the public repo,
+  // runs `npm ci` and the E2E against the live server, and returns the log. Not part of the MCP server.
+  "name": "challenge-mcp-reproduce",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "observability": { "enabled": true },
+  "containers": [{ "class_name": "Runner", "image": "docker.io/library/node:22-bookworm", "max_instances": 2, "instance_type": "standard-1" }],
+  "durable_objects": { "bindings": [{ "name": "RUNNER", "class_name": "Runner" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["Runner"] }]
+}

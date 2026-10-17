@@ -1,111 +1,145 @@
-# challenge-mcp E2E 2026-10-17T15:21:19.473Z
+# challenge-mcp E2E 2026-10-17T16:35:29.023Z
 
-Server: https://emerge-mcp.raava.dev/mcp (emerge-challenge-mcp 0.1.0). 67/67 checks passed in 16.1 s.
-Full run: runs/2026-10-17T15-21-19-473Z.json
+Server: https://emerge-mcp.raava.dev/mcp (emerge-challenge-mcp 0.2.0). 78/78 checks passed in 36.0 s.
+Full run: runs/2026-10-17T16-35-29-023Z.json
 
 | | Check | Detail |
 |---|---|---|
-| PASS | initialize | {"name":"emerge-challenge-mcp","title":"Emerge Hackathon challenge APIs","version":"0.1.0"} |
-| PASS | tools/list has every tool | triage_today, list_survivors, get_survivor, patient_overview, module_metrics, glucose_advice, reveal_outcome_demo, list_coaching_calls, get_coaching_call, score |
+| PASS | initialize | {"name":"emerge-challenge-mcp","title":"Emerge Hackathon challenge APIs","version":"0.2.0"} |
+| PASS | tools/list has every tool | triage_today, list_survivors, get_survivor, patient_overview, module_metrics, glucose_advice, list_coaching_calls, get_coaching_call, score_conversation, coachi |
 | PASS | every tool has a non-empty input schema | all have properties |
+| PASS | default tools/list hides reveal_outcome_demo |  |
 | PASS | every tool is marked readOnlyHint |  |
 | PASS | every tool has a description of 40+ chars |  |
-| PASS | triage_today succeeds (221 ms) |  |
-| PASS | triage counts all 4 modules | {"c1":{"alert":41,"watch":41,"ok":117},"c3":{"alert":10,"watch":2,"ok":48},"c4":{"alert":11,"watch":10,"ok":29},"c5":{"alert":9,"watch":6,"ok":11}} |
-| PASS | triage lists urgent C3 first | c3-P02185 |
-| PASS | list_survivors succeeds (64 ms) |  |
-| PASS | list_survivors c1 returns rows | 199 total, first c1-S2480BBDE |
-| PASS | list_survivors succeeds (78 ms) |  |
-| PASS | list_survivors c3 returns rows | 60 total, first c3-P02185 |
-| PASS | list_survivors succeeds (106 ms) |  |
+| PASS | triage_today succeeds (960 ms) |  |
+| PASS | triage defaults to a short list (10) | 10 of 65 |
+| PASS | triage counts all 4 cohorts | {"c1":{"alert":40,"watch":43,"ok":116},"c3":{"alert":5,"watch":4,"ok":51},"c4":{"alert":11,"watch":10,"ok":29},"c5":{"alert":9,"watch":6,"ok":11}} |
+| PASS | triage lists urgent C3 first | c3-P03000 |
+| PASS | triage rows have rank, cohort and their own reason |  |
+| PASS | triage mixes cohorts in the top 10 | c3,c3,c1,c3,c4,c5,c1,c3,c4,c5 |
+| PASS | triage says cohorts are not joined |  |
+| PASS | triage_today succeeds (801 ms) |  |
+| PASS | triage caps at 25 |  |
+| PASS | triage_today returns isError (341 ms) | MCP error -32602: Input validation error: Invalid arguments for tool triage_today: Too big: expected number to be <=25 at limit |
+| PASS | list_survivors succeeds (215 ms) |  |
+| PASS | list_survivors c1 returns rows | 199 total, first c1-S71188550 |
+| PASS | list_survivors succeeds (143 ms) |  |
+| PASS | list_survivors c3 returns rows | 60 total, first c3-P03000 |
+| PASS | list_survivors succeeds (288 ms) |  |
 | PASS | list_survivors c4 returns rows | 50 total, first c4-N0072 |
-| PASS | list_survivors succeeds (85 ms) |  |
+| PASS | list_survivors succeeds (182 ms) |  |
 | PASS | list_survivors c5 returns rows | 26 total, first c5-P0002 |
-| PASS | list_survivors succeeds (105 ms) |  |
+| PASS | list_survivors succeeds (405 ms) |  |
 | PASS | list_survivors filters by text and status | 11 matched |
-| PASS | list_survivors succeeds (56 ms) |  |
+| PASS | list_survivors succeeds (533 ms) |  |
 | PASS | list_survivors urgentOnly | 2 urgent |
-| PASS | get_survivor succeeds (56 ms) |  |
-| PASS | get_survivor c1 has headline + evidence/recommendations | c1-S2480BBDE |
-| PASS | get_survivor succeeds (146 ms) |  |
-| PASS | get_survivor c3 has headline + evidence/recommendations | c3-P02185 |
+| PASS | get_survivor succeeds (631 ms) |  |
+| PASS | get_survivor c1 has headline + evidence/recommendations | c1-S71188550 |
+| PASS | get_survivor succeeds (253 ms) |  |
+| PASS | get_survivor c3 has headline + evidence/recommendations | c3-P03000 |
 | PASS | get_survivor c3 hides the outcome |  |
-| PASS | get_survivor succeeds (62 ms) |  |
+| PASS | get_survivor succeeds (358 ms) |  |
 | PASS | get_survivor c4 has headline + evidence/recommendations | c4-N0072 |
-| PASS | get_survivor succeeds (51 ms) |  |
+| PASS | get_survivor succeeds (329 ms) |  |
 | PASS | get_survivor c5 has headline + evidence/recommendations | c5-P0002 |
-| PASS | get_survivor succeeds (43 ms) |  |
+| PASS | get_survivor succeeds (747 ms) |  |
 | PASS | get_survivor c3 charts trimmed to 14 days |  |
-| PASS | get_survivor returns isError (41 ms) | Error: Not found. /api/c1/survivors/c1-NOPE: HTTP 404 survivor not found |
-| PASS | get_survivor returns isError (56 ms) | Error: survivorId must start with c1-, c3-, c4- or c5- (got "x9-123") |
-| PASS | patient_overview succeeds (50 ms) |  |
-| PASS | patient_overview says ids do not join | {"c1":{"enrolled":false},"c3":{"enrolled":true,"survivorId":"c3-P02185","status":"alert","headline":"Urgent: ER or hospital risk 6% in the next 7 days, about 5x |
-| PASS | module_metrics succeeds (112 ms) |  |
-| PASS | module_metrics c1 is compact | 4124 chars |
-| PASS | module_metrics succeeds (67 ms) |  |
-| PASS | module_metrics c3 has model and baseline | 0.819 vs 0.808 |
-| PASS | module_metrics c3 is compact | 6488 chars |
-| PASS | module_metrics succeeds (60 ms) |  |
-| PASS | module_metrics c4 is compact | 6092 chars |
-| PASS | glucose_advice succeeds (5227 ms) |  |
-| PASS | glucose_advice returns advice items | template,ai,ai |
-| PASS | reveal_outcome_demo succeeds (47 ms) |  |
-| PASS | reveal_outcome_demo returns the outcome |  |
-| PASS | list_coaching_calls succeeds (132 ms) |  |
+| PASS | get_survivor returns isError (214 ms) | Error: Not found. /api/c1/survivors/c1-NOPE: HTTP 404 survivor not found |
+| PASS | get_survivor returns isError (284 ms) | Error: survivorId must start with c1-, c3-, c4- or c5- (got "x9-123") |
+| PASS | patient_overview succeeds (236 ms) |  |
+| PASS | patient_overview says ids do not join | {"c1":{"enrolled":false},"c3":{"enrolled":true,"survivorId":"c3-P03000","status":"alert","headline":"Urgent: ER or hospital risk 10% in the next 7 days, about 9 |
+| PASS | module_metrics succeeds (255 ms) |  |
+| PASS | module_metrics c1 reads the live finalModel | forest AUROC 0.713 |
+| PASS | module_metrics c1 gives the gain over baseline with a CI | C1 live model: Random forest (300 trees (forest). AUROC 0.713 (95% CI 0.662 to 0.764) vs baseline 0.659, out-of-fold on the development survivors. Gain over bas |
+| PASS | module_metrics c1 is compact | 4430 chars |
+| PASS | module_metrics succeeds (208 ms) |  |
+| PASS | module_metrics c3 has model and baseline | 0.827 vs 0.808 |
+| PASS | module_metrics c3 is compact | 7243 chars |
+| PASS | module_metrics succeeds (246 ms) |  |
+| PASS | module_metrics c4 is compact | 6567 chars |
+| PASS | glucose_advice succeeds (5678 ms) |  |
+| PASS | glucose_advice returns advice items | ai,ai,ai |
+| PASS | reveal_outcome_demo returns isError (565 ms) | MCP error -32602: Tool reveal_outcome_demo not found |
+| PASS | ?tools=demo lists reveal_outcome_demo |  |
+| PASS | reveal_outcome_demo works on ?tools=demo |  |
+| PASS | list_coaching_calls succeeds (144 ms) |  |
 | PASS | list_coaching_calls returns calls | 27 calls |
-| PASS | get_coaching_call succeeds (65 ms) |  |
+| PASS | get_coaching_call succeeds (230 ms) |  |
 | PASS | get_coaching_call has a transcript | CALL05559, 33 lines |
-| PASS | get_coaching_call returns isError (380 ms) | Error: Not found. /api/c5/calls/CALL99999: HTTP 404 call not found |
-| PASS | score_conversation succeeds (1665 ms) |  |
+| PASS | get_coaching_call returns isError (451 ms) | Error: Not found. /api/c5/calls/CALL99999: HTTP 404 call not found |
+| PASS | score_conversation succeeds (1345 ms) |  |
 | PASS | score_conversation flags the symptom line medical | {"n":2,"speaker":"participant","text":"Not great. I've had a fever since yesterday and my chest feels tight.","tag":"neutral","flag":"medical","confidence":0.08 |
 | PASS | score_conversation carries the flag: next coach line is missed_concern | {"n":3,"speaker":"coach","text":"Okay. So did you manage to do the walks after dinner?","tag":"closed question","flag":"missed_concern","confidence":0.311} |
 | PASS | score_conversation tags every line | open question / neutral / closed question / neutral / persuade / change / open question |
 | PASS | score_conversation scores (4 coach lines) | score 20 |
 | PASS | score_conversation finds cue moments | [{"afterLine":2,"trigger":"Participant raised a medical concern. Help the coach respond with care and connect them to the right person today."},{"afterLine":3," |
-| PASS | score_conversation succeeds (3636 ms) |  |
+| PASS | score_conversation succeeds (3942 ms) |  |
 | PASS | score_conversation on a stored call compares with the supervisor | {"supervisorScoreFullCall":55,"supervisorScoreSameLines":55,"coachMoveAgreement":0.94,"participantTalkAgreement":0.87,"supervisorNeedsHumanLines":[]} |
-| PASS | coaching_cue succeeds (2377 ms) |  |
+| PASS | coaching_cue succeeds (10521 ms) |  |
 | PASS | coaching_cue uses the Co-pilot rule for a missed concern | The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now. |
-| PASS | coaching_cue returns a cue | Pause the walking-plan topic; reflect and explore the fever and chest tightness with an open question, letting Rosa decide what feels most important to discuss  |
-| PASS | score_conversation returns isError (59 ms) | Error: cannot read the speaker in "hello there"; start each line with "coach:" or "participant:" |
-| PASS | search succeeds (52 ms) |  |
+| PASS | coaching_cue returns a cue | Acknowledge the fever and chest tightness first before returning to the walking plan; invite her to say more about how she's feeling and consider suggesting she |
+| PASS | score_conversation returns isError (268 ms) | Error: cannot read the speaker in "hello there"; start each line with "coach:" or "participant:" |
+| PASS | search succeeds (179 ms) |  |
 | PASS | search returns results with id/title/url | 2 results |
-| PASS | fetch succeeds (51 ms) |  |
+| PASS | fetch succeeds (323 ms) |  |
 | PASS | fetch returns id/title/text/url |  |
 
 ## Tool summaries (first text block of each call)
 
-### triage_today {"limit":10}
+### triage_today {}
 
 ```
-71 survivors need attention (2 urgent, C3 ER/hospital risk in 7 days). Per module: c1 {"alert":41,"watch":41,"ok":117}; c3 {"alert":10,"watch":2,"ok":48}; c4 {"alert":11,"watch":10,"ok":29}; c5 {"alert":9,"watch":6,"ok":11}.
-- c3-P02185 [alert, URGENT] P02185 · 42M · lymphoma: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
-- c3-P03000 [alert, URGENT] P03000 · 49M · kidney: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
-- c1-S2480BBDE [alert] S2480BBDE · 61F · other: Acute care risk 73% for 2018 (high), driven by ER visits last year
-- c1-S9707145E [alert] S9707145E · 74F · breast: Acute care risk 68% for 2018 (high), driven by ER visits last year
-- c1-S13BA2BCD [alert] S13BA2BCD · 67F · other: Acute care risk 65% for 2018 (high), driven by ER visits last year
-- c1-S71188550 [alert] S71188550 · 85M · prostate: Acute care risk 57% for 2018 (high), driven by hospital stays last year
-- c1-S60B33FC6 [alert] S60B33FC6 · 71F · other: Acute care risk 56% for 2018 (high), driven by ER visits last year
-- c1-S0A254803 [alert] S0A254803 · 85F · cervix: Acute care risk 55% for 2018 (high), driven by hospital stays last year
-- c1-SAD87CDC6 [alert] SAD87CDC6 · 53F · other: Acute care risk 55% for 2018 (high), driven by ER visits last year
-- c1-S54288CF4 [alert] S54288CF4 · 63F · breast: Acute care risk 53% for 2018 (high), driven by home health care
-…and 61 more (raise limit).
+Top 10 of 65 survivors needing attention (2 urgent). Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.
+1. c3-P03000 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
+2. c3-P02185 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
+3. c1-S71188550 [alert] C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year
+4. c3-P02465 [alert] C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep
+5. c4-N0072 [alert] C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL
+6. c5-P0002 [alert] C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today
+7. c1-S13BA2BCD [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year
+8. c3-P02836 [alert] C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins)
+9. c4-N0085 [alert] C4 Glucose Guide: High most of the day: 64% in range, average 177 mg/dL
+10. c5-P0117 [alert] C5 Coach's Co-pilot: Medical concern at 00:21 in call 5: a person must follow up today
+Per cohort: c1 {"alert":40,"watch":43,"ok":116}; c3 {"alert":5,"watch":4,"ok":51}; c4 {"alert":11,"watch":10,"ok":29}; c5 {"alert":9,"watch":6,"ok":11}.
+55 more not shown; use list_survivors per module.
+```
+### triage_today {"limit":25,"includeWatch":true}
+
+```
+Top 25 of 128 survivors needing attention (2 urgent). Each row is labelled with its cohort. The four cohorts are separate groups of people and are not joined: the same person never appears in two of them.
+1. c3-P03000 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
+2. c3-P02185 [alert, URGENT] C3 Bad Week Radar: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
+3. c1-S71188550 [alert] C1 Care Team Risk: Acute care risk 70% for 2018 (high), driven by nights in hospital last year
+4. c3-P02465 [alert] C3 Bad Week Radar: Rough patch risk 51% in the next 7 days, driven by sleep
+5. c4-N0072 [alert] C4 Glucose Guide: High most of the day: 63% in range, average 178 mg/dL
+6. c5-P0002 [alert] C5 Coach's Co-pilot: Medical concern at 06:18 in call 5: a person must follow up today
+7. c1-S13BA2BCD [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year
+8. c3-P02836 [alert] C3 Bad Week Radar: Rough patch risk 34% in the next 7 days, driven by going quiet (skipped check-ins)
+9. c4-N0085 [alert] C4 Glucose Guide: High most of the day: 64% in range, average 177 mg/dL
+10. c5-P0117 [alert] C5 Coach's Co-pilot: Medical concern at 00:21 in call 5: a person must follow up today
+11. c1-S9707145E [alert] C1 Care Team Risk: Acute care risk 65% for 2018 (high), driven by nights in hospital last year
+12. c3-P01289 [alert] C3 Bad Week Radar: Rough patch risk 17% in the next 7 days, mostly 
+```
+### triage_today {"limit":26}
+
+```
+MCP error -32602: Input validation error: Invalid arguments for tool triage_today: Too big: expected number to be <=25 at limit
 ```
 ### list_survivors {"module":"c1","limit":3}
 
 ```
-C1 Care Team Risk: 199 of 199 survivors match ({"alert":41,"watch":41,"ok":117} overall).
-- c1-S2480BBDE [alert] S2480BBDE · 61F · other: Acute care risk 73% for 2018 (high), driven by ER visits last year
-- c1-S9707145E [alert] S9707145E · 74F · breast: Acute care risk 68% for 2018 (high), driven by ER visits last year
-- c1-S13BA2BCD [alert] S13BA2BCD · 67F · other: Acute care risk 65% for 2018 (high), driven by ER visits last year
+C1 Care Team Risk: 199 of 199 survivors match ({"alert":40,"watch":43,"ok":116} overall).
+- c1-S71188550 [alert] S71188550 · 85M · prostate: Acute care risk 70% for 2018 (high), driven by nights in hospital last year
+- c1-S13BA2BCD [alert] S13BA2BCD · 67F · other: Acute care risk 65% for 2018 (high), driven by nights in hospital last year
+- c1-S9707145E [alert] S9707145E · 74F · breast: Acute care risk 65% for 2018 (high), driven by nights in hospital last year
 ```
 ### list_survivors {"module":"c3","limit":3}
 
 ```
-C3 Bad Week Radar: 60 of 60 survivors match ({"alert":10,"watch":2,"ok":48} overall).
-- c3-P02185 [alert, URGENT] P02185 · 42M · lymphoma: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
+C3 Bad Week Radar: 60 of 60 survivors match ({"alert":5,"watch":4,"ok":51} overall).
 - c3-P03000 [alert, URGENT] P03000 · 49M · kidney: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
-- c3-P02465 [alert] P02465 · 59M · bladder: Rough patch risk 33% in the next 7 days, driven by sleep
+- c3-P02185 [alert, URGENT] P02185 · 42M · lymphoma: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
+- c3-P02465 [alert] P02465 · 59M · bladder: Rough patch risk 51% in the next 7 days, driven by sleep
 ```
 ### list_survivors {"module":"c4","limit":3}
 
@@ -126,59 +160,59 @@ C5 Coach's Co-pilot: 26 of 26 survivors match ({"alert":9,"watch":6,"ok":11} ove
 ### list_survivors {"module":"c1","query":"breast","status":"alert"}
 
 ```
-C1 Care Team Risk: 11 of 199 survivors match ({"alert":41,"watch":41,"ok":117} overall).
-- c1-S9707145E [alert] S9707145E · 74F · breast: Acute care risk 68% for 2018 (high), driven by ER visits last year
-- c1-S54288CF4 [alert] S54288CF4 · 63F · breast: Acute care risk 53% for 2018 (high), driven by home health care
-- c1-S93CB4E8B [alert] S93CB4E8B · 79F · breast: Acute care risk 49% for 2018 (high), driven by hospital stays last year
-- c1-SF969193E [alert] SF969193E · 74F · breast: Acute care risk 46% for 2018 (high), driven by ER visits last year
-- c1-SE1AECC69 [alert] SE1AECC69 · 62F · breast: Acute care risk 45% for 2018 (high), driven by hospital stays last year
-- c1-S2933E9D5 [alert] S2933E9D5 · 72F · breast: Acute care risk 44% for 2018 (high), driven by depression symptoms
-- c1-SB63DCCCD [alert] SB63DCCCD · 66F · breast: Acute care risk 41% for 2018 (high), driven by many office visits
-- c1-SACFCEF33 [alert] SACFCEF33 · 68F · breast: Acute care risk 38% for 2018 (high), driven by low physical function
-- c1-S07D2544C [alert] S07D2544C · 72F · breast: Acute care risk 38% for 2018 (high), driven by ER visits last year
-- c1-SE3556D56 [alert] SE3556D56 · 55F · breast: Acute care risk 38% for 2018 (high), driven by home health care
-- c1-S7FA9558D [alert] S7FA9558D · 85F · breast: Acute care risk 37% for 2018 (high), driven by many office visits
+C1 Care Team Risk: 11 of 199 survivors match ({"alert":40,"watch":43,"ok":116} overall).
+- c1-S9707145E [alert] S9707145E · 74F · breast: Acute care risk 65% for 2018 (high), driven by nights in hospital last year
+- c1-S93CB4E8B [alert] S93CB4E8B · 79F · breast: Acute care risk 64% for 2018 (high), driven by nights in hospital last year
+- c1-S54288CF4 [alert] S54288CF4 · 63F · breast: Acute care risk 64% for 2018 (high), driven by nights in hospital last year
+- c1-SE3556D56 [alert] SE3556D56 · 55F · breast: Acute care risk 56% for 2018 (high), driven by nights in hospital last year
+- c1-S07D2544C [alert] S07D2544C · 72F · breast: Acute care risk 56% for 2018 (high), driven by nights in hospital last year
+- c1-SE1AECC69 [alert] SE1AECC69 · 62F · breast: Acute care risk 55% for 2018 (high), driven by nights in hospital last year
+- c1-SF969193E [alert] SF969193E · 74F · breast: Acute care risk 52% for 2018 (high), driven by ER visits last year
+- c1-S9C4B6DE7 [alert] S9C4B6DE7 · 63F · breast: Acute care risk 49% for 2018 (high), driven by ER visits last year
+- c1-S1805EC9A [alert] S1805EC9A · 70F · breast: Acute care risk 48% for 2018 (high), driven by nights in hospital last year
+- c1-S2933E9D5 [alert] S2933E9D5 · 72F · breast: Acute care risk 47% for 2018 (high), driven by low mental health score
+- c1-S7FA9558D [alert] S7FA9558D · 85F · breast: Acute care risk 47% for 2018 (high), driven by age
 ```
 ### list_survivors {"module":"c3","urgentOnly":true}
 
 ```
-C3 Bad Week Radar: 2 of 60 survivors match ({"alert":10,"watch":2,"ok":48} overall).
-- c3-P02185 [alert, URGENT] P02185 · 42M · lymphoma: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
+C3 Bad Week Radar: 2 of 60 survivors match ({"alert":5,"watch":4,"ok":51} overall).
 - c3-P03000 [alert, URGENT] P03000 · 49M · kidney: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
+- c3-P02185 [alert, URGENT] P02185 · 42M · lymphoma: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
 ```
-### get_survivor {"survivorId":"c1-S2480BBDE"}
+### get_survivor {"survivorId":"c1-S71188550"}
 
 ```
-C1 Care Team Risk · S2480BBDE · 61F · other · ALERT
-Acute care risk 73% for 2018 (high), driven by ER visits last year
-73% predicted chance of an ER visit or hospital stay in 2018 (average survivor 29%). Status alert: alert from 36%, watch from 29%. Main drivers: 11 ER visit(s) in 2017 (most survivors had none); 12 hospital stay(s) in 2017; Had home health care in 2017.
+C1 Care Team Risk · S71188550 · 85M · prostate · ALERT
+Acute care risk 70% for 2018 (high), driven by nights in hospital last year
+70% predicted chance of an ER visit or hospital stay in 2018 (average survivor 29%). Status alert: alert from 43%, watch from 29%. Main drivers: $44,900 total health spending in 2017 (median survivor about $6,700); 26 night(s) in hospital in 2017; Age 85 or older (top-coded).
 Next steps:
 - [care-team] Add to the proactive outreach list: a nurse call in the next 2 weeks and a clear same-day contact route instead of the ER.
-- [care-team] Review last year's ER visits for preventable causes; set a same-day call-back route before the ER.
-- [care-team] Schedule a post-discharge style check-in and medication reconciliation.
-- [care-team] Confirm home health is still in place and who to call after hours.
+- [care-team] High care use last year: review what drove it and whether one team owns the plan.
+- [care-team] Nights in hospital last year: confirm a discharge follow-up plan and who to call first.
+- [care-team] Older age: a lower bar for proactive check-ins is reasonable.
 ```
-### get_survivor {"survivorId":"c3-P02185"}
+### get_survivor {"survivorId":"c3-P03000"}
 
 ```
-C3 Bad Week Radar · P02185 · 42M · lymphoma · ALERT · URGENT
-Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
-Urgent: risk of an ER visit or hospital admission in the next 7 days is 6% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 16% (alert line 11%). The treatment calendar alone gives 9%; wearable signals move it +7 points. Biggest wearable driver: Sleep efficiency 87% vs usual 92%, waking 3.5x a night vs 2.0x, 6.8 h asleep vs 7.1 h.
+C3 Bad Week Radar · P03000 · 49M · kidney · ALERT · URGENT
+Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
+Urgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.
 Next steps:
 - [today] Call today. Ask how they feel, about fever, fluids and anything new. If anything is off, have them call their care team now.
 - [within 2 days] Check in this week about sleep: nights, naps, worries. Share the sleep tips sheet.
 - [this week] Move the next coaching call earlier and plan around the expected low point.
-- [this week] Send a short, no-pressure message asking how the week is going; offer a 2-minute call instead of the form.
+- [this week] Reach out in Spanish, or book an interpreter for the call.
 ```
 ### get_survivor {"survivorId":"c4-N0072"}
 
 ```
 C4 Glucose Guide · N0072 · 61F · ovarian · ALERT
 High most of the day: 63% in range, average 178 mg/dL
-61-year-old female, ovarian cancer, 1.7 years after treatment; type 2 diabetes at start; group: coaching; night shift. Average sugar 178 mg/dL in weeks 1-2, 63% of readings in range. Median rise after dinner 108 mg/dL. Synthetic participant (made-up data).
+61-year-old female, ovarian cancer, 1.7 years after treatment; type 2 diabetes at start; group: coaching; night shift. Average sugar 178 mg/dL in weeks 1-2, 63% of readings in range. Median rise after dinner 108 mg/dL. ML forecast for a typical dinner: 106 mg/dL. Synthetic participant (made-up data).
 Next steps:
 - Only 62.7% of your readings were in the 70-180 range (weeks 1-2); the usual target is more than 70%. Your average was 178.3 mg/dL. Bring this to your next visit.
-- You walked after 0 of your scored meals, too few to measure your own effect yet. Across the program, a walk after dinner went with a rise about 18.7 mg/dL smaller in the same person, more than after other meals (13.5 mg/dL). 10 to 19 minutes got most of the gain: 17.1 mg/dL less, against 20.1 for 20-29 minutes and 16.8 for 30+ minutes. A check in real adults (CGMacros) pointed the same way, but it is not proven there yet.
+- You walked after 0 of your scored meals, too few to measure your own effect yet. Across the program, a walk after dinner went with a rise about 18.3 mg/dL smaller in the same person, more than after other meals (14.6 mg/dL). 10 to 19 minutes got most of the gain: 17.5 mg/dL less, against 19.5 for 20-29 minutes and 16.6 for 30+ minutes. A check in real adults (CGMacros) pointed the same way, but it is not proven there yet.
 - You work nights, so clock-time rules about late dinners don't fit you. Keep your main meal at the same point in your waking day.
 ```
 ### get_survivor {"survivorId":"c5-P0002"}
@@ -190,17 +224,17 @@ Medical concern at 06:18 in call 5: a person must follow up today
 Next steps:
 - [today] Tell the care team today and log the hand-off.
 ```
-### get_survivor {"survivorId":"c3-P02185","includeCharts":true}
+### get_survivor {"survivorId":"c3-P03000","includeCharts":true}
 
 ```
-C3 Bad Week Radar · P02185 · 42M · lymphoma · ALERT · URGENT
-Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
-Urgent: risk of an ER visit or hospital admission in the next 7 days is 6% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 16% (alert line 11%). The treatment calendar alone gives 9%; wearable signals move it +7 points. Biggest wearable driver: Sleep efficiency 87% vs usual 92%, waking 3.5x a night vs 2.0x, 6.8 h asleep vs 7.1 h.
+C3 Bad Week Radar · P03000 · 49M · kidney · ALERT · URGENT
+Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
+Urgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.
 Next steps:
 - [today] Call today. Ask how they feel, about fever, fluids and anything new. If anything is off, have them call their care team now.
 - [within 2 days] Check in this week about sleep: nights, naps, worries. Share the sleep tips sheet.
 - [this week] Move the next coaching call earlier and plan around the expected low point.
-- [this week] Send a short, no-pressure message asking how the week is going; offer a 2-minute call instead of the form.
+- [this week] Reach out in Spanish, or book an interpreter for the call.
 ```
 ### get_survivor {"survivorId":"c1-NOPE"}
 
@@ -212,39 +246,44 @@ Error: Not found. /api/c1/survivors/c1-NOPE: HTTP 404 survivor not found
 ```
 Error: survivorId must start with c1-, c3-, c4- or c5- (got "x9-123")
 ```
-### patient_overview {"survivorId":"c3-P02185"}
+### patient_overview {"survivorId":"c3-P03000"}
 
 ```
-P02185 · 42M · lymphoma: ALERT in C3 Bad Week Radar (1 of 60). Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual
+P03000 · 49M · kidney: ALERT in C3 Bad Week Radar (1 of 60). Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual
 Found in: c3. Not found in: c1, c4, c5. The modules use separate cohorts: C1 ids are c1-S…, C3 c3-P0…(5 digits), C4 c4-N…, C5 c5-P0…(4 digits). No id appears in two modules, so one person has data in one module only.
 ```
 ### module_metrics {"module":"c1"}
 
 ```
-C1: logistic model AUROC 0.666 (95% CI 0.61-0.72), Brier 0.192, out-of-fold on 466 development survivors. Held-out status mix {"alert":41,"watch":41,"ok":117}.
+C1 live model: Random forest (300 trees (forest). AUROC 0.713 (95% CI 0.662 to 0.764) vs baseline 0.659, out-of-fold on the development survivors. Gain over baseline: AUROC +0.053 (95% CI -0.001 to 0.105, P(better) 0.971), Brier -0.021 (95% CI -0.035 to -0.007). Held-out status mix {"alert":40,"watch":43,"ok":116}.
 ```
 ### module_metrics {"module":"c3"}
 
 ```
-C3 Radar on held-out patients: week AUC 0.819 vs schedule-only 0.808; rough-patch episode recall 0.664 vs 0.617; ER/admission recall 0.549 vs 0.434; median lead 7 days.
+C3 Radar on held-out patients: week AUC 0.827 vs schedule-only 0.808; rough-patch episode recall 0.476 vs 0.359; ER/admission recall 0.363 vs 0.22; median lead 6 days.
 ```
 ### module_metrics {"module":"c4"}
 
 ```
-C4 cohort (within-person, mg/dL change in post-meal rise): walk after a meal -17.62 [-18.98, -16.26]; late dinner +9.08 [7.05, 11.23]; per 10 g carbs +5.34.
+C4 cohort (within-person, mg/dL change in post-meal rise): walk after a meal -17.77 [-19.19, -16.35]; late dinner +9.21 [7.09, 11.32]; per 10 g carbs +6.46.
 ```
 ### glucose_advice {"survivorId":"c4-N0072"}
 
 ```
 Plain-language advice for c4-N0072:
-- Share these readings with your care team: Only 62.7% of your readings were in the 70-180 range (weeks 1-2); the usual target is more than 70%. Your average was 178.3 mg/dL. Bring this to your next visit. (template)
-- Try a 10 to 20 minute walk after dinner: You didn't walk after any of your scored meals, so you haven't seen the effect on your readings yet. Walking after dinner is linked to a rise about 18.7 mg/dL smaller in sugar, with the best results from walks of 10 to 19 minutes.
-- Keep meal times steady around your shifts: Since you work nights, traditional rules about late dinners don't apply to you. Just keep your main meal at the same time in your waking day, regardless of the clock.
+- Share these readings with your care team: You had 62.7% of your readings in the 70-180 range, which is less than the target of more than 70%. Your average reading was 178.3 mg/dL, so be sure to bring this up at your next visit.
+- Try a 10 to 20 minute walk after dinner: You didn't walk after any of your scored meals, but walking after dinner is linked to a rise about 18.3 mg/dL smaller in the same person. Walking for 10 to 19 minutes got most of the gain, with a rise 17.5 mg/dL less.
+- Keep meal times steady around your shifts: Since you work nights, traditional rules about late dinners don't apply to you. Keep your main meal at the same point in your waking day, as usual.
 ```
-### reveal_outcome_demo {"survivorId":"c3-P02185"}
+### reveal_outcome_demo {"survivorId":"c3-P03000"}
 
 ```
-DEMO ONLY (hidden from coaches). Forecast for c3-P02185: alert, urgent, rough-patch risk 0.162. What happened: rough patch did not start in 14 days; ER/admission none in 14 days.
+MCP error -32602: Tool reveal_outcome_demo not found
+```
+### reveal_outcome_demo (?tools=demo) {"survivorId":"c3-P03000"}
+
+```
+DEMO ONLY (hidden from coaches). Forecast for c3-P03000: alert, urgent, rough-patch risk 0.078. What happened: rough patch did not start in 14 days; ER/admission none in 14 days.
 ```
 ### list_coaching_calls {"limit":30}
 
@@ -297,8 +336,8 @@ Supervisor: score 55 on the same lines; coach-move agreement 0.94, talk agreemen
 ### coaching_cue {"recent":[{"speaker":"coach","text":"Hi Rosa, how has your week been with the walking plan?","tag":"open question"},{"s
 
 ```
-Cue: Pause the walking-plan topic; reflect and explore the fever and chest tightness with an open question, letting Rosa decide what feels most important to discuss first.
-Say: "A fever and tight chest sound concerning — I'm glad you mentioned it. Can you tell me more about how you're feeling right now?"
+Cue: Acknowledge the fever and chest tightness first before returning to the walking plan; invite her to say more about how she's feeling and consider suggesting she contact her care team if this seems new or worsening. Example: 'Before we talk about walks, I want to pause on what you just shared—a fever and tight chest sound uncomfortable. Can you tell me more about how you're feeling?'
+Say: "Before we talk about the walks, I want to pause on what you just said—a fever and tight chest for a day or two sounds uncomfortable. Can you tell me more about how you're feeling right now?"
 Why: The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now.
 ```
 ### score_conversation {"transcript":"hello there"}
@@ -309,10 +348,10 @@ Error: cannot read the speaker in "hello there"; start each line with "coach:" o
 ### search {"query":"urgent"}
 
 ```
-{"results":[{"id":"c3-P02185","title":"P02185 · 42M · lymphoma [alert, urgent]: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual","url":"https://patient-360.raava.dev/#p-c3-P02185"},{"id":"c3-P03000","title":"P03000 · 49M · kidney [alert, urgent]: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual","url":"https://patient-360.raava.dev/#p-c3-P03000"}]}
+{"results":[{"id":"c3-P03000","title":"P03000 · 49M · kidney [alert, urgent]: Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual","url":"https://patient-360.raava.dev/#p-c3-P03000"},{"id":"c3-P02185","title":"P02185 · 42M · lymphoma [alert, urgent]: Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual","url":"https://patient-360.raava.dev/#p-c3-P02185"}]}
 ```
-### fetch {"id":"c3-P02185"}
+### fetch {"id":"c3-P03000"}
 
 ```
-{"id":"c3-P02185","title":"C3 Bad Week Radar: P02185 · 42M · lymphoma","text":"Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual\nUrgent: risk of an ER visit or hospital admission in the next 7 days is 6% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 16% (alert line 11%). The treatment calendar alone gives 9%; wearable signals move it +7 points. Biggest wearable driver: Sleep efficiency 87% vs usual 92%, waking 3.5x a night vs 2.0x, 6.8 h asleep vs 7.1 h.\n\n{\"module\":\"c3\",\"moduleName\":\"C3 Bad Week Radar\",\"survivorId\":\"c3-P02185\",\"displayName\":\"P02185 · 42M · lymphoma\",\"status\":\"alert\",\"headline\":\"Urgent: ER or hospital risk 6% in the next 7 days, about 5x usual\",\"summary\":\"Urgent: risk of an ER visit or hospital admission in the next 7 days is 6% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 16% (alert line 11%). The treatment calendar alone gives 9%; wearable signals move it +7 points. Biggest wearable driver: Sleep efficiency 87% vs usual 92%, waking 3.5x a night vs 2.0x, 6.8 h asleep vs 7.1 h.\",\"urgent\":true,\"urgentRisk\":0.06,\"risk\":0.162,\"scheduleRisk\":0.091,\"thresholds\":{\"alert\":0.106,\"watch\":0.068,\"urgent\":0.058},\"profile\":{\"age\":42,\"sex\":\"male\",\"cancerType\":\"lymphoma\",\"stage\":\"I\",\"treatmentPlan\":\"IV chemo every 21 days\",\"device\":\"Fitbit tracker\",\"language\":\"Haitian Creole\",\"livesAlone\":\"no\",\"context\":\"Day 5 of c
+{"id":"c3-P03000","title":"C3 Bad Week Radar: P03000 · 49M · kidney","text":"Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\nUrgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\n\n{\"module\":\"c3\",\"moduleName\":\"C3 Bad Week Radar\",\"survivorId\":\"c3-P03000\",\"displayName\":\"P03000 · 49M · kidney\",\"status\":\"alert\",\"headline\":\"Urgent: ER or hospital risk 10% in the next 7 days, about 9x usual\",\"summary\":\"Urgent: risk of an ER visit or hospital admission in the next 7 days is 10% (urgent line 6%, typical day 1.2%). Risk of a rough patch in the next 7 days: 8% (alert line 16%). The treatment calendar alone gives 2%; their check-ins move it +0 points and wearable signals +6. Biggest driver: Sleep efficiency 82% vs usual 88%, waking 3.0x a night vs 2.0x, 6.4 h asleep vs 6.9 h.\",\"urgent\":true,\"urgentRisk\":0.104,\"risk\":0.078,\"scheduleRisk\":0.021,\"thresholds\":{\"alert\":0.156,\"watch\":0.105,\"urgent\":0.058},\"profile\":{\"age\":49,\"sex\":\"male\",\"cancerType\":\"kidney\",\"stage\":\"I\",\"treatmentPlan\":\"Immunotherapy every 21 days\",\"device\":\"Fitbit smartwatch\",\"language\":\"Spanish\",\"livesAlone\":\"no\
 ```

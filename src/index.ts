@@ -10,7 +10,7 @@ import { z } from "zod";
 import { cue, cueMoments, FLAG_MEANING, MAX_LINES, parseTranscript, score, tagLines, triggerAt, type Line } from "./coach";
 import { ApiError, consoleUrl, get, isRecord, metrics, MODULE_INFO, MODULES, moduleOf, roster, statusCounts, survivor, type Env, type Module, type Row } from "./modules";
 
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 const READ = { readOnlyHint: true, openWorldHint: false } as const;
 /** Calls a live model; reads only, but the answer can vary. */
 const MODEL = { readOnlyHint: true, openWorldHint: true, idempotentHint: false } as const;

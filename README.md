@@ -4,7 +4,25 @@ A remote MCP server over the Emerge Hackathon challenge APIs. Use it from ChatGP
 
 - MCP endpoint: `https://emerge-mcp.raava.dev/mcp` (Streamable HTTP, stateless, no auth)
 - Fallback: `https://challenge-mcp.zay-259.workers.dev/mcp`
+- Demo endpoint: `https://emerge-mcp.raava.dev/mcp?tools=demo` also has `reveal_outcome_demo`.
 - `GET /` gives the connect instructions. `GET /health` gives the version.
+- Part of the monorepo [zaycruz/survivorship-360](https://github.com/zaycruz/survivorship-360).
+
+## Repo layout
+
+| Path | What it is |
+|---|---|
+| `src/index.ts` | The Worker: the `/mcp` endpoint and every tool definition |
+| `src/modules.ts` | Reads C1, C3, C4 and C5 through service bindings and trims their answers |
+| `src/coach.ts` | C5 tagging over `/api/turn`, the MITI-style score and the cue-trigger rules |
+| `wrangler.jsonc` | Worker config: custom domain, service bindings (`remote: true` for `wrangler dev`) |
+| `e2e/run.mjs` | E2E: the official MCP client against a deployed URL |
+| `e2e/custom-domain.sh` | Raw JSON-RPC curl check of the custom domain |
+| `scripts/reproduce-md.mjs` | Turns a reproduce-runner result into `runs/reproduce-<stamp>.md` |
+| `reproduce/` | A separate Worker plus Cloudflare Container that runs the E2E from a fresh clone |
+| `runs/` | Run artifacts: `<stamp>.json` (every check and call), `latest.md` (summary), `reproduce-<stamp>.md` (fresh-clone runs) |
+
+There is no frontend. Any MCP client is the UI.
 
 ## Architecture
 
@@ -25,21 +43,22 @@ ChatGPT / claude.ai / Claude Code ──POST /mcp──> challenge-mcp Worker (e
 
 The modules use separate cohorts: `c1-S…` (199), `c3-P0…` with 5 digits (60), `c4-N…` (50) and `c5-P0…` with 4 digits (26). The live rosters share no ids in any pair (checked 2026-10-17). `patient_overview` says this and shows the person's rank in their own module. It does not guess matches from age, sex or cancer type. The cross-module tool is `triage_today`, a merged alert worklist.
 
-## Tools (all `readOnlyHint: true`)
+## Tools (12 by default, all `readOnlyHint: true`)
 
 | Tool | Question it answers |
 |---|---|
-| `triage_today` | Who should the care team call today, across every module? (C3 urgent first) |
+| `triage_today` | Who should the care team call today? A short ranked list (10 rows, at most 25). C3 urgent comes first, then the top alert of each cohort in turn. Each row has its cohort and its own reason, and the reply says the cohorts are not joined |
 | `list_survivors` | Roster for one module, filtered by status, urgent-only (C3) or free text |
 | `get_survivor` | One survivor's panel: headline, summary, evidence, recommendations (charts are opt-in) |
 | `patient_overview` | One survivor across all modules, with their roster rank, and a statement that ids do not join |
-| `module_metrics` | Model card or cohort findings for C1, C3 or C4, trimmed |
+| `module_metrics` | Model card or cohort findings for C1, C3 or C4, trimmed. C1 reports the model that `finalModel` names (the forest today) and its gain over the baseline, with a CI |
 | `glucose_advice` | C4 advice in plain language, from a model and checked against the evidence |
-| `reveal_outcome_demo` | Demo only: what happened after the C3 forecast. Never in a coach view |
 | `list_coaching_calls` / `get_coaching_call` | Supervisor-labelled C5 calls and transcripts |
 | `score_conversation` | Live C5 tagging of a transcript or a `callId`: MI tags, flags, MITI-style score, cue moments, and agreement with the supervisor |
 | `coaching_cue` | What the coach should say next. The trigger comes from the Co-pilot's own rules, or from the caller |
 | `search` / `fetch` | The pair that ChatGPT deep research and company-knowledge connectors expect |
+
+`reveal_outcome_demo` (what happened after a C3 forecast) is registered only on `/mcp?tools=demo`. It is not a security control, because the data is synthetic. It keeps a hidden-outcome tool out of the default model demo.
 
 Each result has a short text summary, then the compact JSON (also in `structuredContent`). An error, such as an unknown id, comes back as `isError: true`.
 
@@ -51,13 +70,54 @@ The scoring follows `coach-copilot/public/index.html` (`updateScore`, `checkTrig
 - **Score.** 30 points for 2 reflections per question. 20 points for 40% complex reflections. 20 points for 50% open questions. 30 points for MI-consistent moves vs persuade/confront. The total is rounded once, and the score is `null` below 4 coach lines.
 - **Limit.** A transcript can have at most 40 lines, because each line is one Workers AI call.
 
-## Run
+## Run locally
+
+`wrangler dev` runs the Worker on your machine and calls the deployed module Workers through remote service bindings. You need `npx wrangler login` on the Cloudflare account that hosts the modules.
 
 ```sh
-npm install
-npm run deploy                 # wrangler deploy -> emerge-mcp.raava.dev + workers.dev
-npm run e2e                    # official MCP client vs the deployment: initialize, tools/list, every tool -> runs/
-npm run e2e:domain             # raw JSON-RPC curl check of the custom domain
+npm ci
+npx wrangler dev --port 8799            # http://localhost:8799/mcp ; stop it with Ctrl-C
+node e2e/run.mjs http://localhost:8799/mcp
 ```
 
-The E2E makes 4 C5 model requests (one 7-line transcript, one stored call of 33 lines, one cue, one bad input). Do not loop it.
+## Deploy
+
+```sh
+npm run typecheck
+npm run deploy                          # wrangler deploy -> emerge-mcp.raava.dev + challenge-mcp.zay-259.workers.dev
+```
+
+## E2E against the live site
+
+```sh
+npm ci
+npm run e2e                             # = node e2e/run.mjs https://emerge-mcp.raava.dev/mcp
+npm run e2e:domain                      # optional raw curl check of the custom domain
+```
+
+The E2E does the following:
+- Connects with the official MCP client and runs `initialize` and `tools/list`.
+- Checks the schemas and annotations of every tool.
+- Calls every tool, including the error cases, and the demo tool on `?tools=demo`.
+- Checks the risky paths: missed-concern flag carrying, the C1 live model, and the triage cap.
+
+It exits 1 if any check fails. Each run writes `runs/<stamp>.json` and `runs/latest.md`.
+
+One run makes 4 requests to the C5 model: a 7-line transcript, a stored call of 33 lines, one cue and one bad input. Do not loop it.
+
+## Reproduce from a fresh clone (Cloudflare Container)
+
+`reproduce/` is a Worker with a Durable Object that starts a `node:22` Cloudflare Container. The container does the following:
+1. Clones this repo at `ref`.
+2. Runs `npm ci`.
+3. Runs the E2E against the live site.
+4. Returns each step's exit code and output, plus `runs/latest.md`.
+
+```sh
+(cd reproduce && npm ci && npx wrangler deploy && npx wrangler secret put REPRO_TOKEN)
+curl -s -X POST https://challenge-mcp-reproduce.zay-259.workers.dev/run \
+  -H "authorization: Bearer $REPRO_TOKEN" -d '{"ref":"main"}' > /tmp/reproduce.json
+node scripts/reproduce-md.mjs /tmp/reproduce.json   # -> runs/reproduce-<stamp>.md
+```
+
+The token keeps strangers from spending the live C5 model calls.
