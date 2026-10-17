@@ -89,6 +89,7 @@ for (const m of ["c1", "c3", "c4", "c5"]) {
     const a = d.correlations?.find((c) => c.pair === "app score vs supervisor A"), ab = d.correlations?.find((c) => c.pair === "supervisor A vs supervisor B");
     check("module_metrics c5 relays the 477-call validation per supervisor", d.calls >= 400 && a?.ci95 && ab?.ci95 && /on par with a second supervisor/.test(calls.at(-1).summary), calls.at(-1).summary.slice(0, 300));
     check("module_metrics c5 labels this server's own check n = 1", /n = 1/.test(d.mcpLiveCheck ?? ""));
+    check("module_metrics c5 subgroups give flags by language", d.subgroups?.rows?.length >= 2 && d.subgroups.rows.every((r) => r.dimension === "Language" && r.flagsCaught?.n > 0), JSON.stringify(d.subgroups?.rows?.map((r) => [r.group, r.flagsCaught?.k, r.flagsCaught?.n])));
     continue;
   }
   if (m === "c3") check("module_metrics c3 has model and baseline", d.model?.weeks?.auc && d.scheduleBaseline?.weeks?.auc, `${d.model?.weeks?.auc} vs ${d.scheduleBaseline?.weeks?.auc}`);

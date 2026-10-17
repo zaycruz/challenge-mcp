@@ -10,7 +10,7 @@ import { z } from "zod";
 import { cue, cueMoments, FLAG_MEANING, MAX_LINES, parseTranscript, score, tagLines, triggerAt, type Line } from "./coach";
 import { ApiError, consoleUrl, get, getAdvice, getC5Agreement, isRecord, metrics, withFault, type Stats, MODULE_INFO, MODULES, moduleOf, roster, statusCounts, survivor, type Env, type Module, type Row } from "./modules";
 
-const VERSION = "0.4.0";
+const VERSION = "0.4.1";
 const READ = { readOnlyHint: true, openWorldHint: false } as const;
 /** Calls a live model; reads only, but the answer can vary. */
 const MODEL = { readOnlyHint: true, openWorldHint: true, idempotentHint: false } as const;
@@ -258,12 +258,13 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
       return ok(`${data.summaryText}\n(cached; ${data.timing && (data.timing as { ms: number }).ms} ms)`, data);
     }
     await limitModelCalls(env, caller, "glucose_advice");
-    let items: Record<string, unknown>[] = [], model: unknown = null, degraded: string | null = null;
+    let items: Record<string, unknown>[] = [], model: unknown = null, degraded: string | null = null, upstreamCached = false;
     try {
       const d = await getAdvice(env, row.survivorId);
       // Live shape: items[] with a per-item source ("ai" or "template" when the rewrite was rejected).
       items = isRecord(d) && Array.isArray(d.items) ? d.items.filter(isRecord).map((r) => ({ title: r.title, text: r.text, source: r.source, ...(r.rejected ? { rejected: r.rejected } : {}) })) : [];
       model = isRecord(d) ? d.model : null;
+      upstreamCached = isRecord(d) && d.cached === true;
       if (!items.length) throw new ApiError(502, "advice model returned no items");
     } catch (e) {
       // Template fallback: C4's own rule-based recommendations, no model involved.
@@ -272,7 +273,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
       items = (Array.isArray(v.recommendations) ? v.recommendations : []).filter(isRecord).map((r) => ({ title: r.title, text: r.text, source: "template-fallback" }));
     }
     const summaryText = [`Plain-language advice for ${row.survivorId}${degraded ? " (MODEL UNAVAILABLE, showing C4's template advice)" : ""}:`, ...items.map((r) => `- ${r.title}: ${r.text}${r.source !== "ai" ? ` (${r.source})` : ""}`)].join("\n");
-    const data: Record<string, unknown> = { survivorId: row.survivorId, model, items, degraded: !!degraded, ...(degraded ? { degradedReason: degraded } : {}), summaryText, timing: timing(t0, env.STATS, { cached: false }) };
+    const data: Record<string, unknown> = { survivorId: row.survivorId, model, items, degraded: !!degraded, ...(degraded ? { degradedReason: degraded } : {}), summaryText, timing: timing(t0, env.STATS, { cached: false, upstreamCached }) };
     if (cache && !degraded) await cache.put(key, new Response(JSON.stringify(data), { headers: { "content-type": "application/json", "cache-control": "max-age=21600" } }));
     return ok(summaryText, data);
   }));
@@ -410,7 +411,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
       source = trigger ? "copilot-rule" : "requested";
       trigger ??= "The coach asked for help with the next line. Suggest the best next motivational-interviewing move.";
     }
-    let c: { cue: unknown; say: unknown; ms?: unknown }, degraded: string | null = null;
+    let c: { cue: unknown; say: unknown; ms?: unknown; upstreamCached?: boolean }, degraded: string | null = null;
     try {
       c = await cue(env, lines, trigger);
     } catch (e) {
@@ -418,7 +419,8 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
       c = fallbackCue(trigger);
     }
     const summary = `Cue: ${c.cue ?? "(none returned)"}${c.say ? `\nSay: "${c.say}"` : ""}\nWhy: ${trigger}${degraded ? "\n(Cue model unavailable; this is the rule-based fallback cue.)" : ""}`;
-    return ok(summary, { ...c, source: degraded ? "rule-fallback" : "model", degraded: !!degraded, ...(degraded ? { degradedReason: degraded } : {}), timing: timing(t0, env.STATS), trigger, triggerSource: source, lines: lines.map(({ speaker, text, tag, flag }) => ({ speaker, text, tag, ...(flag && flag !== "none" ? { flag } : {}) })) });
+    const { upstreamCached, ...answer } = c;
+    return ok(summary, { ...answer, source: degraded ? "rule-fallback" : "model", degraded: !!degraded, ...(degraded ? { degradedReason: degraded } : {}), timing: timing(t0, env.STATS, { upstreamCached: !!upstreamCached }), trigger, triggerSource: source, lines: lines.map(({ speaker, text, tag, flag }) => ({ speaker, text, tag, ...(flag && flag !== "none" ? { flag } : {}) })) });
   }));
 
   // ChatGPT deep research and company-knowledge connectors look for exactly these two tools.
@@ -496,16 +498,18 @@ async function c5Metrics(env: Env): Promise<Result> {
   const rate = (x: unknown) => (isRecord(x) ? x : {}) as { k?: number; n?: number; rate?: number; ci95?: number[] };
   const rec = rate(fl.recall), fa = rate(fl.falseAlarmsPerLine);
   const band = (x?: number[]) => (x ? `${x[0]} to ${x[1]}` : "?");
+  type Lang = { caught?: { k: number; n: number; ci95?: number[] }; falseAlarmLines?: { k: number; n: number } };
+  const byLang = Object.entries(isRecord(fl.byLanguage) ? (fl.byLanguage as Record<string, Lang>) : {});
   const data = {
     module: "c5", moduleName: MODULE_INFO.c5.name, about: d.about, method: d.method, calls: d.calls,
     headline: "Per supervisor, not against their mean: the app score tracks each supervisor about as well as the two supervisors track each other (overlapping CIs). That is parity with a second supervisor, not better.",
     correlations: corr.map((c) => ({ pair: c.pair, n: c.n, pearson: c.pearson, ci95: c.pearsonCi95 })),
     supervisorIcc: d.supervisorIcc, flags: d.flags,
-    subgroups: { note: "C5 serves no per-language or per-group agreement table, so none is shown. Language is a field on each call (list_coaching_calls)." },
+    subgroups: { basis: "flag recall and false alarms per call language, from C5's validation split; C5 serves no per-language score agreement", rows: byLang.map(([group, v]) => ({ dimension: "Language", group, flagsCaught: v.caught, falseAlarmLines: v.falseAlarmLines })) },
     mcpLiveCheck: "This server's own live comparison (score_conversation on a stored call) is a pipeline check on one call, n = 1, not a validation.",
     source: "C5 Co-pilot /api/c5/agreement (scripts/score.py over Clef's tags on the validation split)",
   };
-  const summary = `C5 coach score on ${d.calls} held-out supervisor-rated calls: Pearson r ${a?.pearson} (95% CI ${band(a?.pearsonCi95)}) vs supervisor A and ${b?.pearson} (${band(b?.pearsonCi95)}) vs supervisor B; the two supervisors agree at r ${ab?.pearson} (${band(ab?.pearsonCi95)}), so the app is on par with a second supervisor. Flag recall ${rec.k}/${rec.n} (95% CI ${band(rec.ci95)}); false alarms ${fa.k} in ${fa.n} lines.\nSubgroups: none served by C5.`;
+  const summary = `C5 coach score on ${d.calls} held-out supervisor-rated calls: Pearson r ${a?.pearson} (95% CI ${band(a?.pearsonCi95)}) vs supervisor A and ${b?.pearson} (${band(b?.pearsonCi95)}) vs supervisor B; the two supervisors agree at r ${ab?.pearson} (${band(ab?.pearsonCi95)}), so the app is on par with a second supervisor. Flag recall ${rec.k}/${rec.n} (95% CI ${band(rec.ci95)}); false alarms ${fa.k} in ${fa.n} lines.\nSubgroups: ${byLang.length ? byLang.map(([g, v]) => `${g} flags caught ${v.caught?.k}/${v.caught?.n}, false alarms ${v.falseAlarmLines?.k} in ${v.falseAlarmLines?.n} lines`).join("; ") + "." : "none served by C5."}`;
   return ok(summary, data);
 }
 
@@ -513,14 +517,14 @@ const E2E_URL = "https://github.com/zaycruz/challenge-mcp/blob/main/runs/latest.
 
 const HOME = (origin: string) => `Emerge Hackathon challenge MCP server v${VERSION}
 
-MCP endpoint (Streamable HTTP, no auth): ${origin}/mcp
+MCP endpoint (Streamable HTTP, open; optional bearer key): ${origin}/mcp
 
 Claude Code:   claude mcp add --transport http emerge-challenges ${origin}/mcp
 claude.ai:     Settings > Connectors > Add custom connector > URL ${origin}/mcp
 ChatGPT:       Settings > Apps & Connectors > Advanced > Developer mode on; then Create > MCP server URL ${origin}/mcp, Authentication: No authentication
 
 Latest E2E run (every check and call): ${E2E_URL}   (also ${origin}/e2e)
-Auth: none, on purpose, so judges can connect. The data is synthetic or de-identified. Tools that call a live model are limited to ${LLM_PER_MINUTE} calls per minute per IP.
+Auth: open on purpose, so judges can connect. The data is synthetic or de-identified. Tools that call a live model: ${LLM_PER_MINUTE} calls per minute per IP without a key, ${KEY_PER_MINUTE} per minute per bearer key (Authorization: Bearer <key>).
 
 Modules: ${MODULES.map((m) => `${m} ${MODULE_INFO[m].name}: ${MODULE_INFO[m].about}`).join("\n         ")}
 `;

@@ -136,5 +136,5 @@ export function cueMoments(lines: Line[]) {
 export async function cue(env: Env, recent: Line[], trigger: string) {
   const r = await postCopilot(env, "/api/cue", { trigger, recent: recent.slice(-8).map(({ speaker, text, tag }) => ({ speaker, text, ...(tag ? { tag } : {}) })) }, LLM_TIMEOUT.cue);
   if (!isRecord(r)) throw new ApiError(502, "bad cue answer");
-  return { cue: r.cue ?? null, say: r.say ?? null, ms: r.ms };
+  return { cue: r.cue ?? null, say: r.say ?? null, ms: r.ms, upstreamCached: r.cached === true };
 }

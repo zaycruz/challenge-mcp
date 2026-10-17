@@ -1,0 +1,505 @@
+{
+  "url": "https://emerge-mcp.raava.dev/mcp",
+  "at": "2026-10-17T17:37:45.042Z",
+  "keyed": true,
+  "price": {
+    "llama-3.3-70b-instruct-fp8-fast": {
+      "in": 0.293,
+      "out": 2.253
+    },
+    "clef": {
+      "in": 0.24,
+      "out": 0
+    },
+    "glm-5.3-flash": {
+      "in": 0.15,
+      "out": 0.5
+    }
+  },
+  "table": [
+    {
+      "tool": "glucose_advice (C4 precomputed rewrite)",
+      "n": 8,
+      "errors": 0,
+      "degraded": 0,
+      "p50": 210,
+      "p95": 370,
+      "max": 370,
+      "usdPerCall": 0
+    },
+    {
+      "tool": "glucose_advice (this server's cache)",
+      "n": 8,
+      "errors": 0,
+      "degraded": 0,
+      "p50": 132,
+      "p95": 425,
+      "max": 425,
+      "usdPerCall": 0
+    },
+    {
+      "tool": "score_conversation",
+      "n": 4,
+      "errors": 0,
+      "degraded": 0,
+      "p50": 983,
+      "p95": 1083,
+      "max": 1083,
+      "usdPerCall": 0.000768
+    },
+    {
+      "tool": "coaching_cue (live model)",
+      "n": 6,
+      "errors": 0,
+      "degraded": 0,
+      "p50": 2536,
+      "p95": 8293,
+      "max": 8293,
+      "usdPerCall": 0.000076
+    },
+    {
+      "tool": "triage_today",
+      "n": 5,
+      "errors": 0,
+      "degraded": 0,
+      "p50": 53,
+      "p95": 146,
+      "max": 146,
+      "usdPerCall": 0
+    },
+    {
+      "tool": "search",
+      "n": 5,
+      "errors": 0,
+      "degraded": 0,
+      "p50": 75,
+      "p95": 121,
+      "max": 121,
+      "usdPerCall": 0
+    },
+    {
+      "tool": "module_metrics",
+      "n": 4,
+      "errors": 0,
+      "degraded": 0,
+      "p50": 98,
+      "p95": 185,
+      "max": 185,
+      "usdPerCall": 0
+    }
+  ],
+  "rows": [
+    {
+      "tool": "glucose_advice",
+      "ms": 314,
+      "isError": false,
+      "serverMs": 152,
+      "cached": false,
+      "upstreamCached": true,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 340,
+      "isError": false,
+      "serverMs": 35,
+      "cached": true,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 0,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 370,
+      "isError": false,
+      "serverMs": 112,
+      "cached": false,
+      "upstreamCached": true,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 425,
+      "isError": false,
+      "serverMs": 6,
+      "cached": true,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 0,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 111,
+      "isError": false,
+      "serverMs": 20,
+      "cached": false,
+      "upstreamCached": true,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 132,
+      "isError": false,
+      "serverMs": 4,
+      "cached": true,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 0,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 163,
+      "isError": false,
+      "serverMs": 118,
+      "cached": false,
+      "upstreamCached": true,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 300,
+      "isError": false,
+      "serverMs": 4,
+      "cached": true,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 0,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 210,
+      "isError": false,
+      "serverMs": 147,
+      "cached": false,
+      "upstreamCached": true,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 115,
+      "isError": false,
+      "serverMs": 5,
+      "cached": true,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 0,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 318,
+      "isError": false,
+      "serverMs": 108,
+      "cached": false,
+      "upstreamCached": true,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 244,
+      "isError": false,
+      "serverMs": 4,
+      "cached": true,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 0,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 329,
+      "isError": false,
+      "serverMs": 124,
+      "cached": false,
+      "upstreamCached": true,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 69,
+      "isError": false,
+      "serverMs": 4,
+      "cached": true,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 0,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 174,
+      "isError": false,
+      "serverMs": 98,
+      "cached": false,
+      "upstreamCached": true,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0
+    },
+    {
+      "tool": "glucose_advice",
+      "ms": 114,
+      "isError": false,
+      "serverMs": 4,
+      "cached": true,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 0,
+      "usd": 0
+    },
+    {
+      "tool": "score_conversation",
+      "ms": 983,
+      "isError": false,
+      "serverMs": 870,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 4,
+      "usd": 0.000768
+    },
+    {
+      "tool": "score_conversation",
+      "ms": 1083,
+      "isError": false,
+      "serverMs": 1024,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 4,
+      "usd": 0.000768
+    },
+    {
+      "tool": "score_conversation",
+      "ms": 797,
+      "isError": false,
+      "serverMs": 707,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 4,
+      "usd": 0.000768
+    },
+    {
+      "tool": "score_conversation",
+      "ms": 995,
+      "isError": false,
+      "serverMs": 944,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 4,
+      "usd": 0.000768
+    },
+    {
+      "tool": "coaching_cue",
+      "ms": 2073,
+      "isError": false,
+      "serverMs": 1981,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0.00007434999999999999
+    },
+    {
+      "tool": "coaching_cue",
+      "ms": 8293,
+      "isError": false,
+      "serverMs": 8141,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0.0000818
+    },
+    {
+      "tool": "coaching_cue",
+      "ms": 2536,
+      "isError": false,
+      "serverMs": 2458,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0.00007534999999999999
+    },
+    {
+      "tool": "coaching_cue",
+      "ms": 2693,
+      "isError": false,
+      "serverMs": 2594,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0.00007715
+    },
+    {
+      "tool": "coaching_cue",
+      "ms": 2859,
+      "isError": false,
+      "serverMs": 2796,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0.00007505
+    },
+    {
+      "tool": "coaching_cue",
+      "ms": 1790,
+      "isError": false,
+      "serverMs": 1660,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "modelCalls": 1,
+      "usd": 0.0000703
+    },
+    {
+      "tool": "triage_today",
+      "ms": 53,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "triage_today",
+      "ms": 118,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "triage_today",
+      "ms": 46,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "triage_today",
+      "ms": 28,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "triage_today",
+      "ms": 146,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "search",
+      "ms": 50,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "search",
+      "ms": 121,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "search",
+      "ms": 75,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "search",
+      "ms": 45,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "search",
+      "ms": 80,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "module_metrics",
+      "ms": 98,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "module_metrics",
+      "ms": 182,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "module_metrics",
+      "ms": 185,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    },
+    {
+      "tool": "module_metrics",
+      "ms": 53,
+      "isError": false,
+      "cached": false,
+      "upstreamCached": false,
+      "degraded": false,
+      "usd": 0
+    }
+  ]
+}
