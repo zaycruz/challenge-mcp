@@ -80,7 +80,7 @@ Each E2E run scores one stored, supervisor-labelled call (CALL05559, the shortes
 - MCP endpoint: `https://emerge-mcp.raava.dev/mcp` (Streamable HTTP, stateless, open; optional bearer key)
 - Fallback: `https://challenge-mcp.zay-259.workers.dev/mcp`
 - Demo endpoint: `https://emerge-mcp.raava.dev/mcp?tools=demo` also has `reveal_outcome_demo`.
-- `GET /` gives the connect instructions. `GET /health` gives the provenance: the version, git SHA, Workers deploy id and time, and the exact Workers AI model id behind each model-backed tool. `module_metrics` carries the same `provenance` block, and the E2E, bench and numbers artifacts record the SHA and deploy id they ran against. The upstream modules publish model cards but no weight hashes.
+- `GET /` gives the connect instructions. `GET /health` gives the provenance: the version, the git SHA of the last code commit (`src`, `wrangler.jsonc`, `package*.json`; the E2E asserts it equals the checkout's), the Workers deploy id and time, and the exact Workers AI model id behind each model-backed tool. `module_metrics` carries the same `provenance` block, and the E2E, bench and numbers artifacts record the SHA and deploy id they ran against. The upstream modules publish model cards but no weight hashes.
 - Part of the monorepo [zaycruz/survivorship-360](https://github.com/zaycruz/survivorship-360).
 
 ## Repo layout

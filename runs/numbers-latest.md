@@ -1,6 +1,6 @@
-# challenge-mcp numbers 2026-10-17T18:39:27.437Z
+# challenge-mcp numbers 2026-10-17T19:55:35.200Z
 
-Regenerated from the module APIs directly; compared with https://emerge-mcp.raava.dev/mcp (module_metrics; commit a95f6d9, deploy d8b028c4-f3f8-4bd3-ba77-3739ccccee2d) and README.md. 15/15 match.
+Regenerated from the module APIs directly; compared with https://emerge-mcp.raava.dev/mcp (module_metrics; commit 70089fe, deploy 5bdea887-3a2d-43f2-a50a-bc105413d7f6) and README.md. 15/15 match.
 
 | | Number | Regenerated | Live MCP | In README |
 |---|---|---|---|---|
@@ -15,7 +15,7 @@ Regenerated from the module APIs directly; compared with https://emerge-mcp.raav
 | OK | C5 r vs supervisor B | 0.701 | 0.701 | yes |
 | OK | C5 r supervisor A vs B (baseline) | 0.692 | 0.692 | yes |
 | OK | C5 calls in the validation | 477 | 477 | yes |
-| OK | C5 flags by language | ["English 6/6 caught, 7/16696 false-alarm lines","Spanish 7/7 caught, 2/9089 false-alarm lines"] | ["English 6/6 caught, 7/16696 false-alarm lines","Spanish 7/7 caught, 2/9089 false-alarm lines"] | n/a |
+| OK | C5 flags by language | ["English 6/6 caught, 166/16696 false-alarm lines","Spanish 7/7 caught, 78/9089 false-alarm lines"] | ["English 6/6 caught, 166/16696 false-alarm lines","Spanish 7/7 caught, 78/9089 false-alarm lines"] | n/a |
 | OK | C5 flag recall | "13/13" | "13/13" | yes |
-| OK | n=1 check (CALL05559, 2026-10-17T18-38-48-736Z.json): coach agreement | "17/18 = 0.94, CI 0.74-0.99, majority 0.22" | n/a | yes |
-| OK | n=1 check (CALL05559, 2026-10-17T18-38-48-736Z.json): participant agreement | "13/15 = 0.87, CI 0.62-0.96, majority 0.53" | n/a | yes |
+| OK | n=1 check (CALL05559, 2026-10-17T19-54-18-934Z.json): coach agreement | "17/18 = 0.94, CI 0.74-0.99, majority 0.22" | n/a | yes |
+| OK | n=1 check (CALL05559, 2026-10-17T19-54-18-934Z.json): participant agreement | "13/15 = 0.87, CI 0.62-0.96, majority 0.53" | n/a | yes |
