@@ -3,7 +3,7 @@
  * Tagging, score and cue triggers copy coach-copilot/public/index.html (updateScore, checkTriggers, CUE_GAP),
  * so "score" and "would a cue fire here" mean the same thing here and on the Copilot's screen.
  */
-import { ApiError, isRecord, postCopilot, type Env } from "./modules";
+import { ApiError, isRecord, LLM_TIMEOUT, postCopilot, type Env } from "./modules";
 
 export interface Line { speaker: "coach" | "participant"; text: string; tag?: string | null; flag?: string | null }
 export interface Tagged extends Line { n: number; confidence: number | null; ms?: number; error?: string }
@@ -63,7 +63,7 @@ export async function tagLines(env: Env, lines: Line[]): Promise<Tagged[]> {
   const one = async (i: number) => {
     const previous = out.slice(Math.max(0, i - 2), i).map(({ speaker, text, tag, flag }) => ({ speaker, text, tag: tag ?? undefined, flag: flag ?? undefined }));
     try {
-      const r = await postCopilot(env, "/api/turn", { line: { speaker: out[i].speaker, text: out[i].text }, previous });
+      const r = await postCopilot(env, "/api/turn", { line: { speaker: out[i].speaker, text: out[i].text }, previous }, LLM_TIMEOUT.turn);
       if (!isRecord(r)) throw new Error("bad /api/turn answer");
       out[i].tag = typeof r.tag === "string" ? r.tag : null;
       out[i].flag = typeof r.flag === "string" ? r.flag : null;
@@ -134,7 +134,7 @@ export function cueMoments(lines: Line[]) {
 }
 
 export async function cue(env: Env, recent: Line[], trigger: string) {
-  const r = await postCopilot(env, "/api/cue", { trigger, recent: recent.slice(-8).map(({ speaker, text, tag }) => ({ speaker, text, ...(tag ? { tag } : {}) })) }, 45_000);
-  if (!isRecord(r)) throw new ApiError(502, "bad /api/cue answer");
+  const r = await postCopilot(env, "/api/cue", { trigger, recent: recent.slice(-8).map(({ speaker, text, tag }) => ({ speaker, text, ...(tag ? { tag } : {}) })) }, LLM_TIMEOUT.cue);
+  if (!isRecord(r)) throw new ApiError(502, "bad cue answer");
   return { cue: r.cue ?? null, say: r.say ?? null, ms: r.ms };
 }

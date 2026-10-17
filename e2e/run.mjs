@@ -1,9 +1,11 @@
 // E2E against the deployed server with the official MCP client: initialize, tools/list, call every tool.
 // Usage: node e2e/run.mjs [https://emerge-mcp.raava.dev/mcp]. Writes runs/<stamp>.json and runs/latest.md; exits 1 on any failed check.
 // C5 traffic is kept small: one 7-line transcript, one stored call, one cue from already-tagged lines.
+// Injected failures (?fault=llm-down / llm-slow) never reach a model. Set MCP_KEY to also test the keyed path.
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { searchFixtures } from "./search-fixtures.mjs";
 
 const URL_ = process.argv[2] ?? "https://emerge-mcp.raava.dev/mcp";
 const started = new Date();
@@ -40,7 +42,8 @@ const triage = await run("triage_today", {});
 check("triage defaults to a short list (10)", triage.rows?.length === 10 && triage.needingAttention > 10, `${triage.rows?.length} of ${triage.needingAttention}`);
 check("triage counts all 4 cohorts", ["c1", "c3", "c4", "c5"].every((m) => triage.perCohort?.[m]?.statusCounts), JSON.stringify(Object.fromEntries(Object.entries(triage.perCohort ?? {}).map(([m, c]) => [m, c.statusCounts]))));
 check("triage lists urgent C3 first", triage.rows?.[0]?.urgent === true && triage.rows[0].cohort === "c3", triage.rows?.[0]?.survivorId);
-check("triage rows have rank, cohort and their own reason", triage.rows?.every((r, i) => r.rank === i + 1 && r.cohort && r.cohortName && r.reason?.startsWith(r.cohortName)) && new Set(triage.rows.map((r) => r.reason)).size === triage.rows.length);
+// Two survivors may share a module's headline wording (C3's urgent line), so uniqueness is per survivor, not per reason text.
+check("triage rows have rank, cohort and their own reason", triage.rows?.every((r, i) => r.rank === i + 1 && r.cohort && r.cohortName && r.reason?.startsWith(r.cohortName) && r.reason.length > r.cohortName.length + 5) && new Set(triage.rows.map((r) => r.survivorId)).size === triage.rows.length);
 check("triage mixes cohorts in the top 10", new Set(triage.rows?.map((r) => r.cohort)).size === 4, triage.rows?.map((r) => r.cohort).join(","));
 check("triage says cohorts are not joined", triage.cohortsJoined === false && /not joined/.test(calls.at(-1).summary));
 check("triage rows carry horizon and scale", triage.rows?.every((r) => r.horizon && r.scale), [...new Set(triage.rows?.map((r) => `${r.cohort}: ${r.horizon}`))].join("; "));
@@ -74,13 +77,19 @@ await run("get_survivor", { survivorId: "x9-123" }, true);
 const ov = await run("patient_overview", { survivorId: ids.c3 });
 check("patient_overview says ids do not join", ov.idsJoin === false && ov.modules?.c3?.enrolled === true && ["c1", "c4", "c5"].every((m) => ov.modules?.[m]?.enrolled === false), JSON.stringify(ov.modules));
 
-for (const m of ["c1", "c3", "c4"]) {
+for (const m of ["c1", "c3", "c4", "c5"]) {
   const d = await run("module_metrics", { module: m });
   if (m === "c1") {
     check("module_metrics c1 reads the live finalModel", d.finalModel?.key === "forest" && d.metrics?.forest?.auroc?.value > 0.7 && !("logistic" in (d.metrics ?? {})), `${d.finalModel?.key} AUROC ${d.metrics?.forest?.auroc?.value?.toFixed(3)}`);
     check("module_metrics c1 gives the gain over baseline with a CI", Array.isArray(d.gainOverBaseline?.auroc?.ci95) && /optimistic/i.test(d.gainOverBaseline?.basis ?? ""), d.gainOverBaseline?.basis);
     const n = d.headlineGain?.auroc;
     check("module_metrics c1 leads with the nested-CV gain and names both", n && Math.abs(n.gain - 0.04) < 0.006 && Array.isArray(n.ci95) && /nested CV/.test(calls.at(-1).summary) && /\+0\.039/.test(calls.at(-1).summary) && /\+0\.053/.test(calls.at(-1).summary) && calls.at(-1).summary.indexOf("nested CV") < calls.at(-1).summary.indexOf("+0.053"), calls.at(-1).summary.slice(0, 400));
+  }
+  if (m === "c5") {
+    const a = d.correlations?.find((c) => c.pair === "app score vs supervisor A"), ab = d.correlations?.find((c) => c.pair === "supervisor A vs supervisor B");
+    check("module_metrics c5 relays the 477-call validation per supervisor", d.calls >= 400 && a?.ci95 && ab?.ci95 && /on par with a second supervisor/.test(calls.at(-1).summary), calls.at(-1).summary.slice(0, 300));
+    check("module_metrics c5 labels this server's own check n = 1", /n = 1/.test(d.mcpLiveCheck ?? ""));
+    continue;
   }
   if (m === "c3") check("module_metrics c3 has model and baseline", d.model?.weeks?.auc && d.scheduleBaseline?.weeks?.auc, `${d.model?.weeks?.auc} vs ${d.scheduleBaseline?.weeks?.auc}`);
   check(`module_metrics ${m} has subgroups`, d.subgroups && Array.isArray(d.subgroups.rows) && d.subgroups.rows.length > 0, `${d.subgroups?.rows?.length} rows: ${[...new Set(d.subgroups?.rows?.map((r) => r.dimension))].join(", ")}`);
@@ -89,6 +98,9 @@ for (const m of ["c1", "c3", "c4"]) {
 }
 const adv = await run("glucose_advice", { survivorId: ids.c4 });
 check("glucose_advice returns advice items", Array.isArray(adv.items) && adv.items.length > 0 && adv.items.every((i) => i.text), adv.items?.map((i) => i.source).join(","));
+check("glucose_advice reports timing and model calls", typeof adv.timing?.ms === "number" && "modelCalls" in adv.timing, JSON.stringify(adv.timing));
+const adv2 = await run("glucose_advice", { survivorId: ids.c4 });
+check("glucose_advice second call is served from cache", adv2.timing?.cached === true && adv2.timing.modelCalls === 0, JSON.stringify(adv2.timing));
 await run("reveal_outcome_demo", { survivorId: ids.c3 }, true);
 // The demo tool lives only on /mcp?tools=demo.
 const demoClient = new Client({ name: "challenge-mcp-e2e-demo", version: "1.0.0" });
@@ -138,14 +150,66 @@ check("search returns results with id/title/url", s.results?.length > 0 && s.res
 const f = await run("fetch", { id: s.results[0].id });
 check("fetch returns id/title/text/url", f.id && f.title && f.text && f.url);
 
+// Search relevance: fixture queries (e2e/search-fixtures.mjs)
+for (const fx of searchFixtures(ids)) {
+  const r = await run("search", { query: fx.query });
+  check(`search "${fx.query}": ${fx.want}`, fx.ok(r.results ?? []), (r.results ?? []).slice(0, 3).map((x) => `${x.id} (${x.matched})`).join("; ") || "no results");
+}
+
+// Injected failures: the model-backed upstreams of this request only. Nothing here reaches a model.
+async function faultClient(fault) {
+  const c = new Client({ name: `challenge-mcp-e2e-${fault}`, version: "1.0.0" });
+  await c.connect(new StreamableHTTPClientTransport(new URL(`${URL_}?fault=${fault}`)));
+  return c;
+}
+async function runOn(c, label, name, args) {
+  const t0 = Date.now();
+  const r = await c.callTool({ name, arguments: args }, undefined, { timeout: 120_000 }).catch((e) => ({ isError: true, content: [{ text: `protocol error: ${e.message}` }] }));
+  calls.push({ name: `${name} [${label}]`, args, ms: Date.now() - t0, isError: !!r.isError, summary: r.content?.[0]?.text?.slice(0, 1500), structuredContent: r.structuredContent });
+  return { r, ms: Date.now() - t0, d: r.structuredContent ?? {} };
+}
+const down = await faultClient("llm-down");
+{
+  const { r, d } = await runOn(down, "fault=llm-down", "glucose_advice", { survivorId: ids.c4 });
+  check("model down: glucose_advice falls back to C4's template advice", !r.isError && d.degraded === true && d.items?.length > 0 && d.items.every((i) => i.source === "template-fallback"), `${d.items?.length} items; ${d.degradedReason}`);
+  check("model down: glucose_advice retried once", d.timing?.retries === 1 && d.timing?.failedCalls === 1, JSON.stringify(d.timing));
+}
+{
+  const { r, d } = await runOn(down, "fault=llm-down", "coaching_cue", { recent: sc.lines.slice(0, 3).map(({ speaker, text, tag, flag }) => ({ speaker, text, tag, ...(flag ? { flag } : {}) })) });
+  check("model down: coaching_cue gives the rule-based fallback cue", !r.isError && d.degraded === true && d.source === "rule-fallback" && d.cue && d.say, `${d.cue}`);
+}
+{
+  const { r } = await runOn(down, "fault=llm-down", "score_conversation", { transcript: "coach: How was your week?\nparticipant: Fine.\ncoach: What went well?\nparticipant: The walks." });
+  check("model down: score_conversation says the model failed instead of scoring", r.isError && /failed on 4 of 4 lines/.test(r.content?.[0]?.text ?? ""), r.content?.[0]?.text?.slice(0, 160));
+}
+await down.close();
+const slow = await faultClient("llm-slow");
+{
+  const { r, d, ms } = await runOn(slow, "fault=llm-slow", "glucose_advice", { survivorId: ids.c4 });
+  check("model hangs: glucose_advice times out (9 s, one retry) and falls back", !r.isError && d.degraded === true && /did not answer within 9 s/.test(d.degradedReason ?? "") && ms < 25_000, `${ms} ms; ${d.degradedReason}`);
+}
+await slow.close();
+
+// Auth: an unknown bearer key is refused; with MCP_KEY set, the keyed path works.
+{
+  const r = await fetch(URL_, { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream", authorization: "Bearer not-a-real-key" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "tools/list" }) });
+  check("unknown bearer key gets 401", r.status === 401, `${r.status} ${(await r.text()).slice(0, 120)}`);
+}
+if (process.env.MCP_KEY) {
+  const kc = new Client({ name: "challenge-mcp-e2e-key", version: "1.0.0" });
+  await kc.connect(new StreamableHTTPClientTransport(new URL(URL_), { requestInit: { headers: { authorization: `Bearer ${process.env.MCP_KEY}` } } }));
+  check("a valid bearer key connects and lists tools", (await kc.listTools()).tools.length === EXPECTED.length);
+  await kc.close();
+}
+
 // Rate limit on the model-backed tools. Last, because it spends this IP's budget for a minute.
 // "hello there" fails to parse after the limit check, so these calls never reach the model.
 let limited = null;
-for (let i = 0; i < 16 && !limited; i++) {
+for (let i = 0; i < 30 && !limited; i++) {
   const r = await client.callTool({ name: "score_conversation", arguments: { transcript: "hello there" } }).catch((e) => ({ content: [{ text: e.message }] }));
   if (/Rate limit/.test(r.content?.[0]?.text ?? "")) limited = { afterCalls: i + 1, text: r.content[0].text };
 }
-calls.push({ name: "score_conversation x16 (rate limit probe)", args: { transcript: "hello there" }, isError: true, summary: limited?.text ?? "never limited" });
+calls.push({ name: "score_conversation (rate limit probe)", args: { transcript: "hello there" }, isError: true, summary: limited?.text ?? "never limited" });
 check("model-backed tools are rate-limited per IP", !!limited, limited ? `limited after ${limited.afterCalls} probe calls: ${limited.text.slice(0, 120)}` : "never limited");
 
 await client.close();

@@ -8,8 +8,13 @@
   "observability": { "enabled": true },
   // Same bindings as patient-360 (coach-console); same-account Worker-to-Worker fetches can hit error 1042.
   // "remote": true makes `wrangler dev` call the deployed module Workers; deploy ignores it.
-  // Per-IP limit on the tools that call a live model (score_conversation, coaching_cue, glucose_advice). Must match LLM_PER_MINUTE in src/index.ts.
-  "ratelimits": [{ "name": "LLM_LIMIT", "namespace_id": "6006", "simple": { "limit": 10, "period": 60 } }],
+  // Limits on the tools that call a live model (score_conversation, coaching_cue, glucose_advice).
+  // LLM_LIMIT: anonymous callers, per client IP. KEY_LIMIT: callers with a bearer key (secret MCP_KEYS), per key.
+  // Must match LLM_PER_MINUTE and KEY_PER_MINUTE in src/index.ts.
+  "ratelimits": [
+    { "name": "LLM_LIMIT", "namespace_id": "6006", "simple": { "limit": 20, "period": 60 } },
+    { "name": "KEY_LIMIT", "namespace_id": "6007", "simple": { "limit": 60, "period": 60 } }
+  ],
   "services": [
     { "binding": "C1", "service": "c1-acute-risk", "remote": true },
     { "binding": "C3", "service": "c3-rough-patch", "remote": true },

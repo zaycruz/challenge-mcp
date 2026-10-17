@@ -11,7 +11,18 @@ export interface Env {
   C1: Fetcher; C3: Fetcher; C4: Fetcher; C5: Fetcher; P360: Fetcher;
   /** Workers rate limiter keyed by client IP, for the tools that call a live model. */
   LLM_LIMIT?: { limit(o: { key: string }): Promise<{ success: boolean }> };
+  /** Same, keyed by API key name, for callers with a bearer key. */
+  KEY_LIMIT?: { limit(o: { key: string }): Promise<{ success: boolean }> };
+  /** Secret: comma-separated name:key pairs for bearer auth. */
+  MCP_KEYS?: string;
+  /** "1" closes anonymous access (every call then needs a bearer key). */
+  REQUIRE_KEY?: string;
+  /** Per-request counters for the model-backed tools (set by buildServer). */
+  STATS?: Stats;
+  /** Set on fault-injection requests so the advice cache can't hide the fault. */
+  NO_CACHE?: boolean;
 }
+export interface Stats { modelCalls: number; retries: number; failures: number }
 
 export const MODULES = ["c1", "c3", "c4", "c5"] as const;
 export type Module = (typeof MODULES)[number];
@@ -29,30 +40,74 @@ export class ApiError extends Error {
 
 export const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 
-/** Errors name the module and the status, never the upstream path or raw body. */
-async function call(f: Fetcher, label: string, path: string, init?: RequestInit, timeoutMs = 15_000): Promise<unknown> {
-  let r: Response;
-  try {
-    r = await f.fetch(`https://module${path}`, { ...init, signal: AbortSignal.timeout(timeoutMs) });
-  } catch (e) {
-    const timedOut = e instanceof Error && /timeout|abort/i.test(`${e.name} ${e.message}`);
-    throw new ApiError(504, `${label} ${timedOut ? `did not answer within ${timeoutMs / 1000} s` : "could not be reached"}`);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+/**
+ * One upstream call. Errors name the module and the status, never the upstream path or raw body.
+ * `retries`: extra attempts on a timeout, a network error, 429 or 5xx (400 ms, then 1.2 s backoff).
+ */
+async function call(f: Fetcher, label: string, path: string, init?: RequestInit, timeoutMs = 15_000, retries = 0, stats?: Stats): Promise<unknown> {
+  for (let attempt = 0; ; attempt++) {
+    if (stats) stats.modelCalls++;
+    let r: Response;
+    try {
+      r = await f.fetch(`https://module${path}`, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+    } catch (e) {
+      const timedOut = e instanceof Error && /timeout|abort/i.test(`${e.name} ${e.message}`);
+      if (attempt < retries) { if (stats) stats.retries++; await sleep(attempt ? 1200 : 400); continue; }
+      if (stats) stats.failures++;
+      throw new ApiError(504, `${label} ${timedOut ? `did not answer within ${timeoutMs / 1000} s` : "could not be reached"}${attempt ? ` (after ${attempt + 1} tries)` : ""}`);
+    }
+    const text = await r.text();
+    let body: unknown = text;
+    try { body = JSON.parse(text); } catch { /* not JSON */ }
+    if (!r.ok) {
+      if ((r.status === 429 || r.status >= 500) && attempt < retries) { if (stats) stats.retries++; await sleep(attempt ? 1200 : 400); continue; }
+      if (stats) stats.failures++;
+      const why = isRecord(body) && typeof body.error === "string" ? body.error.replace(/\/?api\/\S*/g, "").replace(/\s+/g, " ").trim().slice(0, 120) : "";
+      throw new ApiError(r.status, `${label} returned ${r.status}${why ? `: ${why}` : ""}${attempt ? ` (after ${attempt + 1} tries)` : ""}`);
+    }
+    return body;
   }
-  const text = await r.text();
-  let body: unknown = text;
-  try { body = JSON.parse(text); } catch { /* not JSON */ }
-  if (!r.ok) {
-    const why = isRecord(body) && typeof body.error === "string" ? body.error.replace(/\/?api\/\S*/g, "").replace(/\s+/g, " ").trim().slice(0, 120) : "";
-    throw new ApiError(r.status, `${label} returned ${r.status}${why ? `: ${why}` : ""}`);
-  }
-  return body;
 }
+
+/** Model-backed calls: a hard timeout and one retry. Plain data calls are not counted or retried. */
+export const LLM_TIMEOUT = { turn: 8_000, cue: 12_000, advice: 9_000 } as const;
 
 export const get = (env: Env, m: Module, path: string, timeoutMs?: number) =>
   call(env[MODULE_INFO[m].binding], MODULE_INFO[m].name, MODULE_INFO[m].base + path, undefined, timeoutMs);
 
-export const postCopilot = (env: Env, path: string, body: unknown, timeoutMs = 30_000) =>
-  call(env.C5, "C5 Co-pilot model", path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }, timeoutMs);
+/** C4's model-written advice: timeout, one retry, counted. */
+export const getAdvice = (env: Env, survivorId: string) =>
+  call(env.C4, MODULE_INFO.c4.name + " advice model", `${MODULE_INFO.c4.base}/survivors/${encodeURIComponent(survivorId)}/advice`, undefined, LLM_TIMEOUT.advice, 1, env.STATS);
+
+/** C5's own held-out validation (477 supervisor-rated calls), served by the Co-pilot. */
+export const getC5Agreement = (env: Env) => call(env.C5, "C5 Co-pilot", "/api/c5/agreement");
+
+/**
+ * Fault injection for the E2E (`/mcp?fault=llm-down` or `llm-slow`). It only wraps this request's
+ * model-backed upstreams, so it can't hurt anyone else; plain data calls pass through.
+ */
+export function withFault(env: Env, fault: string | null): Env {
+  if (fault !== "llm-down" && fault !== "llm-slow") return env;
+  const isModel = (u: string) => /\/api\/(turn|cue)$|\/advice$/.test(new URL(u).pathname);
+  const wrap = (f: Fetcher): Fetcher => ({
+    async fetch(input, init) {
+      const u = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
+      if (!isModel(u)) return f.fetch(input, init);
+      if (fault === "llm-down") return Response.json({ error: "injected fault: model down" }, { status: 503 });
+      await new Promise((resolve, reject) => {
+        const t = setTimeout(resolve, 60_000);
+        init?.signal?.addEventListener("abort", () => { clearTimeout(t); reject(new DOMException("The operation was aborted due to timeout", "TimeoutError")); });
+      });
+      return f.fetch(input, init);
+    },
+  });
+  return { ...env, C4: wrap(env.C4), C5: wrap(env.C5) };
+}
+
+export const postCopilot = (env: Env, path: string, body: unknown, timeoutMs: number) =>
+  call(env.C5, "C5 Co-pilot model", path, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) }, timeoutMs, 1, env.STATS);
 
 export function moduleOf(survivorId: string): Module {
   const m = survivorId.split("-")[0]?.toLowerCase();
