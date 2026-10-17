@@ -1,0 +1,22 @@
+{
+  "name": "challenge-mcp",
+  "version": "1.0.0",
+  "description": "Remote MCP server over the Emerge Hackathon challenge APIs (C1, C3, C4, C5) for ChatGPT and Claude",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc -p .",
+    "e2e": "node e2e/run.mjs",
+    "e2e:domain": "sh e2e/custom-domain.sh"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5.20261016.1",
+    "typescript": "^7.0.2",
+    "wrangler": "^4.151.1"
+  },
+  "private": true,
+  "type": "module"
+}

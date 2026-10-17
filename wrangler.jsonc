@@ -1,0 +1,17 @@
+{
+  "name": "challenge-mcp",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "routes": [{ "pattern": "emerge-mcp.raava.dev", "custom_domain": true }],
+  "observability": { "enabled": true },
+  // Same bindings as patient-360 (coach-console); same-account Worker-to-Worker fetches can hit error 1042.
+  "services": [
+    { "binding": "C1", "service": "c1-acute-risk" },
+    { "binding": "C3", "service": "c3-rough-patch" },
+    { "binding": "C4", "service": "c4-glucose-guide" },
+    { "binding": "C5", "service": "coach-copilot-clef" },
+    { "binding": "P360", "service": "patient-360" }
+  ]
+}
