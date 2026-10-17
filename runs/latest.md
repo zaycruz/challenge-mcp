@@ -1,7 +1,7 @@
-# challenge-mcp E2E 2026-10-17T18:36:56.451Z
+# challenge-mcp E2E 2026-10-17T18:38:48.736Z
 
-Server: https://emerge-mcp.raava.dev/mcp (emerge-challenge-mcp 0.4.3, commit 5177cc8, deploy 55e973a3-9318-43ba-bb41-a700922ee9f7). 117/117 checks passed in 39.4 s.
-Full run: runs/2026-10-17T18-36-56-451Z.json
+Server: https://emerge-mcp.raava.dev/mcp (emerge-challenge-mcp 0.4.3, commit a95f6d9, deploy d8b028c4-f3f8-4bd3-ba77-3739ccccee2d). 117/117 checks passed in 36.2 s.
+Full run: runs/2026-10-17T18-38-48-736Z.json
 
 | | Check | Detail |
 |---|---|---|
@@ -13,7 +13,7 @@ Full run: runs/2026-10-17T18-36-56-451Z.json
 | PASS | every tool declares an outputSchema (object, with required fields) | all 12 |
 | PASS | unknown tool is a JSON-RPC error -32602 naming only the tool | {"jsonrpc":"2.0","id":7,"error":{"code":-32602,"message":"Unknown tool: no_such_tool"}} |
 | PASS | every tool has a description of 40+ chars |  |
-| PASS | triage_today succeeds (225 ms) |  |
+| PASS | triage_today succeeds (302 ms) |  |
 | PASS | triage defaults to a short list (10) | 10 of 65 |
 | PASS | triage counts all 4 cohorts | {"c1":{"alert":40,"watch":43,"ok":116},"c3":{"alert":5,"watch":4,"ok":51},"c4":{"alert":11,"watch":10,"ok":29},"c5":{"alert":9,"watch":6,"ok":11}} |
 | PASS | triage lists urgent C3 first | c3-P03000 |
@@ -22,102 +22,102 @@ Full run: runs/2026-10-17T18-36-56-451Z.json
 | PASS | triage says cohorts are not joined |  |
 | PASS | triage rows carry horizon and scale | c3: next 7 days; c1: next 12 months; c4: recent CGM days; c5: latest coaching call |
 | PASS | triage says risks are not comparable across cohorts |  |
-| PASS | triage_today succeeds (103 ms) |  |
+| PASS | triage_today succeeds (90 ms) |  |
 | PASS | triage caps at 25 |  |
-| PASS | triage_today returns isError (113 ms) | Bad arguments for triage_today: Too big: expected number to be <=25 at limit. See the tool's input schema in tools/list. |
-| PASS | list_survivors succeeds (103 ms) |  |
+| PASS | triage_today returns isError (48 ms) | Bad arguments for triage_today: Too big: expected number to be <=25 at limit. See the tool's input schema in tools/list. |
+| PASS | list_survivors succeeds (209 ms) |  |
 | PASS | list_survivors c1 returns rows | 199 total, first c1-S71188550 |
-| PASS | list_survivors succeeds (71 ms) |  |
+| PASS | list_survivors succeeds (108 ms) |  |
 | PASS | list_survivors c3 returns rows | 60 total, first c3-P03000 |
-| PASS | list_survivors succeeds (142 ms) |  |
+| PASS | list_survivors succeeds (175 ms) |  |
 | PASS | list_survivors c4 returns rows | 50 total, first c4-N0072 |
-| PASS | list_survivors succeeds (144 ms) |  |
+| PASS | list_survivors succeeds (63 ms) |  |
 | PASS | list_survivors c5 returns rows | 26 total, first c5-P0002 |
-| PASS | list_survivors succeeds (98 ms) |  |
+| PASS | list_survivors succeeds (37 ms) |  |
 | PASS | list_survivors filters by text and status | 11 matched |
-| PASS | list_survivors succeeds (112 ms) |  |
+| PASS | list_survivors succeeds (202 ms) |  |
 | PASS | list_survivors urgentOnly | 2 urgent |
-| PASS | get_survivor succeeds (134 ms) |  |
-| PASS | get_survivor c1 has headline + evidence/recommendations | c1-S71188550 |
 | PASS | get_survivor succeeds (212 ms) |  |
+| PASS | get_survivor c1 has headline + evidence/recommendations | c1-S71188550 |
+| PASS | get_survivor succeeds (127 ms) |  |
 | PASS | get_survivor c3 has headline + evidence/recommendations | c3-P03000 |
 | PASS | get_survivor c3 hides the outcome |  |
-| PASS | get_survivor succeeds (167 ms) |  |
+| PASS | get_survivor succeeds (156 ms) |  |
 | PASS | get_survivor c4 has headline + evidence/recommendations | c4-N0072 |
-| PASS | get_survivor succeeds (206 ms) |  |
+| PASS | get_survivor succeeds (103 ms) |  |
 | PASS | get_survivor c5 has headline + evidence/recommendations | c5-P0002 |
-| PASS | get_survivor succeeds (149 ms) |  |
+| PASS | get_survivor succeeds (154 ms) |  |
 | PASS | get_survivor c3 charts trimmed to 14 days |  |
-| PASS | get_survivor returns isError (269 ms) | Error: Not found. C1 Care Team Risk returned 404: survivor not found |
+| PASS | get_survivor returns isError (171 ms) | Error: Not found. C1 Care Team Risk returned 404: survivor not found |
 | PASS | errors do not leak upstream paths | Error: Not found. C1 Care Team Risk returned 404: survivor not found |
-| PASS | module_metrics returns isError (214 ms) | Bad arguments for module_metrics: Invalid option: expected one of "c1"/"c3"/"c4"/"c5" at module. See the tool's input schema in tools/list. |
+| PASS | module_metrics returns isError (60 ms) | Bad arguments for module_metrics: Invalid option: expected one of "c1"/"c3"/"c4"/"c5" at module. See the tool's input schema in tools/list. |
 | PASS | bad arguments get a plain message, not the SDK's validation dump | Bad arguments for module_metrics: Invalid option: expected one of "c1"/"c3"/"c4"/"c5" at module. See the tool's input schema in tools/list. |
-| PASS | /health ties the server to a commit, a deploy and model ids | {"gitSha":"5177cc8","deployId":"55e973a3-9318-43ba-bb41-a700922ee9f7","deployedAt":"2026-10-17T18:36:32.451114Z"} |
-| PASS | get_survivor returns isError (190 ms) | Error: survivorId must start with c1-, c3-, c4- or c5- (got "x9-123") |
-| PASS | patient_overview succeeds (261 ms) |  |
+| PASS | /health ties the server to a commit, a deploy and model ids | {"gitSha":"a95f6d9","deployId":"d8b028c4-f3f8-4bd3-ba77-3739ccccee2d","deployedAt":"2026-10-17T18:37:58.520518Z"} |
+| PASS | get_survivor returns isError (77 ms) | Error: survivorId must start with c1-, c3-, c4- or c5- (got "x9-123") |
+| PASS | patient_overview succeeds (153 ms) |  |
 | PASS | patient_overview says ids do not join | {"c1":{"enrolled":false},"c3":{"enrolled":true,"survivorId":"c3-P03000","status":"alert","headline":"Urgent review: about 6x the usual ER or hospital risk this  |
-| PASS | module_metrics succeeds (65 ms) |  |
+| PASS | module_metrics succeeds (232 ms) |  |
 | PASS | module_metrics c1 reads the live finalModel | forest AUROC 0.713 |
 | PASS | module_metrics c1 gives the gain over baseline with a CI | out-of-fold, forest vs baseline on the same repeated 5-fold CV. Optimistic: the model search chose forest using these folds. Use headlineGain (nested CV) as the |
 | PASS | module_metrics c1 leads with the nested-CV gain and names both | C1 live model: Random forest (300 trees (forest). Honest estimate (nested CV, the model search re-run inside each outer fold): AUROC 0.711 vs baseline 0.672, ga |
 | PASS | module_metrics c1 has subgroups | 19 rows: age, sex, race_ethnicity, insurance, cancer_type |
 | PASS | module_metrics c1 is compact | 9841 chars |
-| PASS | module_metrics succeeds (64 ms) |  |
+| PASS | module_metrics succeeds (43 ms) |  |
 | PASS | module_metrics c3 has model and baseline | 0.827 vs 0.808 |
 | PASS | module_metrics c3 has subgroups | 34 rows: Language, Race and ethnicity, Cancer type, Sex, Age, Lives alone, Device |
 | PASS | module_metrics c3 subgroups include language |  |
 | PASS | module_metrics c3 is compact | 8819 chars |
-| PASS | module_metrics succeeds (124 ms) |  |
+| PASS | module_metrics succeeds (143 ms) |  |
 | PASS | module_metrics c4 has subgroups | 6 rows: blood-sugar group |
 | PASS | module_metrics c4 is compact | 8382 chars |
-| PASS | module_metrics succeeds (72 ms) |  |
+| PASS | module_metrics succeeds (105 ms) |  |
 | PASS | module_metrics c5 relays the 477-call validation per supervisor | C5 coach score on 477 held-out supervisor-rated calls: Pearson r 0.751 (95% CI 0.708 to 0.788) vs supervisor A and 0.701 (0.657 to 0.739) vs supervisor B; the t |
 | PASS | module_metrics c5 labels this server's own check n = 1 |  |
 | PASS | module_metrics c5 subgroups give flags by language | [["English",6,6],["Spanish",7,7]] |
-| PASS | glucose_advice succeeds (149 ms) |  |
+| PASS | glucose_advice succeeds (130 ms) |  |
 | PASS | glucose_advice returns advice items | ai,ai,ai |
-| PASS | glucose_advice reports timing and model calls | {"ms":26,"modelCalls":0,"retries":0,"failedCalls":0,"cached":true} |
-| PASS | glucose_advice succeeds (52 ms) |  |
-| PASS | glucose_advice second call is served from cache | {"ms":6,"modelCalls":0,"retries":0,"failedCalls":0,"cached":true} |
-| PASS | reveal_outcome_demo returns isError (46 ms) | protocol error: MCP error -32602: Unknown tool: reveal_outcome_demo |
+| PASS | glucose_advice reports timing and model calls | {"ms":21,"modelCalls":0,"retries":0,"failedCalls":0,"cached":true} |
+| PASS | glucose_advice succeeds (224 ms) |  |
+| PASS | glucose_advice second call is served from cache | {"ms":3,"modelCalls":0,"retries":0,"failedCalls":0,"cached":true} |
+| PASS | reveal_outcome_demo returns isError (88 ms) | protocol error: MCP error -32602: Unknown tool: reveal_outcome_demo |
 | PASS | ?tools=demo lists reveal_outcome_demo |  |
 | PASS | reveal_outcome_demo works on ?tools=demo |  |
-| PASS | list_coaching_calls succeeds (62 ms) |  |
+| PASS | list_coaching_calls succeeds (196 ms) |  |
 | PASS | list_coaching_calls returns calls | 27 calls |
-| PASS | get_coaching_call succeeds (63 ms) |  |
+| PASS | get_coaching_call succeeds (167 ms) |  |
 | PASS | get_coaching_call has a transcript | CALL05559, 33 lines |
-| PASS | get_coaching_call returns isError (98 ms) | Error: Not found. C5 Coach's Co-pilot returned 404: call not found |
-| PASS | score_conversation succeeds (1604 ms) |  |
+| PASS | get_coaching_call returns isError (154 ms) | Error: Not found. C5 Coach's Co-pilot returned 404: call not found |
+| PASS | score_conversation succeeds (1005 ms) |  |
 | PASS | score_conversation flags the symptom line medical | {"n":2,"speaker":"participant","text":"Not great. I've had a fever since yesterday and my chest feels tight.","tag":"neutral","flag":"medical","confidence":0.08 |
 | PASS | score_conversation carries the flag: next coach line is missed_concern | {"n":3,"speaker":"coach","text":"Okay. So did you manage to do the walks after dinner?","tag":"closed question","flag":"missed_concern","confidence":0.311} |
 | PASS | score_conversation tags every line | open question / neutral / closed question / neutral / persuade / change / open question |
 | PASS | score_conversation scores (4 coach lines) | score 20 |
 | PASS | score_conversation finds cue moments | [{"afterLine":2,"trigger":"Participant raised a medical concern. Help the coach respond with care and connect them to the right person today."},{"afterLine":3," |
-| PASS | score_conversation succeeds (7290 ms) |  |
+| PASS | score_conversation succeeds (3394 ms) |  |
 | PASS | score_conversation on a stored call compares with the supervisor | {"supervisorScoreFullCall":55,"supervisorScoreSameLines":55,"coachMoveAgreement":0.94,"participantTalkAgreement":0.87,"supervisorNeedsHumanLines":[]} |
-| PASS | coaching_cue succeeds (211 ms) |  |
+| PASS | coaching_cue succeeds (290 ms) |  |
 | PASS | coaching_cue uses the Co-pilot rule for a missed concern | The participant raised a concern and the coach moved on without routing it. Help the coach go back to it now. |
 | PASS | coaching_cue returns a cue | Stop the plan talk and acknowledge her symptoms; invite her to say more and consider how she's feeling, e.g. checking in on the fever/chest tightness before any |
-| PASS | score_conversation returns isError (65 ms) | Error: cannot read the speaker in "hello there"; start each line with "coach:" or "participant:" |
-| PASS | search succeeds (139 ms) |  |
+| PASS | score_conversation returns isError (31 ms) | Error: cannot read the speaker in "hello there"; start each line with "coach:" or "participant:" |
+| PASS | search succeeds (246 ms) |  |
 | PASS | search returns results with id/title/url | 2 results |
-| PASS | fetch succeeds (34 ms) |  |
+| PASS | fetch succeeds (65 ms) |  |
 | PASS | fetch returns id/title/text/url |  |
-| PASS | search succeeds (42 ms) |  |
+| PASS | search succeeds (175 ms) |  |
 | PASS | search "night shift": every hit matched the phrase in a tag or the headline, and says so | c4-N0072 (tag "Night shift"); c4-N0731 (tag "Night shift") |
-| PASS | search succeeds (87 ms) |  |
+| PASS | search succeeds (38 ms) |  |
 | PASS | search "c3-P03000": an exact id comes first | c3-P03000 (id) |
-| PASS | search succeeds (81 ms) |  |
+| PASS | search succeeds (107 ms) |  |
 | PASS | search "urgent": urgent survivors come first | c3-P03000 (headline); c3-P02185 (headline) |
-| PASS | search succeeds (34 ms) |  |
-| PASS | search "breast alert": every hit is an alert and mentions breast | c1-S9707145E (all words (breast, alert)); c1-S93CB4E8B (all words (breast, alert)); c1-S54288CF4 (all words (breast, alert)) |
 | PASS | search succeeds (29 ms) |  |
+| PASS | search "breast alert": every hit is an alert and mentions breast | c1-S9707145E (all words (breast, alert)); c1-S93CB4E8B (all words (breast, alert)); c1-S54288CF4 (all words (breast, alert)) |
+| PASS | search succeeds (24 ms) |  |
 | PASS | search "zzqx nothing": no false hits | no results |
 | PASS | model down: glucose_advice falls back to C4's template advice | 3 items; C4 Glucose Guide advice model returned 503: injected fault: model down (after 2 tries) |
-| PASS | model down: glucose_advice retried once | {"ms":441,"modelCalls":2,"retries":1,"failedCalls":1,"cached":false,"upstreamCached":false} |
+| PASS | model down: glucose_advice retried once | {"ms":410,"modelCalls":2,"retries":1,"failedCalls":1,"cached":false,"upstreamCached":false} |
 | PASS | model down: coaching_cue gives the rule-based fallback cue | Pause the plan. Reflect what the participant just said, ask one open question about it, and offer to connect them with the care team today. |
 | PASS | model down: score_conversation says the model failed instead of scoring | Error: The C5 tagging model failed on 4 of 4 lines (after a retry each): C5 Co-pilot model returned 503: injected fault: model down (after 2 tries). No score wa |
-| PASS | model hangs: glucose_advice times out (9 s, one retry) and falls back | 18492 ms; C4 Glucose Guide advice model did not answer within 9 s (after 2 tries) |
+| PASS | model hangs: glucose_advice times out (9 s, one retry) and falls back | 18597 ms; C4 Glucose Guide advice model did not answer within 9 s (after 2 tries) |
 | PASS | unknown bearer key gets 401 | 401 {"jsonrpc":"2.0","error":{"code":-32001,"message":"Unauthorized: unknown bearer key. Omit the Authorization header to us |
 | PASS | a valid bearer key connects and lists tools |  |
 | PASS | model-backed tools are rate-limited per IP | limited after 22 probe calls: Error: Rate limit: score_conversation calls a live model. Each anonymous client IP may make 20 such calls per minute (sc |
@@ -319,7 +319,7 @@ Plain-language advice for c4-N0072:
 - Send these readings to your care team today: Your average blood sugar was 178.3 mg/dL, which is higher than the target. Contact your care team today to discuss your readings.
 - Try a 10 to 20 minute walk after dinner: Walking after dinner is linked to a rise about 18.3 mg/dL smaller in blood sugar. Walking 10 to 19 minutes after dinner got most of the gain, with a rise 17.5 mg/dL smaller.
 - Keep meal times steady around your shifts: Since you work nights, traditional rules about late dinners don't apply to you. Keep your main meal at the same point in your waking day.
-(cached; 26 ms)
+(cached; 21 ms)
 ```
 ### glucose_advice {"survivorId":"c4-N0072"}
 
@@ -328,7 +328,7 @@ Plain-language advice for c4-N0072:
 - Send these readings to your care team today: Your average blood sugar was 178.3 mg/dL, which is higher than the target. Contact your care team today to discuss your readings.
 - Try a 10 to 20 minute walk after dinner: Walking after dinner is linked to a rise about 18.3 mg/dL smaller in blood sugar. Walking 10 to 19 minutes after dinner got most of the gain, with a rise 17.5 mg/dL smaller.
 - Keep meal times steady around your shifts: Since you work nights, traditional rules about late dinners don't apply to you. Keep your main meal at the same point in your waking day.
-(cached; 6 ms)
+(cached; 3 ms)
 ```
 ### reveal_outcome_demo {"survivorId":"c3-P03000"}
 
