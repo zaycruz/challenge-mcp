@@ -8,7 +8,7 @@ A care-team lead can review a coach's call, ask who to call today, or ask how a 
 |---|---|---|---|
 | App score vs supervisor A (Pearson r) | **0.751** | 0.692 (supervisor B vs supervisor A) | 0.708 to 0.788 |
 | App score vs supervisor B (Pearson r) | **0.701** | 0.692 (supervisor A vs supervisor B) | 0.657 to 0.739; baseline 0.64 to 0.736 |
-| Must-act flags caught | **13 of 13** | 0 (no screen) | 0.77 to 1; 9 false alarms in 25,785 lines |
+| Must-act flags caught | **13 of 13** | no comparator served by C5 | 0.77 to 1; 9 false alarms in 25,785 lines |
 
 The CIs overlap, so this is parity with a second supervisor, not better. The figures are C5's own validation (`/api/c5/agreement`), which `module_metrics c5` relays live, with flags by language. This server re-scores only one stored call per E2E run, so its own live check is n = 1 (below). `node scripts/reproduce-numbers.mjs` regenerates every number on this page from the module APIs and diffs it against the live server: [`runs/numbers-latest.md`](runs/numbers-latest.md).
 
@@ -32,15 +32,15 @@ Connect a client: add `https://emerge-mcp.raava.dev/mcp` as a custom connector i
 
 From [`runs/bench-latest.md`](runs/bench-latest.md) (`MCP_KEY=... node scripts/bench.mjs`, 40 calls, wall time from a laptop). The cost is an estimate: Workers AI list prices x tokens at about 4 characters per token.
 
-| Tool | p50 | p95 | Est. cost per call | Timeout, then fallback |
-|---|---|---|---|---|
-| `score_conversation` (4 lines, 4 model calls) | 1.0 s | 1.1 s | $0.0008 | 8 s per line, 1 retry; `isError` if over half the lines fail |
-| `coaching_cue` (live model) | 2.5 s | 8.3 s | $0.0001 | 12 s, 1 retry, then a rule-based cue (`source: "rule-fallback"`) |
-| `glucose_advice` (C4's precomputed rewrite) | 0.2 s | 0.4 s | $0 | 9 s, 1 retry, then C4's template advice (`source: "template-fallback"`) |
-| `glucose_advice` (this server's cache, 6 h) | 0.1 s | 0.4 s | $0 | — |
-| `triage_today`, `search`, `module_metrics` | under 0.1 s | under 0.3 s | $0 | 15 s |
+| Tool | n | p50 | p95 | Est. cost per call | Timeout, then fallback |
+|---|---|---|---|---|---|
+| `score_conversation` (4 lines, 4 model calls) | 4 | 1.0 s | 1.1 s | $0.0008 | 8 s per line, 1 retry; `isError` if over half the lines fail |
+| `coaching_cue` (live model) | 6 | 2.5 s | 8.3 s | $0.0001 | 12 s, 1 retry, then a rule-based cue (`source: "rule-fallback"`) |
+| `glucose_advice` (C4's precomputed rewrite) | 8 | 0.2 s | 0.4 s | $0 | 9 s, 1 retry, then C4's template advice (`source: "template-fallback"`) |
+| `glucose_advice` (this server's cache, 6 h) | 8 | 0.1 s | 0.4 s | $0 | — |
+| `triage_today`, `search`, `module_metrics` | 14 | under 0.1 s | under 0.3 s | $0 | 15 s |
 
-The judges measured `glucose_advice` at 4.5 s when C4 still called its model on every request. C4 now serves precomputed rewrites, and this server caches the answer for 6 h, keyed by the survivor and their roster version. If the model is down or slow, the tool degrades instead of hanging, and the reply says so (`degraded: true`, `timing.retries`, `timing.failedCalls`).
+With n this small, p95 is close to the maximum. The judges measured `glucose_advice` at 4.5 s when C4 still called its model on every request. C4 now serves precomputed rewrites, and this server caches the answer for 6 h, keyed by the survivor and their roster version. If the model is down or slow, the tool degrades instead of hanging, and the reply says so (`degraded: true`, `timing.retries`, `timing.failedCalls`).
 
 ## Resilience, tested by injected failure
 
@@ -80,7 +80,7 @@ Each E2E run scores one stored, supervisor-labelled call (CALL05559, the shortes
 - MCP endpoint: `https://emerge-mcp.raava.dev/mcp` (Streamable HTTP, stateless, open; optional bearer key)
 - Fallback: `https://challenge-mcp.zay-259.workers.dev/mcp`
 - Demo endpoint: `https://emerge-mcp.raava.dev/mcp?tools=demo` also has `reveal_outcome_demo`.
-- `GET /` gives the connect instructions. `GET /health` gives the version.
+- `GET /` gives the connect instructions. `GET /health` gives the provenance: the version, git SHA, Workers deploy id and time, and the exact Workers AI model id behind each model-backed tool. `module_metrics` carries the same `provenance` block, and the E2E, bench and numbers artifacts record the SHA and deploy id they ran against. The upstream modules publish model cards but no weight hashes.
 - Part of the monorepo [zaycruz/survivorship-360](https://github.com/zaycruz/survivorship-360).
 
 ## Repo layout
@@ -161,7 +161,7 @@ node e2e/run.mjs http://localhost:8799/mcp
 
 ```sh
 npm run typecheck
-npm run deploy                          # wrangler deploy -> emerge-mcp.raava.dev + challenge-mcp.zay-259.workers.dev
+npm run deploy                          # wrangler deploy with GIT_SHA set -> emerge-mcp.raava.dev + challenge-mcp.zay-259.workers.dev
 ```
 
 ## E2E against the live site

@@ -34,6 +34,7 @@ async function time(tool, args, cost) {
 }
 
 // This server caches advice for 6 h, so a rerun on the same survivors only measures the cache. BENCH_OFFSET picks 8 others.
+const PROV = (await fetch(new URL("/health", URL_)).then((r) => r.json()).catch(() => ({}))).provenance ?? {};
 const OFFSET = Number(process.env.BENCH_OFFSET ?? 1);
 const c4 = (await client.callTool({ name: "list_survivors", arguments: { module: "c4", limit: 50 } })).structuredContent.rows;
 for (const r of c4.slice(OFFSET, OFFSET + 8)) {
@@ -72,7 +73,7 @@ mkdirSync("runs", { recursive: true });
 writeFileSync(`runs/bench-${stamp}.json`, JSON.stringify({ url: URL_, at: new Date().toISOString(), keyed: !!process.env.MCP_KEY, price: PRICE, table, rows }, null, 2));
 const md = [
   `# challenge-mcp bench ${new Date().toISOString()}`, "",
-  `Server: ${URL_}. Client-side wall time per tool call (from this machine), ${rows.length} calls. Cost is an estimate: Workers AI list prices x tokens estimated at 4 characters per token; C5 tagging bills input only. Full rows: runs/bench-${stamp}.json`, "",
+  `Server: ${URL_} (commit ${PROV.gitSha}, deploy ${PROV.deployId}). Client-side wall time per tool call (from this machine), ${rows.length} calls. Cost is an estimate: Workers AI list prices x tokens estimated at 4 characters per token; C5 tagging bills input only. Full rows: runs/bench-${stamp}.json`, "",
   "| Tool | n | p50 ms | p95 ms | max ms | errors | degraded | est. USD per call |", "|---|---|---|---|---|---|---|---|",
   ...table.map((t) => `| ${t.tool} | ${t.n} | ${t.p50} | ${t.p95} | ${t.max} | ${t.errors} | ${t.degraded} | ${t.usdPerCall ? `$${t.usdPerCall.toFixed(5)}` : "0 (no model)"} |`),
 ].join("\n");

@@ -9,6 +9,10 @@
 export interface Fetcher { fetch(input: RequestInfo, init?: RequestInit): Promise<Response> }
 export interface Env {
   C1: Fetcher; C3: Fetcher; C4: Fetcher; C5: Fetcher; P360: Fetcher;
+  /** Short git SHA of the deployed commit, set by `npm run deploy` ("-dirty" if the tree had uncommitted changes). */
+  GIT_SHA?: string;
+  /** Workers version metadata binding: the deployed version id and its upload time. */
+  CF_VERSION_METADATA?: { id: string; tag?: string; timestamp?: string };
   /** Workers rate limiter keyed by client IP, for the tools that call a live model. */
   LLM_LIMIT?: { limit(o: { key: string }): Promise<{ success: boolean }> };
   /** Same, keyed by API key name, for callers with a bearer key. */

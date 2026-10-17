@@ -10,7 +10,7 @@ import { z } from "zod";
 import { cue, cueMoments, FLAG_MEANING, MAX_LINES, parseTranscript, score, tagLines, triggerAt, type Line } from "./coach";
 import { ApiError, consoleUrl, get, getAdvice, getC5Agreement, isRecord, metrics, withFault, type Stats, MODULE_INFO, MODULES, moduleOf, roster, statusCounts, survivor, type Env, type Module, type Row } from "./modules";
 
-const VERSION = "0.4.1";
+const VERSION = "0.4.2";
 const READ = { readOnlyHint: true, openWorldHint: false } as const;
 /** Calls a live model; reads only, but the answer can vary. */
 const MODEL = { readOnlyHint: true, openWorldHint: true, idempotentHint: false } as const;
@@ -22,6 +22,18 @@ const IDS_DO_NOT_JOIN =
 type Result = { content: { type: "text"; text: string }[]; structuredContent?: Record<string, unknown>; isError?: boolean };
 
 /** Short summary for the reader, then compact JSON for the model; the same object as structuredContent. */
+/** Which model answers each model-backed tool (the upstream Workers' defaults: coach-copilot src/index.ts CLEF and GLM, c4-glucose-guide /advice). */
+const MODELS = {
+  score_conversation: "@cf/cloudflare/clef via C5 /api/turn",
+  coaching_cue: "@cf/zai-org/glm-5.3-flash via C5 /api/cue (answers cached in C5 KV for a week)",
+  glucose_advice: "@cf/meta/llama-3.3-70b-instruct-fp8-fast via C4 /advice, only when C4 has no precomputed rewrite",
+};
+/** Ties every answer to a build: this server's commit and deploy, and the model ids. Upstream modules serve no weight hashes. */
+const provenance = (env: Env) => ({
+  server: `challenge-mcp v${VERSION}`, gitSha: env.GIT_SHA ?? "unknown", deployId: env.CF_VERSION_METADATA?.id ?? "unknown", deployedAt: env.CF_VERSION_METADATA?.timestamp ?? "unknown",
+  models: MODELS, upstreamHashes: "not served: C1, C3, C4 and C5 publish their model cards but no weight hashes",
+});
+
 function ok(summary: string, data: Record<string, unknown>): Result {
   return { content: [{ type: "text", text: summary }, { type: "text", text: JSON.stringify(data) }], structuredContent: data };
 }
@@ -235,7 +247,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
     }
     const sg = (d as { subgroups?: { summary?: unknown; note?: unknown } | null }).subgroups;
     if (sg) summary += `\nSubgroups: ${sg.summary ?? sg.note ?? "see subgroups.rows"}`;
-    return ok(summary, d);
+    return ok(summary, { ...d, provenance: provenance(env) });
   }));
 
   server.registerTool("glucose_advice", {
@@ -508,6 +520,7 @@ async function c5Metrics(env: Env): Promise<Result> {
     subgroups: { basis: "flag recall and false alarms per call language, from C5's validation split; C5 serves no per-language score agreement", rows: byLang.map(([group, v]) => ({ dimension: "Language", group, flagsCaught: v.caught, falseAlarmLines: v.falseAlarmLines })) },
     mcpLiveCheck: "This server's own live comparison (score_conversation on a stored call) is a pipeline check on one call, n = 1, not a validation.",
     source: "C5 Co-pilot /api/c5/agreement (scripts/score.py over Clef's tags on the validation split)",
+    provenance: provenance(env),
   };
   const summary = `C5 coach score on ${d.calls} held-out supervisor-rated calls: Pearson r ${a?.pearson} (95% CI ${band(a?.pearsonCi95)}) vs supervisor A and ${b?.pearson} (${band(b?.pearsonCi95)}) vs supervisor B; the two supervisors agree at r ${ab?.pearson} (${band(ab?.pearsonCi95)}), so the app is on par with a second supervisor. Flag recall ${rec.k}/${rec.n} (95% CI ${band(rec.ci95)}); false alarms ${fa.k} in ${fa.n} lines.\nSubgroups: ${byLang.length ? byLang.map(([g, v]) => `${g} flags caught ${v.caught?.k}/${v.caught?.n}, false alarms ${v.falseAlarmLines?.k} in ${v.falseAlarmLines?.n} lines`).join("; ") + "." : "none served by C5."}`;
   return ok(summary, data);
@@ -528,6 +541,16 @@ Auth: open on purpose, so judges can connect. The data is synthetic or de-identi
 
 Modules: ${MODULES.map((m) => `${m} ${MODULE_INFO[m].name}: ${MODULE_INFO[m].about}`).join("\n         ")}
 `;
+
+/** The SDK rejects bad arguments as "MCP error -32602: Input validation error: Invalid arguments for tool X: ...". Say it plainly. */
+async function plainArgErrors(res: Response): Promise<Response> {
+  if (!(res.headers.get("content-type") ?? "").includes("application/json")) return res;
+  const body = await res.text();
+  if (!body.includes("Input validation error")) return new Response(body, res);
+  const fix = (t: string) => t.replace(/^MCP error -32602: Input validation error: Invalid arguments for tool ([\w-]+): ([\s\S]*)$/, (_, tool, why) => `Bad arguments for ${tool}: ${why.replace(/^Invalid input: /, "")}. See the tool's input schema in tools/list.`);
+  const walk = (x: unknown): unknown => (typeof x === "string" ? fix(x) : Array.isArray(x) ? x.map(walk) : isRecord(x) ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, walk(v)])) : x);
+  return new Response(JSON.stringify(walk(JSON.parse(body))), res);
+}
 
 /** Optional bearer keys (secret MCP_KEYS = "name:key,..."). No header = anonymous, unless REQUIRE_KEY is "1". */
 function authenticate(req: Request, env: Env): Caller | "invalid" | "required" {
@@ -551,7 +574,7 @@ export default {
   async fetch(req: Request, env: Env): Promise<Response> {
     const url = new URL(req.url);
     if (req.method === "OPTIONS") return new Response(null, { status: 204, headers: CORS });
-    if (url.pathname === "/health") return Response.json({ ok: true, version: VERSION, e2e: E2E_URL });
+    if (url.pathname === "/health") return Response.json({ ok: true, version: VERSION, e2e: E2E_URL, provenance: provenance(env) });
     if (url.pathname === "/e2e") return Response.redirect(E2E_URL, 302);
     if (url.pathname === "/mcp" || url.pathname === "/mcp/") {
       if (req.method !== "POST") {
@@ -566,7 +589,7 @@ export default {
       const transport = new WebStandardStreamableHTTPServerTransport({ sessionIdGenerator: undefined, enableJsonResponse: true });
       const server = buildServer(reqEnv, url.searchParams.get("tools") === "demo", caller);
       await server.connect(transport);
-      return withCors(await transport.handleRequest(req));
+      return withCors(await plainArgErrors(await transport.handleRequest(req)));
     }
     if (url.pathname === "/") return new Response(HOME(url.origin), { headers: { "content-type": "text/plain; charset=utf-8" } });
     return new Response("not found", { status: 404 });

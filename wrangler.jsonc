@@ -6,6 +6,8 @@
   "workers_dev": true,
   "routes": [{ "pattern": "emerge-mcp.raava.dev", "custom_domain": true }],
   "observability": { "enabled": true },
+  // Deployed version id and time, reported in /health and module_metrics provenance.
+  "version_metadata": { "binding": "CF_VERSION_METADATA" },
   // Same bindings as patient-360 (coach-console); same-account Worker-to-Worker fetches can hit error 1042.
   // "remote": true makes `wrangler dev` call the deployed module Workers; deploy ignores it.
   // Limits on the tools that call a live model (score_conversation, coaching_cue, glucose_advice).

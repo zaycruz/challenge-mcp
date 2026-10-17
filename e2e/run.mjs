@@ -72,6 +72,14 @@ const charts = await run("get_survivor", { survivorId: ids.c3, includeCharts: tr
 check("get_survivor c3 charts trimmed to 14 days", charts.chartsLast14Days?.dates?.length === 14);
 await run("get_survivor", { survivorId: "c1-NOPE" }, true);
 check("errors do not leak upstream paths", !/\/api\/|https?:\/\//.test(calls.at(-1).summary), calls.at(-1).summary);
+await run("module_metrics", { module: "c9" }, true);
+check("bad arguments get a plain message, not the SDK's validation dump", /^Bad arguments for module_metrics: /.test(calls.at(-1).summary) && !/-32602|Input validation error/.test(calls.at(-1).summary), calls.at(-1).summary);
+{
+  const h = await fetch(new URL("/health", URL_)).then((r) => r.json());
+  const p = h.provenance ?? {};
+  check("/health ties the server to a commit, a deploy and model ids", /^[0-9a-f]{7,}$/.test(p.gitSha ?? "") && p.deployId && p.deployId !== "unknown" && /@cf\//.test(p.models?.coaching_cue ?? ""), JSON.stringify({ gitSha: p.gitSha, deployId: p.deployId, deployedAt: p.deployedAt }));
+  globalThis.PROVENANCE = p;
+}
 await run("get_survivor", { survivorId: "x9-123" }, true);
 
 const ov = await run("patient_overview", { survivorId: ids.c3 });
@@ -217,9 +225,9 @@ await client.close();
 const failed = checks.filter((c) => !c.pass);
 const stamp = started.toISOString().replace(/[:.]/g, "-");
 mkdirSync("runs", { recursive: true });
-const report = { url: URL_, startedAt: started.toISOString(), seconds: (Date.now() - started) / 1000, server: info, tools: tools.map((t) => ({ name: t.name, annotations: t.annotations, inputs: Object.keys(t.inputSchema?.properties ?? {}) })), passed: checks.length - failed.length, failed: failed.length, checks, calls };
+const report = { url: URL_, startedAt: started.toISOString(), seconds: (Date.now() - started) / 1000, server: info, provenance: globalThis.PROVENANCE, tools: tools.map((t) => ({ name: t.name, annotations: t.annotations, inputs: Object.keys(t.inputSchema?.properties ?? {}) })), passed: checks.length - failed.length, failed: failed.length, checks, calls };
 writeFileSync(`runs/${stamp}.json`, JSON.stringify(report, null, 2));
-const md = [`# challenge-mcp E2E ${started.toISOString()}`, "", `Server: ${URL_} (${info?.name} ${info?.version}). ${report.passed}/${checks.length} checks passed in ${report.seconds.toFixed(1)} s.`, `Full run: runs/${stamp}.json`, "", "| | Check | Detail |", "|---|---|---|", ...checks.map((c) => `| ${c.pass ? "PASS" : "FAIL"} | ${c.name} | ${String(c.detail).replace(/\|/g, "/").slice(0, 160)} |`), "", "## Tool summaries (first text block of each call)", "", ...calls.map((c) => `### ${c.name} ${JSON.stringify(c.args).slice(0, 120)}\n\n\`\`\`\n${c.summary}\n\`\`\``)].join("\n");
+const md = [`# challenge-mcp E2E ${started.toISOString()}`, "", `Server: ${URL_} (${info?.name} ${info?.version}, commit ${globalThis.PROVENANCE?.gitSha}, deploy ${globalThis.PROVENANCE?.deployId}). ${report.passed}/${checks.length} checks passed in ${report.seconds.toFixed(1)} s.`, `Full run: runs/${stamp}.json`, "", "| | Check | Detail |", "|---|---|---|", ...checks.map((c) => `| ${c.pass ? "PASS" : "FAIL"} | ${c.name} | ${String(c.detail).replace(/\|/g, "/").slice(0, 160)} |`), "", "## Tool summaries (first text block of each call)", "", ...calls.map((c) => `### ${c.name} ${JSON.stringify(c.args).slice(0, 120)}\n\n\`\`\`\n${c.summary}\n\`\`\``)].join("\n");
 writeFileSync("runs/latest.md", md);
 console.log(`\n${report.passed}/${checks.length} passed -> runs/${stamp}.json, runs/latest.md`);
 process.exit(failed.length ? 1 : 0);

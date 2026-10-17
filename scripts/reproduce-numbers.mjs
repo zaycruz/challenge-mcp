@@ -77,7 +77,7 @@ const stamp = new Date().toISOString().replace(/[:.]/g, "-");
 const fmt = (x) => (x === undefined ? "n/a" : x === true ? "yes" : x === false ? "**MISSING**" : JSON.stringify(x));
 const md = [
   `# challenge-mcp numbers ${new Date().toISOString()}`, "",
-  `Regenerated from the module APIs directly; compared with ${MCP} (module_metrics) and README.md. ${rows.length - bad.length}/${rows.length} match.`, "",
+  `Regenerated from the module APIs directly; compared with ${MCP} (module_metrics; commit ${live5.provenance?.gitSha}, deploy ${live5.provenance?.deployId}) and README.md. ${rows.length - bad.length}/${rows.length} match.`, "",
   "| | Number | Regenerated | Live MCP | In README |", "|---|---|---|---|---|",
   ...rows.map((r) => `| ${r.ok ? "OK" : "DIFF"} | ${r.number} | ${fmt(r.regenerated)} | ${fmt(r.live)} | ${fmt(r.readme)} |`),
 ].join("\n");
