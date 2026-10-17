@@ -5,6 +5,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { mkdirSync, writeFileSync } from "node:fs";
+import { execSync } from "node:child_process";
 import { searchFixtures } from "./search-fixtures.mjs";
 
 const URL_ = process.argv[2] ?? "https://emerge-mcp.raava.dev/mcp";
@@ -30,6 +31,26 @@ check("every tool declares an outputSchema (object, with required fields)", tool
   const res = await fetch(URL_, { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream" }, body: JSON.stringify({ jsonrpc: "2.0", id: 7, method: "tools/call", params: { name: "no_such_tool", arguments: {} } }) });
   const j = await res.json();
   check("unknown tool is a JSON-RPC error -32602 naming only the tool", j.id === 7 && !j.result && j.error?.code === -32602 && j.error.message === "Unknown tool: no_such_tool" && !/C[1-5]|P360|patient-360|copilot|\/api\//i.test(JSON.stringify(j)), JSON.stringify(j));
+}
+{
+  // Output-schema conformance: every optional boolean argument, true and false, on the tools without a live model.
+  // A result that breaks its outputSchema comes back as "Output validation error".
+  const c3id = (await client.callTool({ name: "list_survivors", arguments: { module: "c3", limit: 1 } })).structuredContent?.rows?.[0]?.survivorId;
+  const BASE = { triage_today: {}, list_survivors: { module: "c3" }, get_survivor: { survivorId: c3id }, get_coaching_call: { callId: "CALL00646" } };
+  const bad = [];
+  let n = 0;
+  for (const t of tools.filter((t) => BASE[t.name])) {
+    const flags = Object.entries(t.inputSchema?.properties ?? {}).filter(([, v]) => v.type === "boolean").map(([k]) => k);
+    for (const args of [BASE[t.name], ...flags.flatMap((f) => [{ ...BASE[t.name], [f]: true }, { ...BASE[t.name], [f]: false }])]) {
+      n++;
+      const r = await client.callTool({ name: t.name, arguments: args }).catch((e) => ({ isError: true, content: [{ text: e.message }] }));
+      const text = r.content?.[0]?.text ?? "";
+      if (/Output validation error/.test(text) || r.isError) bad.push(`${t.name} ${JSON.stringify(args)}: ${text.slice(0, 120)}`);
+    }
+  }
+  check(`every optional boolean argument conforms to its outputSchema (${n} calls)`, bad.length === 0, bad.join("; ") || "no output validation errors");
+  const off = await client.callTool({ name: "get_coaching_call", arguments: { callId: "CALL00646", includeLines: false } });
+  check("get_coaching_call includeLines:false succeeds without lines", !off.isError && off.structuredContent?.lineCount > 0 && !("lines" in off.structuredContent), off.isError ? off.content?.[0]?.text : `lineCount ${off.structuredContent?.lineCount}`);
 }
 check("every tool has a description of 40+ chars", tools.every((t) => (t.description ?? "").length >= 40));
 
@@ -84,6 +105,10 @@ check("bad arguments get a plain message, not the SDK's validation dump", /^Bad 
 {
   const h = await fetch(new URL("/health", URL_)).then((r) => r.json());
   const p = h.provenance ?? {};
+  // The served code must be this checkout's last code commit (the deploy script stamps the same: src, wrangler.jsonc, package*.json).
+  let codeSha = null;
+  try { codeSha = execSync("git log -1 --format=%h --abbrev=7 -- src wrangler.jsonc package.json package-lock.json", { encoding: "utf8" }).trim(); } catch {}
+  check("/health gitSha is this checkout's last code commit", !!codeSha && (p.gitSha ?? "").startsWith(codeSha), `served ${p.gitSha}, checkout code commit ${codeSha}`);
   check("/health ties the server to a commit, a deploy and model ids", /^[0-9a-f]{7,}$/.test(p.gitSha ?? "") && p.deployId && p.deployId !== "unknown" && /@cf\//.test(p.models?.coaching_cue ?? ""), JSON.stringify({ gitSha: p.gitSha, deployId: p.deployId, deployedAt: p.deployedAt }));
   globalThis.PROVENANCE = p;
 }

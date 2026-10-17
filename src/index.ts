@@ -10,7 +10,7 @@ import { z } from "zod";
 import { cue, cueMoments, FLAG_MEANING, MAX_LINES, parseTranscript, score, tagLines, triggerAt, type Line } from "./coach";
 import { ApiError, consoleUrl, get, getAdvice, getC5Agreement, isRecord, metrics, withFault, type Stats, MODULE_INFO, MODULES, moduleOf, roster, statusCounts, survivor, type Env, type Module, type Row } from "./modules";
 
-const VERSION = "0.4.3";
+const VERSION = "0.4.4";
 const READ = { readOnlyHint: true, openWorldHint: false } as const;
 /** Calls a live model; reads only, but the answer can vary. */
 const MODEL = { readOnlyHint: true, openWorldHint: true, idempotentHint: false } as const;
@@ -111,7 +111,7 @@ const OUT = {
   glucose_advice: z.looseObject({ survivorId: str, items: arr, degraded: bool, timing: timingOut }),
   reveal_outcome_demo: z.looseObject({ survivorId: str, forecast: any, outcome: any }),
   list_coaching_calls: z.looseObject({ matched: num, calls: arr }),
-  get_coaching_call: z.looseObject({ callId: str, survivorId: any, language: any, labels: any, score: any, flags: any, lineCount: num, lines: arr }),
+  get_coaching_call: z.looseObject({ callId: str, survivorId: any, language: any, labels: any, score: any, flags: any, lineCount: num, lines: arr.optional() }),
   score_conversation: z.looseObject({ score: z.number().nullable(), scoreParts: any, counts: any, flags: any, cueMoments: arr, lines: arr, degraded: bool, timing: timingOut }),
   coaching_cue: z.looseObject({ cue: any, say: any, source: str, degraded: bool, timing: timingOut, trigger: str, triggerSource: str }),
   search: z.looseObject({ results: z.array(z.looseObject({ id: str, title: str, url: str })) }),

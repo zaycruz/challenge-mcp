@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Remote MCP server over the Emerge Hackathon challenge APIs (C1, C3, C4, C5) for ChatGPT and Claude",
   "scripts": {
-    "deploy": "wrangler deploy --var GIT_SHA:$(git rev-parse --short HEAD)$(git diff --quiet HEAD -- src wrangler.jsonc package.json package-lock.json || echo -dirty)",
+    "deploy": "wrangler deploy --var GIT_SHA:$(git log -1 --format=%h --abbrev=7 -- src wrangler.jsonc package.json package-lock.json)$(git diff --quiet HEAD -- src wrangler.jsonc package.json package-lock.json || echo -dirty)",
     "typecheck": "tsc -p .",
     "e2e": "node e2e/run.mjs",
     "e2e:domain": "sh e2e/custom-domain.sh"
