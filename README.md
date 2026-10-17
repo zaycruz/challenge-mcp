@@ -137,7 +137,7 @@ The modules use separate cohorts: `c1-S…` (199), `c3-P0…` with 5 digits (60)
 
 `reveal_outcome_demo` (what happened after a C3 forecast) is registered only on `/mcp?tools=demo`. It is not a security control, because the data is synthetic. It keeps a hidden-outcome tool out of the default model demo.
 
-Each result has a short text summary, then the compact JSON (also in `structuredContent`). An error, such as an unknown id, comes back as `isError: true`.
+Every tool declares an `outputSchema`, and each result returns `structuredContent` that matches it. The text blocks (a short summary, then the compact JSON) stay for clients that do not read structured output. A tool error, such as an unknown id or bad arguments, comes back as `isError: true` with a plain message. An unknown tool name is a JSON-RPC error: `-32602`, `Unknown tool: <name>`.
 
 ### C5 scoring
 
