@@ -22,19 +22,17 @@ export class Runner extends DurableObject<Env> {
       // The container may still be booting on the first command.
       for (let i = 0; ; i++) {
         try {
-          const p = await c.exec(["bash", "-lc", cmd], { cwd: "/work", stderr: "combined" });
+          const p = await c.exec(["/bin/bash", "-lc", `mkdir -p /work && cd /work && ${cmd}`], { cwd: "/", stderr: "combined" });
           const out = await p.output();
           const step = { cmd, exitCode: out.exitCode, ms: Date.now() - t0, output: new TextDecoder().decode(out.stdout).slice(-20_000) };
           steps.push(step);
           return step;
         } catch (e) {
-          if (i >= 30) throw e;
+          if (i >= 30) throw new Error(`exec "${cmd.slice(0, 40)}" failed after ${i} tries: ${e instanceof Error ? e.message : e}`);
           await new Promise((r) => setTimeout(r, 2000));
         }
       }
     };
-    await sh("mkdir -p /work").catch(() => {});
-    steps.length = 0;
     const env = await sh("uname -srm; cat /etc/os-release | head -1; node --version; npm --version; git --version; nproc");
     const clone = await sh(`rm -rf repo && git clone --quiet ${REPO} repo && cd repo && git checkout --quiet ${ref} && git log -1 --format='%H %s'`);
     let latest = "";
@@ -59,6 +57,10 @@ export default {
     const ref = /^[\w./-]{1,64}$/.test(body.ref ?? "") ? body.ref! : "main";
     const url = /^https:\/\/[\w.-]+\/mcp$/.test(body.url ?? "") ? body.url! : "https://emerge-mcp.raava.dev/mcp";
     const stub = env.RUNNER.getByName(`run-${Date.now()}`);
-    return Response.json(await stub.run(ref, url));
+    try {
+      return Response.json(await stub.run(ref, url));
+    } catch (e) {
+      return Response.json({ error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) }, { status: 500 });
+    }
   },
 };

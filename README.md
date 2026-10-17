@@ -1,6 +1,32 @@
-# Challenge MCP (C6)
+# Challenge MCP
 
-A remote MCP server over the Emerge Hackathon challenge APIs. Use it from ChatGPT and Claude.
+**Ask Claude or ChatGPT to score a coaching call, and the C5 Co-pilot answers in 4 seconds: 55/100, the same score the supervisor gave.**
+
+A care-team lead can review any coach's call from the chat window they already use. They can also ask who to call today, or how a model was validated, and get an answer from C1, C3, C4 and C5 in one place.
+
+| Result (live, through this server) | Number | Baseline | 95% CI |
+|---|---|---|---|
+| Coach score on supervisor-labelled call CALL05559 | **55** / 100 | supervisor: 55 | single call, no CI |
+| Coach-move agreement with the supervisor | **0.94** (17 of 18 lines) | 0.22 (always the most common label) | 0.74 to 0.99 |
+| Participant-talk agreement with the supervisor | **0.87** (13 of 15 lines) | 0.53 (always the most common label) | 0.62 to 0.96 |
+
+These numbers come from one stored call: the shortest one, picked so that the E2E stays light on the live model. They show the pipeline works end to end. They are not a validation of the C5 model across many calls. The CIs are Wilson intervals over lines. The baseline always guesses the supervisor's most common label in the call. Source: `runs/2026-10-17T16-35-29-023Z.json`. The E2E passed 78 of 78 checks.
+
+### Reproduce in 3 commands
+
+```sh
+git clone https://github.com/zaycruz/challenge-mcp && cd challenge-mcp
+npm ci
+npm run e2e        # live site; writes runs/<stamp>.json and runs/latest.md
+```
+
+To connect a client, add `https://emerge-mcp.raava.dev/mcp` as a custom connector in claude.ai or in ChatGPT Developer mode. It uses Streamable HTTP and needs no auth.
+
+---
+
+<!-- fold: reference below -->
+
+## Endpoints
 
 - MCP endpoint: `https://emerge-mcp.raava.dev/mcp` (Streamable HTTP, stateless, no auth)
 - Fallback: `https://challenge-mcp.zay-259.workers.dev/mcp`
