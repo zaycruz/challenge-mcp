@@ -10,7 +10,7 @@ import { z } from "zod";
 import { cue, cueMoments, FLAG_MEANING, MAX_LINES, parseTranscript, score, tagLines, triggerAt, type Line } from "./coach";
 import { ApiError, consoleUrl, get, getAdvice, getC5Agreement, isRecord, metrics, withFault, type Stats, MODULE_INFO, MODULES, moduleOf, roster, statusCounts, survivor, type Env, type Module, type Row } from "./modules";
 
-const VERSION = "0.4.2";
+const VERSION = "0.4.3";
 const READ = { readOnlyHint: true, openWorldHint: false } as const;
 /** Calls a live model; reads only, but the answer can vary. */
 const MODEL = { readOnlyHint: true, openWorldHint: true, idempotentHint: false } as const;
@@ -97,6 +97,27 @@ const COHORTS_NOT_JOINED = "Each row is labelled with its cohort. The four cohor
 const rowLine = (r: Row) => `- ${r.survivorId} [${r.status}${r.urgent ? ", URGENT" : ""}] ${r.displayName}: ${r.headline}`;
 
 /** `demo` adds reveal_outcome_demo; only the /mcp?tools=demo endpoint sets it, so the default tools/list never shows it. */
+/** Output schemas: the stable top-level fields of each tool's structuredContent. Loose (extra fields allowed), so clients
+ * can rely on these keys while the module payloads they wrap evolve. The text blocks stay for clients without structured output. */
+const any = z.unknown(), arr = z.array(z.unknown()), str = z.string(), num = z.number(), bool = z.boolean();
+const timingOut = z.looseObject({ ms: num, modelCalls: num, retries: num, failedCalls: num });
+const provOut = z.looseObject({ server: str, gitSha: str, deployId: str, models: z.record(z.string(), z.string()) });
+const OUT = {
+  triage_today: z.looseObject({ shown: num, needingAttention: num, urgent: num, cohortsJoined: bool, comparableAcrossCohorts: bool, note: str, rows: arr, perCohort: any }),
+  list_survivors: z.looseObject({ module: str, moduleName: str, matched: num, total: num, statusCounts: any, rows: arr }),
+  get_survivor: z.looseObject({ module: str, survivorId: str, status: any, headline: any, summary: any, evidence: any, recommendations: any, consoleUrl: str }),
+  patient_overview: z.looseObject({ survivorId: str, idsJoin: bool, modules: any, note: str }),
+  module_metrics: z.looseObject({ module: str, moduleName: str, subgroups: any, provenance: provOut }),
+  glucose_advice: z.looseObject({ survivorId: str, items: arr, degraded: bool, timing: timingOut }),
+  reveal_outcome_demo: z.looseObject({ survivorId: str, forecast: any, outcome: any }),
+  list_coaching_calls: z.looseObject({ matched: num, calls: arr }),
+  get_coaching_call: z.looseObject({ callId: str, survivorId: any, language: any, labels: any, score: any, flags: any, lineCount: num, lines: arr }),
+  score_conversation: z.looseObject({ score: z.number().nullable(), scoreParts: any, counts: any, flags: any, cueMoments: arr, lines: arr, degraded: bool, timing: timingOut }),
+  coaching_cue: z.looseObject({ cue: any, say: any, source: str, degraded: bool, timing: timingOut, trigger: str, triggerSource: str }),
+  search: z.looseObject({ results: z.array(z.looseObject({ id: str, title: str, url: str })) }),
+  fetch: z.looseObject({ id: str, title: str, text: str, url: str, metadata: any }),
+};
+
 function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous", ip: "unknown" }) {
   const server = new McpServer(
     { name: "emerge-challenge-mcp", title: "Emerge Hackathon challenge APIs", version: VERSION },
@@ -104,6 +125,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   );
 
   server.registerTool("triage_today", {
+    outputSchema: OUT.triage_today,
     title: "Who needs attention today (all modules)",
     description: "Short ranked worklist across C1, C3, C4 and C5 (default 10, at most 25): C3 urgent ER/hospital risk first, then the top alert from each cohort in turn, so no one cohort fills the list. Each row names its cohort, its own reason, and the horizon and scale of that cohort's risk; risks are not comparable across cohorts, and the order between cohorts is round-robin, not by risk. The four cohorts are separate groups of people and are not joined. Use for 'who should the care team call today?'.",
     inputSchema: {
@@ -157,6 +179,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("list_survivors", {
+    outputSchema: OUT.list_survivors,
     title: "List or search survivors in one module",
     description: "Roster for one module, sorted alert > watch > ok (C3: urgent first). Filter by status, urgent (C3 only), or free text over name, cancer type and headline (e.g. 'breast', 'sleep', 'night shift').",
     inputSchema: {
@@ -178,6 +201,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("get_survivor", {
+    outputSchema: OUT.get_survivor,
     title: "One survivor's panel",
     description: "Everything one module says about one survivor: status, headline, summary, the evidence behind it and recommended actions (with audience or urgency). The module comes from the id prefix (c1-, c3-, c4-, c5-). C3 never includes the hidden outcome here.",
     inputSchema: {
@@ -194,6 +218,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("patient_overview", {
+    outputSchema: OUT.patient_overview,
     title: "Patient overview across modules",
     description: `One survivor across every module that knows them, with their rank in each roster. ${IDS_DO_NOT_JOIN} So today this returns the one module's view plus a check of the others; it does not guess matches by age, sex or cancer type.`,
     inputSchema: { survivorId: z.string().describe("Any module's id, e.g. c3-P02185") },
@@ -218,6 +243,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("module_metrics", {
+    outputSchema: OUT.module_metrics,
     title: "Model card / cohort findings",
     description: "How well a module's model works and what the cohort shows. Every module also returns subgroups. c1: AUROC, calibration and risk tiers vs a baseline. c3: held-out rough-patch and ER recall, lead time and alert precision vs a schedule-only baseline. c4: within-person effects of walking, late dinners, carbs and fasting on post-meal sugar, plus the randomized trial contrasts. c5: the coach score vs two supervisors and flag recall on 477 held-out supervisor-rated calls (the C5 module's own validation).",
     inputSchema: { module: z.enum(["c1", "c3", "c4", "c5"]) },
@@ -251,6 +277,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("glucose_advice", {
+    outputSchema: OUT.glucose_advice,
     title: "Plain-language glucose advice (C4)",
     description: "C4 only: the survivor's meal, meal-timing and walking advice rewritten in plain language by a model, checked against the evidence (falls back to the template text when a rewrite adds numbers or causal claims). Takes 3-8 s.",
     inputSchema: { survivorId: z.string().regex(/^c4-/i, "C4 ids start with c4-").describe("e.g. c4-N0632") },
@@ -291,6 +318,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   if (demo) server.registerTool("reveal_outcome_demo", {
+    outputSchema: OUT.reveal_outcome_demo,
     title: "DEMO ONLY: what really happened next (C3)",
     description: "C3 demo only, never for a coach-facing answer: the hidden outcome in the 14 days after the forecast (did a rough patch or ER visit/admission happen, and when). Use only when the user explicitly asks to check the forecast against what happened.",
     inputSchema: { survivorId: z.string().regex(/^c3-/i, "C3 ids start with c3-") },
@@ -304,6 +332,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("list_coaching_calls", {
+    outputSchema: OUT.list_coaching_calls,
     title: "Coaching calls on file (C5)",
     description: "Supervisor-labelled coaching calls, worst first (flagged lines, then lowest coach score). Each has the MITI-style coach score and how many lines needed a person. Filter by participant (c5-…) or status.",
     inputSchema: {
@@ -326,6 +355,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("get_coaching_call", {
+    outputSchema: OUT.get_coaching_call,
     title: "One coaching call transcript (C5)",
     description: "A supervisor-labelled call: transcript with each line's supervisor label (coach move / participant talk, needs-a-person), the coach score and its parts, and flagged lines. Pass its callId to score_conversation to compare the live model with the supervisor.",
     inputSchema: { callId: z.string().describe("e.g. CALL00646"), includeLines: z.boolean().optional().describe("Include the transcript (default true)") },
@@ -344,6 +374,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("score_conversation", {
+    outputSchema: OUT.score_conversation,
     title: "Score a coaching conversation (C5 live model)",
     description: `Runs the live C5 Co-pilot over a coaching transcript: tags every line with a motivational-interviewing code (coach: open/closed question, simple/complex reflection, affirm, persuade, confront…; participant: change/sustain/neutral talk), raises flags a person must act on (medical, distress, social, dropout, missed_concern, medical_advice), computes the MITI-style coach score out of 100 (2 reflections per question 30 pts, 40% complex reflections 20, 50% open questions 20, MI-consistent vs persuade/confront 30; needs 4+ coach lines), and lists where the Co-pilot would raise a coaching cue. Give a transcript (max ${MAX_LINES} lines) or a callId from list_coaching_calls (then the result also compares with the supervisor's labels). About 1 s per line.`,
     inputSchema: {
@@ -402,6 +433,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("coaching_cue", {
+    outputSchema: OUT.coaching_cue,
     title: "What should the coach say next (C5)",
     description: "One short coaching cue plus an example line the coach could say, written by the C5 Co-pilot's model from the last lines of a call. Without a trigger, the Co-pilot's own rules pick one from the last line (flag, confront, persuading without permission, missed change talk, 4 questions without a reflection, 3 closed questions); if none applies it asks for the best next MI move. Pass lines with tag/flag from score_conversation to skip re-tagging. Takes 2-8 s.",
     inputSchema: {
@@ -437,6 +469,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
 
   // ChatGPT deep research and company-knowledge connectors look for exactly these two tools.
   server.registerTool("search", {
+    outputSchema: OUT.search,
     title: "Search survivors (all modules)",
     description: "Search every module's roster by words in id, name, cancer type, status or headline. Returns ids for fetch.",
     inputSchema: { query: z.string().describe("e.g. 'urgent', 'breast alert', 'sleep', 'night shift'") },
@@ -447,6 +480,7 @@ function buildServer(env: Env, demo = false, caller: Caller = { kind: "anonymous
   }));
 
   server.registerTool("fetch", {
+    outputSchema: OUT.fetch,
     title: "Fetch one survivor",
     description: "Full panel for an id returned by search (same as get_survivor).",
     inputSchema: { id: z.string().describe("A survivorId from search, e.g. c3-P02185") },
@@ -542,14 +576,23 @@ Auth: open on purpose, so judges can connect. The data is synthetic or de-identi
 Modules: ${MODULES.map((m) => `${m} ${MODULE_INFO[m].name}: ${MODULE_INFO[m].about}`).join("\n         ")}
 `;
 
-/** The SDK rejects bad arguments as "MCP error -32602: Input validation error: Invalid arguments for tool X: ...". Say it plainly. */
+/** Unknown tools become a JSON-RPC error. The SDK rejects bad arguments as "MCP error -32602: Input validation error: Invalid arguments for tool X: ...". Say it plainly. */
 async function plainArgErrors(res: Response): Promise<Response> {
   if (!(res.headers.get("content-type") ?? "").includes("application/json")) return res;
   const body = await res.text();
-  if (!body.includes("Input validation error")) return new Response(body, res);
+  if (!body.includes("Input validation error") && !body.includes(" not found")) return new Response(body, res);
+  // Unknown tool: the SDK wraps it as an isError result; the spec (tools, "Error Handling") makes it a JSON-RPC error, -32602.
+  const unknownTool = (m: unknown): unknown => {
+    if (!isRecord(m) || !isRecord(m.result) || m.result.isError !== true || !Array.isArray(m.result.content)) return m;
+    const t = isRecord(m.result.content[0]) ? String(m.result.content[0].text ?? "") : "";
+    const hit = t.match(/^MCP error -32602: Tool (.+) not found$/);
+    return hit ? { jsonrpc: "2.0", id: m.id, error: { code: -32602, message: `Unknown tool: ${hit[1]}` } } : m;
+  };
   const fix = (t: string) => t.replace(/^MCP error -32602: Input validation error: Invalid arguments for tool ([\w-]+): ([\s\S]*)$/, (_, tool, why) => `Bad arguments for ${tool}: ${why.replace(/^Invalid input: /, "")}. See the tool's input schema in tools/list.`);
   const walk = (x: unknown): unknown => (typeof x === "string" ? fix(x) : Array.isArray(x) ? x.map(walk) : isRecord(x) ? Object.fromEntries(Object.entries(x).map(([k, v]) => [k, walk(v)])) : x);
-  return new Response(JSON.stringify(walk(JSON.parse(body))), res);
+  const parsed = JSON.parse(body);
+  const fixed = Array.isArray(parsed) ? parsed.map(unknownTool) : unknownTool(parsed);
+  return new Response(JSON.stringify(walk(fixed)), res);
 }
 
 /** Optional bearer keys (secret MCP_KEYS = "name:key,..."). No header = anonymous, unless REQUIRE_KEY is "1". */

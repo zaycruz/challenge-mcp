@@ -24,6 +24,13 @@ check("tools/list has every tool", EXPECTED.every((n) => tools.some((t) => t.nam
 check("every tool has a non-empty input schema", tools.every((t) => Object.keys(t.inputSchema?.properties ?? {}).length > 0), tools.filter((t) => !Object.keys(t.inputSchema?.properties ?? {}).length).map((t) => t.name).join(", ") || "all have properties");
 check("default tools/list hides reveal_outcome_demo", !tools.some((t) => t.name === "reveal_outcome_demo"));
 check("every tool is marked readOnlyHint", tools.every((t) => t.annotations?.readOnlyHint === true));
+check("every tool declares an outputSchema (object, with required fields)", tools.every((t) => t.outputSchema?.type === "object" && (t.outputSchema.required ?? []).length > 0), tools.filter((t) => !t.outputSchema).map((t) => t.name).join(", ") || "all 12");
+{
+  // Unknown tool: a JSON-RPC error (spec: tools > Error Handling, -32602), not an isError result, and no module names.
+  const res = await fetch(URL_, { method: "POST", headers: { "content-type": "application/json", accept: "application/json, text/event-stream" }, body: JSON.stringify({ jsonrpc: "2.0", id: 7, method: "tools/call", params: { name: "no_such_tool", arguments: {} } }) });
+  const j = await res.json();
+  check("unknown tool is a JSON-RPC error -32602 naming only the tool", j.id === 7 && !j.result && j.error?.code === -32602 && j.error.message === "Unknown tool: no_such_tool" && !/C[1-5]|P360|patient-360|copilot|\/api\//i.test(JSON.stringify(j)), JSON.stringify(j));
+}
 check("every tool has a description of 40+ chars", tools.every((t) => (t.description ?? "").length >= 40));
 
 async function run(name, args, expectError = false) {
@@ -221,6 +228,8 @@ for (let i = 0; i < 30 && !limited; i++) {
 calls.push({ name: "score_conversation (rate limit probe)", args: { transcript: "hello there" }, isError: true, summary: limited?.text ?? "never limited" });
 check("model-backed tools are rate-limited per IP", !!limited, limited ? `limited after ${limited.afterCalls} probe calls: ${limited.text.slice(0, 120)}` : "never limited");
 
+const noStruct = calls.filter((c) => !c.isError && c.ms !== undefined && !c.structuredContent).map((c) => c.name);
+check("every successful call returns structuredContent (validated by the SDK client against outputSchema)", noStruct.length === 0, noStruct.join(", ") || `${calls.filter((c) => !c.isError && c.structuredContent).length} calls`);
 await client.close();
 const failed = checks.filter((c) => !c.pass);
 const stamp = started.toISOString().replace(/[:.]/g, "-");
